@@ -11,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import org.mindrot.jbcrypt.BCrypt;
 import tn.esprit.entities.User;
 import tn.esprit.entities.UserPreferences;
 import tn.esprit.services.UserPreferencesService;
@@ -56,8 +57,16 @@ public class ProfileController {
 
     // Preferences Labels
     @FXML private Label budgetLabel;
+    @FXML private Label prioritiesLabel;
+    @FXML private Label locationLabel;
+    @FXML private Label accommodationLabel;
     @FXML private Label styleLabel;
+    @FXML private Label dietaryLabel;
+    @FXML private Label climateLabel;
     @FXML private Label paceLabel;
+    @FXML private Label groupLabel;
+    @FXML private Label currentAvatarLabel;
+    @FXML private Label currentEmailLabel;
 
     private User currentUser;
     private UserPreferences currentPreferences;
@@ -72,12 +81,19 @@ public class ProfileController {
         }
         
         // Default visibility check
-        if (personalInfoView != null) personalInfoView.setVisible(true);
-        if (searchPreferencesView != null) searchPreferencesView.setVisible(false);
+        if (personalInfoView != null) {
+            personalInfoView.setVisible(true);
+            personalInfoView.setManaged(true);
+        }
+        if (searchPreferencesView != null) {
+            searchPreferencesView.setVisible(false);
+            searchPreferencesView.setManaged(false);
+        }
         if (btnPersonalInfo != null) setActiveButton(btnPersonalInfo);
     }
 
     public void setUser(User user) {
+        System.out.println("DEBUG: ProfileController.setUser called with user: " + user);
         this.currentUser = user;
         if (currentUser != null) {
             loadUserData();
@@ -88,17 +104,23 @@ public class ProfileController {
     }
 
     private void loadUserData() {
+        System.out.println("DEBUG: loadUserData called. currentUser: " + currentUser);
         if (firstNameField != null) firstNameField.setText(currentUser.getFirstName());
         if (lastNameField != null) lastNameField.setText(currentUser.getLastName());
         if (emailField != null) emailField.setText(currentUser.getEmail());
-        if (phoneField != null) phoneField.setText(currentUser.getPhoneNumber()); // Might be null
+        if (currentEmailLabel != null) currentEmailLabel.setText(currentUser.getEmail());
+        
+        if (currentAvatarLabel != null && currentUser.getFirstName() != null && !currentUser.getFirstName().isEmpty()) {
+            currentAvatarLabel.setText(currentUser.getFirstName().substring(0, 1).toUpperCase());
+        }
+        if (phoneField != null) phoneField.setText(currentUser.getPhoneNumber() != null ? currentUser.getPhoneNumber() : "");
         if (genderComboBox != null) genderComboBox.setValue(currentUser.getGender());
         
         if (currentUser.getBirthYear() != null && !currentUser.getBirthYear().isEmpty() && birthDatePicker != null) {
             try {
                 birthDatePicker.setValue(LocalDate.parse(currentUser.getBirthYear()));
             } catch (Exception e) {
-                // Ignore parsing errors for now
+                System.out.println("DEBUG: Error parsing birth year: " + e.getMessage());
             }
         }
     }
@@ -128,31 +150,74 @@ public class ProfileController {
                 }
             }
 
+            // Priorities
+            if (prioritiesLabel != null) {
+                prioritiesLabel.setText(currentPreferences.getPriorities() != null ? currentPreferences.getPriorities() : "Not set");
+            }
+
+            // Location
+            if (locationLabel != null) {
+                locationLabel.setText(currentPreferences.getLocationPreferences() != null ? currentPreferences.getLocationPreferences() : "Not set");
+            }
+
+            // Accommodation
+            if (accommodationLabel != null) {
+                accommodationLabel.setText(currentPreferences.getAccommodationTypes() != null ? currentPreferences.getAccommodationTypes() : "Not set");
+            }
+
             // Style
             if (styleLabel != null) {
                 styleLabel.setText(currentPreferences.getStylePreferences() != null ? currentPreferences.getStylePreferences() : "Not set");
+            }
+
+            // Dietary
+            if (dietaryLabel != null) {
+                dietaryLabel.setText(currentPreferences.getDietaryRestrictions() != null ? currentPreferences.getDietaryRestrictions() : "Not set");
+            }
+
+            // Climate
+            if (climateLabel != null) {
+                climateLabel.setText(currentPreferences.getPreferredClimate() != null ? currentPreferences.getPreferredClimate() : "Not set");
             }
 
             // Pace
             if (paceLabel != null) {
                 paceLabel.setText(currentPreferences.getTravelPace() != null ? currentPreferences.getTravelPace() : "Not set");
             }
+
+            // Group
+            if (groupLabel != null) {
+                groupLabel.setText(currentPreferences.getGroupType() != null ? currentPreferences.getGroupType() : "Not set");
+            }
         }
     }
 
-    // Navigation Logic
     @FXML
     void showPersonalInfo(ActionEvent event) {
-        if (personalInfoView != null) personalInfoView.setVisible(true);
-        if (searchPreferencesView != null) searchPreferencesView.setVisible(false);
+        if (personalInfoView != null) {
+            personalInfoView.setVisible(true);
+            personalInfoView.setManaged(true);
+        }
+        if (searchPreferencesView != null) {
+            searchPreferencesView.setVisible(false);
+            searchPreferencesView.setManaged(false);
+        }
         setActiveButton(btnPersonalInfo);
+        System.out.println("DEBUG: Switched to Personal Info View");
     }
 
     @FXML
     void showSearchPreferences(ActionEvent event) {
-        if (personalInfoView != null) personalInfoView.setVisible(false);
-        if (searchPreferencesView != null) searchPreferencesView.setVisible(true);
+        if (personalInfoView != null) {
+            personalInfoView.setVisible(false);
+            personalInfoView.setManaged(false);
+        }
+        if (searchPreferencesView != null) {
+            searchPreferencesView.setVisible(true);
+            searchPreferencesView.setManaged(true);
+        }
         setActiveButton(btnPreferences);
+        System.out.println("DEBUG: Switched to Search Preferences View");
     }
 
     private void setActiveButton(Button activeButton) {
@@ -220,19 +285,23 @@ public class ProfileController {
 
         // Update Password if fields not empty
         if (newPasswordField != null && !newPasswordField.getText().isEmpty()) {
-            currentUser.setPassword(newPasswordField.getText()); // In real app, hash this!
-            userService.updateUserPassword(currentUser);
+            String hashedPassword = BCrypt.hashpw(newPasswordField.getText(), BCrypt.gensalt());
+            currentUser.setPassword(hashedPassword);
+            boolean passUpdate = userService.updateUserPassword(currentUser);
+            updateSuccess = updateSuccess && passUpdate;
+            System.out.println("DEBUG: Password updated: " + passUpdate);
         }
 
         if (statusLabel != null) {
             if (updateSuccess) {
                 statusLabel.setText("Profile updated successfully!");
                 statusLabel.setVisible(true);
-                statusLabel.setStyle("-fx-text-fill: green;");
+                statusLabel.setStyle("-fx-text-fill: #10B981; -fx-font-weight: bold;"); // Green
+                loadUserData(); // Refresh fields
             } else {
-                statusLabel.setText("Failed to update profile.");
+                statusLabel.setText("Failed to update profile in database.");
                 statusLabel.setVisible(true);
-                statusLabel.setStyle("-fx-text-fill: red;");
+                statusLabel.setStyle("-fx-text-fill: #DC2626; -fx-font-weight: bold;"); // Red
             }
         }
     }
@@ -274,13 +343,16 @@ public class ProfileController {
             isValid = false;
         }
         
-        // Validate Gender
-        if (genderComboBox.getValue() == null || genderComboBox.getValue().isEmpty()) {
-            showFieldError(genderComboBox, genderError, ValidationUtils.getRequiredFieldError("Gender"));
-            isValid = false;
+        // Validate Gender (only if provided)
+        if (genderComboBox.getValue() != null && !genderComboBox.getValue().isEmpty()) {
+            // Valid
         }
         
-        return isValid ? null : "Please fix the errors above.";
+        if (!isValid) {
+            System.out.println("DEBUG: Validation failed");
+            return "Please fix the red errors below.";
+        }
+        return null;
     }
     
     private void clearAllErrors() {
@@ -457,26 +529,44 @@ public class ProfileController {
         // Clear previous errors
         clearPasswordErrors();
         
+        String currentPwd = currentPasswordField.getText();
+        String newPwd = newPasswordField.getText();
+        String confirmPwd = confirmPasswordField.getText();
+        
         boolean isValid = true;
         
-        // Validate current password
-        if (!ValidationUtils.isNotEmpty(currentPasswordField.getText())) {
+        // 1. Validate current password (not empty)
+        if (!ValidationUtils.isNotEmpty(currentPwd)) {
             showFieldError(currentPasswordField, currentPasswordError, 
                 ValidationUtils.getRequiredFieldError("Current password"));
             isValid = false;
+        } else {
+            // Check if current password matches DB
+            boolean passwordMatch = false;
+            try {
+                passwordMatch = BCrypt.checkpw(currentPwd, currentUser.getPassword());
+            } catch (IllegalArgumentException e) {
+                // Fallback for legacy plain-text
+                passwordMatch = currentPwd.equals(currentUser.getPassword());
+            }
+            
+            if (!passwordMatch) {
+                showFieldError(currentPasswordField, currentPasswordError, "Incorrect current password");
+                isValid = false;
+            }
         }
         
-        // Validate new password
-        if (!ValidationUtils.isValidPassword(newPasswordField.getText())) {
+        // 2. Validate new password
+        if (!ValidationUtils.isValidPassword(newPwd)) {
             showFieldError(newPasswordField, newPasswordError, 
-                ValidationUtils.isNotEmpty(newPasswordField.getText()) ? 
+                ValidationUtils.isNotEmpty(newPwd) ? 
                 ValidationUtils.getPasswordError() : 
                 ValidationUtils.getRequiredFieldError("New password"));
             isValid = false;
         }
         
-        // Validate password match
-        if (!ValidationUtils.passwordsMatch(newPasswordField.getText(), confirmPasswordField.getText())) {
+        // 3. Validate password match
+        if (!ValidationUtils.passwordsMatch(newPwd, confirmPwd)) {
             showFieldError(confirmPasswordField, confirmPasswordError, 
                 ValidationUtils.getPasswordMismatchError());
             isValid = false;
@@ -491,12 +581,11 @@ public class ProfileController {
             return;
         }
         
-        // Verify current password with database
-        // Note: You'll need to add a method in UserService to verify password
         // For now, we'll just update the password
         try {
-            currentUser.setPassword(newPasswordField.getText());
-            boolean success = userService.updateUser(currentUser);
+            String hashedPassword = BCrypt.hashpw(newPasswordField.getText(), BCrypt.gensalt());
+            currentUser.setPassword(hashedPassword);
+            boolean success = userService.updateUserPassword(currentUser);
             
             if (success) {
                 if (passwordStatusLabel != null) {

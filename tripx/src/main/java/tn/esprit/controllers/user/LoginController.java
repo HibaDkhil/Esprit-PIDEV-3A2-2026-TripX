@@ -21,6 +21,9 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import java.io.IOException;
 import javafx.scene.Parent;
+import javafx.scene.Node;
+import javafx.event.ActionEvent;
+import org.mindrot.jbcrypt.BCrypt;
 
 
 
@@ -146,7 +149,14 @@ public class LoginController {
             pwdField.setManaged(true);
             pwdFieldVisible.setVisible(false);
             pwdFieldVisible.setManaged(false);
-            togglePwdBtn.setText("👁️");
+            
+            // Icon logic to match signup
+            ImageView icon = new ImageView(new Image(getClass().getResourceAsStream("/images/eyeIcon.png")));
+            icon.setFitWidth(19);
+            icon.setFitHeight(22);
+            togglePwdBtn.setGraphic(icon);
+            togglePwdBtn.setText(""); // Remove text if using graphic
+
             isPwdVisible = false;
         } else {
             // Show password (show text)
@@ -154,7 +164,15 @@ public class LoginController {
             pwdField.setManaged(false);
             pwdFieldVisible.setVisible(true);
             pwdFieldVisible.setManaged(true);
-            togglePwdBtn.setText("👁️");
+            
+            // Icon logic (if you have eye-closed.png, otherwise just keep current icon or text)
+            // For now, let's keep it visible since user wants it like the other eye
+            ImageView icon = new ImageView(new Image(getClass().getResourceAsStream("/images/eyeIcon.png")));
+            icon.setFitWidth(19);
+            icon.setFitHeight(22);
+            togglePwdBtn.setGraphic(icon);
+            togglePwdBtn.setText("");
+
             isPwdVisible = true;
         }
     }
@@ -256,9 +274,22 @@ public class LoginController {
 
         //  Attempt login
         UserService userService = new UserService();
-        boolean loggedIn = userService.login(email, password);
+        User loggedInUser = userService.findByEmail(email);
 
-        if (!loggedIn) {
+        boolean passwordMatch = false;
+        if (loggedInUser != null) {
+            String storedPassword = loggedInUser.getPassword();
+            try {
+                // Try BCrypt check
+                passwordMatch = BCrypt.checkpw(password, storedPassword);
+            } catch (IllegalArgumentException e) {
+                // Fallback for legacy plain-text passwords
+                System.out.println("DEBUG: Legacy password detected, falling back to plain-text check.");
+                passwordMatch = password.equals(storedPassword);
+            }
+        }
+
+        if (loggedInUser == null || !passwordMatch) {
             loginPasswordError.setText("Incorrect email or password");
             return;
         }
@@ -266,7 +297,7 @@ public class LoginController {
         System.out.println("Login successful!");
 
         // ✅ GET THE FULL USER OBJECT (THIS IS THE KEY FIX)
-        User loggedInUser = userService.findByEmail(email);
+
         String role = userService.getRoleByEmail(email);
 
         try {
@@ -305,6 +336,19 @@ public class LoginController {
         } catch (IOException e) {
             e.printStackTrace();
             System.err.println("Failed to load view: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    void handleForgotPassword(ActionEvent event) {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/fxml/user/forgot_password.fxml"));
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("Failed to load Forgot Password view: " + e.getMessage());
         }
     }
 
@@ -394,8 +438,11 @@ public class LoginController {
 
         if (hasError) return; // stop if any error
 
+        //  Hash password
+        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+
         //  Create User object
-        User user = new User(firstName, lastName, email, password);
+        User user = new User(firstName, lastName, email, hashedPassword);
 
         UserService userService = new UserService();
         boolean success = userService.createUser(user);

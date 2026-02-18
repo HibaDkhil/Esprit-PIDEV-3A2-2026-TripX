@@ -310,6 +310,10 @@ public class OnboardingController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/user/home.fxml"));
             Parent root = loader.load();
             
+            // Pass the user to HomeController
+            HomeController controller = loader.getController();
+            controller.setUser(currentUser);
+            
             Stage stage = (Stage) nextBtn.getScene().getWindow();
             // Set standard size for Home
             stage.setWidth(1200);

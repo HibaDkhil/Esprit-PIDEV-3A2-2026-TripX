@@ -14,9 +14,9 @@
 }
 
 .logo-text-small {
-    -fx-font-size: 20px;
+    -fx-font-size: 24px;
     -fx-font-weight: bold;
-    -fx-text-fill: #0a153a;
+    -fx-text-fill: white;
 }
 
 .nav-link {

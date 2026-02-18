@@ -17,7 +17,7 @@ public class ValidationUtils {
     );
     
     private static final Pattern PHONE_PATTERN = Pattern.compile(
-        "^[0-9+\\s()-]+$"
+        "^[0-9]{8}$"
     );
     
     private static final Pattern PASSWORD_PATTERN = Pattern.compile(
@@ -101,7 +101,7 @@ public class ValidationUtils {
      * Get validation error message for phone
      */
     public static String getPhoneError() {
-        return "Phone number must contain only numbers, +, -, (, ), or spaces";
+        return "Phone number must contain exactly 8 digits";
     }
     
     /**
