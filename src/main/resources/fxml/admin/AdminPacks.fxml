@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="tn.esprit.controllers.admin.AdminPacksController"
+      spacing="20" style="-fx-background-color: #F5F7FA;">
+    
+    <padding>
+        <Insets top="24" right="24" bottom="24" left="24"/>
+    </padding>
+
+    <!-- Header -->
+    <HBox alignment="CENTER_LEFT" spacing="16">
+        <Label text="Manage Packs" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #063154;"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button fx:id="btnAddPack" text="➕ Add Pack" 
+                style="-fx-background-color: #0A4174; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 20; -fx-cursor: hand;"/>
+    </HBox>
+
+    <!-- Search & Filter Bar -->
+    <HBox spacing="12" alignment="CENTER_LEFT">
+        <TextField fx:id="searchField" promptText="Search packs..." 
+                   prefWidth="300"
+                   style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #E8EAF6; -fx-border-radius: 8; -fx-padding: 10;"/>
+        
+        <ComboBox fx:id="categoryFilter" promptText="Filter by Category" prefWidth="180"
+                  style="-fx-background-color: white; -fx-background-radius: 8;"/>
+        
+        <ComboBox fx:id="statusFilter" promptText="Filter by Status" prefWidth="150"
+                  style="-fx-background-color: white; -fx-background-radius: 8;"/>
+        
+        <Button fx:id="btnClearFilters" text="Clear Filters"
+                style="-fx-background-color: #F5F7FA; -fx-border-color: #E8EAF6; -fx-background-radius: 8; -fx-padding: 10 16;"/>
+    </HBox>
+
+    <!-- Table -->
+    <TableView fx:id="packsTable" VBox.vgrow="ALWAYS"
+               style="-fx-background-color: white; -fx-background-radius: 12; -fx-border-color: #E8EAF6; -fx-border-radius: 12;">
+        <columns>
+            <TableColumn fx:id="colId" text="ID" prefWidth="60"/>
+            <TableColumn fx:id="colTitle" text="Title" prefWidth="200"/>
+            <TableColumn fx:id="colDestination" text="Destination" prefWidth="120"/>
+            <TableColumn fx:id="colCategory" text="Category" prefWidth="120"/>
+            <TableColumn fx:id="colDuration" text="Duration (days)" prefWidth="120"/>
+            <TableColumn fx:id="colPrice" text="Price (TND)" prefWidth="100"/>
+            <TableColumn fx:id="colStatus" text="Status" prefWidth="100"/>
+            <TableColumn fx:id="colActions" text="Actions" prefWidth="150"/>
+        </columns>
+    </TableView>
+
+</VBox>

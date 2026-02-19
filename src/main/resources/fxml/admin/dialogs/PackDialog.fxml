@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="tn.esprit.controllers.admin.PackDialogController"
+      spacing="16" style="-fx-background-color: white; -fx-padding: 24;">
+
+    <Label fx:id="dialogTitle" text="Add New Pack" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #063154;"/>
+    
+    <Separator/>
+    
+    <GridPane hgap="16" vgap="12">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="30"/>
+            <ColumnConstraints percentWidth="70"/>
+        </columnConstraints>
+        
+        <!-- Row 0: Title -->
+        <Label text="Title:" style="-fx-font-weight: 600;" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+        <TextField fx:id="txtTitle" promptText="Enter pack title" GridPane.columnIndex="1" GridPane.rowIndex="0"
+                   style="-fx-background-color: #F5F7FA; -fx-background-radius: 8; -fx-padding: 10;"/>
+        
+        <!-- Row 1: Description -->
+        <Label text="Description:" style="-fx-font-weight: 600;" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+        <TextArea fx:id="txtDescription" promptText="Enter pack description" prefRowCount="3" 
+                  GridPane.columnIndex="1" GridPane.rowIndex="1"
+                  style="-fx-background-color: #F5F7FA; -fx-background-radius: 8;"/>
+        
+        <!-- Row 2: Category -->
+        <Label text="Category:" style="-fx-font-weight: 600;" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+        <ComboBox fx:id="cmbCategory" promptText="Select category" maxWidth="Infinity"
+                  GridPane.columnIndex="1" GridPane.rowIndex="2"
+                  style="-fx-background-color: #F5F7FA; -fx-background-radius: 8;"/>
+        
+        <!-- Row 3: Destination -->
+        <Label text="Destination:" style="-fx-font-weight: 600;" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+        <ComboBox fx:id="cmbDestination" promptText="Select destination" maxWidth="Infinity"
+                  GridPane.columnIndex="1" GridPane.rowIndex="3"
+                  style="-fx-background-color: #F5F7FA; -fx-background-radius: 8;"/>
+        
+        <!-- Row 4: Accommodation -->
+        <Label text="Accommodation:" style="-fx-font-weight: 600;" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+        <ComboBox fx:id="cmbAccommodation" promptText="Select accommodation" maxWidth="Infinity"
+                  GridPane.columnIndex="1" GridPane.rowIndex="4"
+                  style="-fx-background-color: #F5F7FA; -fx-background-radius: 8;"/>
+        
+        <!-- Row 5: Activity -->
+        <Label text="Activity:" style="-fx-font-weight: 600;" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
+        <ComboBox fx:id="cmbActivity" promptText="Select activity" maxWidth="Infinity"
+                  GridPane.columnIndex="1" GridPane.rowIndex="5"
+                  style="-fx-background-color: #F5F7FA; -fx-background-radius: 8;"/>
+        
+        <!-- Row 6: Transport -->
+        <Label text="Transport:" style="-fx-font-weight: 600;" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
+        <ComboBox fx:id="cmbTransport" promptText="Select transport" maxWidth="Infinity"
+                  GridPane.columnIndex="1" GridPane.rowIndex="6"
+                  style="-fx-background-color: #F5F7FA; -fx-background-radius: 8;"/>
+        
+        <!-- Row 7: Duration -->
+        <Label text="Duration (days):" style="-fx-font-weight: 600;" GridPane.columnIndex="0" GridPane.rowIndex="7"/>
+        <Spinner fx:id="spinDuration" min="1" max="365" initialValue="7" editable="true"
+                 GridPane.columnIndex="1" GridPane.rowIndex="7"
+                 style="-fx-background-color: #F5F7FA; -fx-background-radius: 8;"/>
+        
+        <!-- Row 8: Base Price -->
+        <Label text="Base Price (TND):" style="-fx-font-weight: 600;" GridPane.columnIndex="0" GridPane.rowIndex="8"/>
+        <TextField fx:id="txtPrice" promptText="0.00" GridPane.columnIndex="1" GridPane.rowIndex="8"
+                   style="-fx-background-color: #F5F7FA; -fx-background-radius: 8; -fx-padding: 10;"/>
+        
+        <!-- Row 9: Status -->
+        <Label text="Status:" style="-fx-font-weight: 600;" GridPane.columnIndex="0" GridPane.rowIndex="9"/>
+        <ComboBox fx:id="cmbStatus" maxWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="9"
+                  style="-fx-background-color: #F5F7FA; -fx-background-radius: 8;"/>
+    </GridPane>
+    
+    <Separator/>
+    
+    <!-- Buttons -->
+    <HBox spacing="12" alignment="CENTER_RIGHT">
+        <Button fx:id="btnCancel" text="Cancel" 
+                style="-fx-background-color: #E8EAF6; -fx-text-fill: #063154; -fx-font-weight: 600; -fx-background-radius: 8; -fx-padding: 10 24; -fx-cursor: hand;"/>
+        <Button fx:id="btnSave" text="Save Pack" 
+                style="-fx-background-color: #0A4174; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 24; -fx-cursor: hand;"/>
+    </HBox>
+
+</VBox>
