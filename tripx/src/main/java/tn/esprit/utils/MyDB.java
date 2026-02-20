@@ -5,12 +5,12 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class MyDB {
-    // Database connection details - à modifier si nécessaire
-    private final String URL = "jdbc:mysql://127.0.0.1:3306/tripx_db";  // Nom de ta base
-    private final String USERNAME = "root";  // Ton username XAMPP
-    private final String PWD = "";           // Ton mot de passe XAMPP (vide par défaut)
+    // Database connection details
+    private final String URL = "jdbc:mysql://127.0.0.1:3306/tripx_db";
+    private final String USERNAME = "root";
+    private final String PWD = "";
 
-    // Singleton instance
+
     private static MyDB instance;
     private Connection conx;
 

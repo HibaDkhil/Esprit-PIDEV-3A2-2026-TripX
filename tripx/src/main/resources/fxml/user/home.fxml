@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -9,121 +12,180 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="800.0" prefWidth="1374.0" styleClass="home-root" stylesheets="/css/style.css, /css/home.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tn.esprit.controllers.user.HomeController">
-    
-    <!-- Outer Container (Dark Background handled by CSS .home-root) -->
-    <StackPane AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
-        
-        <!-- Main Card (White Rounded) -->
-        <AnchorPane styleClass="main-card">
+<?import javafx.scene.control.Separator?>
+<ScrollPane fitToWidth="true" prefHeight="800.0" prefWidth="1200.0" styleClass="home-scroll-pane" stylesheets="/css/style.css, /css/home.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tn.esprit.controllers.user.HomeController">
+    <content>
+        <VBox styleClass="home-content-wrapper">
             
-            <!-- Hero Image -->
-            <ImageView fitHeight="700.0" fitWidth="1486.0" layoutX="-3.2" layoutY="139.8" pickOnBounds="true" preserveRatio="false" styleClass="hero-image" AnchorPane.bottomAnchor="-78.19999999999993" AnchorPane.leftAnchor="-3.2" AnchorPane.rightAnchor="22.799999999999955" AnchorPane.topAnchor="139.8">
-                <image>
-                    <!--  image front lteli -->
-                    <Image url="@../../images/view.png" />
-                </image>
-            </ImageView>
-
-            <!-- Navigation Bar -->
-            <HBox alignment="CENTER_LEFT" layoutX="32.0" layoutY="40.0" prefHeight="150.0" prefWidth="1310.0" spacing="20.0" AnchorPane.leftAnchor="32.0" AnchorPane.rightAnchor="36.8" AnchorPane.topAnchor="40.0">
-                <ImageView fitHeight="150.0" fitWidth="300.0" pickOnBounds="true" preserveRatio="true">
+            <!-- Top Bar -->
+            <HBox alignment="CENTER_LEFT" prefHeight="100.0" spacing="20.0" styleClass="top-bar">
+                <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" styleClass="top-logo">
                     <image>
-                        <Image url="@../../images/logo.png" /> 
+                        <Image url="@../../images/logo.png" />
                     </image>
                 </ImageView>
-                <Label prefHeight="30.0" prefWidth="300.0" styleClass="logo-text-small" text="Explore More, Worry Less">
-               <font>
-                  <Font size="18.0" />
-               </font></Label>
                 
                 <Region HBox.hgrow="ALWAYS" />
                 
-                <HBox alignment="CENTER" spacing="30.0">
-                    <Label styleClass="nav-link" text="About" />
+                <HBox alignment="CENTER" spacing="25.0" styleClass="nav-links-container">
+                    <Label styleClass="nav-link" text="Home" />
                     <Label styleClass="nav-link" text="Destinations" />
-               <Label layoutX="10.0" layoutY="21.0" styleClass="nav-link" text="Accomodations" />
-                    <Label styleClass="nav-link" text="Packages" />
-                    <Label styleClass="nav-link" text="Blog" />
+                    <Label styleClass="nav-link" text="Accommodations" />
+                    <Label styleClass="nav-link" text="Activities" />
                     <Label styleClass="nav-link" text="Transport" />
                 </HBox>
                 
                 <Region HBox.hgrow="ALWAYS" />
                 
-                
-                <HBox alignment="CENTER" spacing="20.0">
-                    <Label styleClass="nav-lang" text="EN" textFill="WHITE" />
+                <HBox alignment="CENTER" spacing="15.0">
                     <Button onAction="#handleProfile" styleClass="profile-button" text="My Profile" />
                     <Button onAction="#handleLogout" styleClass="logout-button" text="Logout" />
                 </HBox>
             </HBox>
 
-            <!-- Hero Content -->
-            <VBox layoutX="150.4" layoutY="270.6" spacing="10.0" AnchorPane.leftAnchor="150.4" AnchorPane.topAnchor="270.6">
-                <Label styleClass="hero-subtitle" text="YOUR DREAM DESTINATION" />
-                <Label styleClass="hero-title" text="Live Fully" />
-                <Label styleClass="hero-title" text="Explore Freely" />
-                <Label styleClass="hero-title" text="Travel Deeply" />
+            <!-- Hero Section -->
+            <AnchorPane prefHeight="650.0" styleClass="hero-section">
+                <!-- Centered ImageView container -->
+                <StackPane layoutX="-57.6" layoutY="-3.2" prefHeight="704.0" prefWidth="1316.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="-58.0" AnchorPane.rightAnchor="-74.0" AnchorPane.topAnchor="-3.0">
+                    <ImageView fitHeight="704.0" fitWidth="1310.0" pickOnBounds="true" preserveRatio="true" styleClass="hero-image">
+                        <image>
+                            <Image url="@../../images/view1.jpg" />
+                        </image>
+                    </ImageView>
+                </StackPane>
                 
-                <HBox alignment="CENTER_LEFT" spacing="20.0" style="-fx-padding: 30 0 0 0;">
-                    <Button onAction="#handleBooking" styleClass="booking-button" text="Booking Now" />
-                    <HBox alignment="CENTER" spacing="10.0" styleClass="play-video-container">
-                        <StackPane styleClass="play-button-circle">
-                            <Label text="▶" textFill="white" />
-                        </StackPane>
-                        <Label onMouseClicked="#handlePlayVideo" styleClass="play-video-text" text="Play Videos" />
-                    </HBox>
+                <!-- Hero Content Overlay -->
+                <VBox layoutX="80.0" layoutY="150.0" spacing="15.0" styleClass="hero-text-container">
+                    <Label styleClass="hero-subtitle" text="YOUR DREAM DESTINATION" />
+                    <Label styleClass="hero-title" text="Live Fully" />
+                    <Label styleClass="hero-title" text="Explore Freely" />
+                    <Label styleClass="hero-title" text="Travel Deeply" />
+                    
+                    <Button onAction="#handleBooking" styleClass="booking-button" text="Start Journey" />
+                </VBox>
+                
+                <!-- Hero Info Box (Moved to Right Side) -->
+                <HBox layoutX="720.0" layoutY="500.0" maxWidth="400.0" styleClass="hero-info-box" AnchorPane.rightAnchor="80.0">
+                    <Label prefWidth="350.0" text="Embark on a journey tailored just for you, exploring destinations that match your unique travel style." textFill="WHITE" wrapText="true">
+                        <font>
+                            <Font name="System Bold" size="14.0" />
+                        </font>
+                    </Label>
+                </HBox>
+            </AnchorPane>
+
+            <!-- Search Bar Section -->
+            <VBox alignment="CENTER" styleClass="search-section">
+                <HBox alignment="CENTER" prefHeight="100.0" spacing="15.0" styleClass="search-bar-container">
+                    <VBox spacing="5.0">
+                        <Label styleClass="search-label" text="Destination" />
+                        <TextField promptText="Where to go?" styleClass="search-input" />
+                    </VBox>
+                    <VBox spacing="5.0">
+                        <Label styleClass="search-label" text="Accommodation" />
+                        <TextField promptText="Stay type?" styleClass="search-input" />
+                    </VBox>
+                    <VBox spacing="5.0">
+                        <Label styleClass="search-label" text="Activity" />
+                        <TextField promptText="What to do?" styleClass="search-input" />
+                    </VBox>
+                    <VBox spacing="5.0">
+                        <Label styleClass="search-label" text="Date" />
+                        <DatePicker promptText="Select date" styleClass="search-datepicker" />
+                    </VBox>
+                    <Button styleClass="search-button" text="Search" />
                 </HBox>
             </VBox>
+            <!-- Weather-Based Search Section (NEW) -->
+            <VBox alignment="CENTER" styleClass="weather-search-section" spacing="10">
+                <HBox alignment="CENTER" spacing="15" styleClass="weather-search-container">
+                    <Label style="-fx-font-size: 18px; -fx-font-weight: bold;" text="🌤️Search by Weather" />
+                    <Button fx:id="matchWeatherBtn" onAction="#handleWeatherMatch"
+                            style="-fx-background-color: #4cccad; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 10 20;"
+                            text="Match My Climate Preferences" />
+                    <Label style="-fx-text-fill: #666;" text="See The different Destination climate" />
+                </HBox>
 
-            <!-- Left Progress Indicator -->
-            <VBox alignment="CENTER" spacing="15.0" AnchorPane.bottomAnchor="250.0" AnchorPane.leftAnchor="40.0" AnchorPane.topAnchor="250.0">
-                <Label styleClass="progress-step-active" text="01" textFill="WHITE" />
-                <Line endY="30.0" stroke="WHITE" styleClass="progress-line" />
-                <Label styleClass="progress-step" text="02" textFill="WHITE" />
-                <Line endY="30.0" stroke="WHITE" styleClass="progress-line" />
-                <Label styleClass="progress-step" text="03" textFill="WHITE" />
+
+                <VBox fx:id="weatherResultsContainer" spacing="15" styleClass="weather-results" />
             </VBox>
 
-            <!-- Right Social Icons -->
-            <VBox alignment="CENTER" spacing="25.0" AnchorPane.bottomAnchor="250.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="250.0">
-                <StackPane styleClass="social-icon">
-                    <Label text="IG" textFill="WHITE" /> <!-- Placeholder for Icon -->
-                </StackPane>
-                <StackPane styleClass="social-icon">
-                    <Label text="TG" textFill="WHITE" />
-                </StackPane>
-                <StackPane styleClass="social-icon">
-                    <Label text="WA" textFill="WHITE" />
-                </StackPane>
-                <StackPane styleClass="social-icon">
-                    <Label text="YT" textFill="WHITE" />
-                </StackPane>
-            </VBox>
+            <!-- Add separator -->
+            <Separator style="-fx-padding: 20 0;" />
 
-            <!-- Bottom Right CRT Panel -->
-            <HBox alignment="CENTER_LEFT" layoutX="909.0" layoutY="623.0" maxWidth="399.0" prefHeight="50.0" prefWidth="399.0" style="-fx-background-color: rgba(255, 255, 255, 0.3); -fx-background-radius: 9; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 20, 0, 0, 0);;" styleClass="crt-panel" AnchorPane.bottomAnchor="88.20000000000005" AnchorPane.rightAnchor="193.39999999999986" />
+            <!-- Categories Section -->
+            <VBox spacing="50.0" styleClass="content-sections-container">
+                
+                <!-- Destinations -->
+                <VBox spacing="20.0" styleClass="category-section">
+                    <Label styleClass="section-title" text="Featured Destinations" />
+                    <HBox spacing="30.0" styleClass="cards-scroll-container">
+                        <!-- Placeholder Cards -->
+                        <VBox styleClass="dest-card">
+                            <AnchorPane prefHeight="250.0" prefWidth="350.0" styleClass="card-image-placeholder" />
+                            <VBox spacing="5.0" styleClass="card-details">
+                                <Label styleClass="card-title" text="Maldives Escape" />
+                                <Label styleClass="card-desc" text="Crystal clear waters and luxury villas." />
+                            </VBox>
+                        </VBox>
+                        <VBox styleClass="dest-card">
+                            <AnchorPane prefHeight="250.0" prefWidth="350.0" styleClass="card-image-placeholder" />
+                            <VBox spacing="5.0" styleClass="card-details">
+                                <Label styleClass="card-title" text="Alpine Adventure" />
+                                <Label styleClass="card-desc" text="Experience the thrill of the mountains." />
+                            </VBox>
+                        </VBox>
+                    </HBox>
+                </VBox>
+                <!-- Accommodations -->
+                <VBox spacing="20.0" styleClass="category-section">
+                    <Label styleClass="section-title" text="Popular Accommodations" />
+                    <HBox spacing="30.0" styleClass="cards-scroll-container">
+                        <VBox styleClass="dest-card">
+                            <AnchorPane prefHeight="250.0" prefWidth="350.0" styleClass="card-image-placeholder" />
+                            <VBox spacing="5.0" styleClass="card-details">
+                                <Label styleClass="card-title" text="Blue Bay Resort" />
+                                <Label styleClass="card-desc" text="Oceanfront luxury at its best." />
+                            </VBox>
+                        </VBox>
+                        <VBox styleClass="dest-card">
+                            <AnchorPane prefHeight="250.0" prefWidth="350.0" styleClass="card-image-placeholder" />
+                            <VBox spacing="5.0" styleClass="card-details">
+                                <Label styleClass="card-title" text="Mountain Lodge" />
+                                <Label styleClass="card-desc" text="Cozy stay in the heart of nature." />
+                            </VBox>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <!-- Activities -->
+                <VBox spacing="20.0" styleClass="category-section">
+                    <Label styleClass="section-title" text="Top Activities" />
+                    <HBox spacing="30.0" styleClass="cards-scroll-container">
+                        <VBox styleClass="dest-card">
+                            <AnchorPane prefHeight="250.0" prefWidth="350.0" styleClass="card-image-placeholder" />
+                            <VBox spacing="5.0" styleClass="card-details">
+                                <Label styleClass="card-title" text="Scuba Diving" />
+                                <Label styleClass="card-desc" text="Explore the underwater world." />
+                            </VBox>
+                        </VBox>
+                        <VBox styleClass="dest-card">
+                            <AnchorPane prefHeight="250.0" prefWidth="350.0" styleClass="card-image-placeholder" />
+                            <VBox spacing="5.0" styleClass="card-details">
+                                <Label styleClass="card-title" text="Hot Air Balloon" />
+                                <Label styleClass="card-desc" text="A view from the skies." />
+                            </VBox>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+            </VBox>
             
-            <!-- Scrolling Indicator -->
-            <VBox alignment="CENTER" spacing="5.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="150.0">
-                <StackPane styleClass="scroll-circle" />
-            </VBox>
-             <Label layoutX="926.0" layoutY="625.0" prefHeight="46.0" prefWidth="366.0" text="Embark on a journey tailored just for you, exploring destinations that match your unique travel style." textFill="WHITE" wrapText="true">
-            <font>
-               <Font name="System Bold" size="12.0" />
-            </font>
-         </Label>
-               <Label layoutX="162.0" layoutY="622.0" prefHeight="26.0" prefWidth="69.0" style="-fx-font-size: 10px;" text="Scrolling" textFill="WHITE">
-            <font>
-               <Font name="System Bold Italic" size="18.0" />
-            </font>
-         </Label>
-             <Label layoutX="176.0" layoutY="658.0" styleClass="arrow-down" text="↓" textFill="WHITE" />
-
-        </AnchorPane>
-    </StackPane>
-
-</AnchorPane>
+            <!-- Footer Spacer -->
+            <Region prefHeight="100.0" />
+            
+        </VBox>
+    </content>
+</ScrollPane>

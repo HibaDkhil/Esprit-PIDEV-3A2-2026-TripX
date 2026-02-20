@@ -18,7 +18,7 @@ public class UserService {
         conx = MyDB.getInstance().getConx();
     }
 
-    // ✅ Create new user (SIGNUP)
+    // Create new user (SIGNUP)
     public boolean createUser(User user) {
         String sql = "INSERT INTO user (first_name, last_name, email, password) VALUES (?, ?, ?, ?)";
         try {
@@ -31,6 +31,48 @@ public class UserService {
             return rows > 0;
         } catch (SQLException e) {
             System.err.println("Error creating user: " + e.getMessage());
+            return false;
+        }
+    }
+
+    // Login check
+    public boolean login(String email, String password) {
+        User user = findByEmail(email);
+        if (user != null && user.getPassword().equals(password)) { // plain text comparison
+            return true;
+        }
+        return false;
+    }
+
+    public boolean deleteUser(int userId) {
+        String sql = "DELETE FROM user WHERE user_id = ?";
+        try {
+            PreparedStatement ps = conx.prepareStatement(sql);
+            ps.setInt(1, userId);
+            int rows = ps.executeUpdate();
+            return rows > 0;
+        } catch (SQLException e) {
+            System.err.println("Error deleting user: " + e.getMessage());
+            return false;
+        }
+    }
+
+    // UPDATE user
+    public boolean updateUser(User user) {
+        String sql = "UPDATE user SET first_name = ?, last_name = ?, email = ?, phone_number = ?, gender = ?, birth_year = ? WHERE user_id = ?";
+        try {
+            PreparedStatement ps = conx.prepareStatement(sql);
+            ps.setString(1, user.getFirstName());
+            ps.setString(2, user.getLastName());
+            ps.setString(3, user.getEmail());
+            ps.setString(4, user.getPhoneNumber());
+            ps.setString(5, user.getGender());
+            ps.setString(6, user.getBirthYear());
+            ps.setInt(7, user.getUserId());
+            int rows = ps.executeUpdate();
+            return rows > 0;
+        } catch (SQLException e) {
+            System.err.println("Error updating user: " + e.getMessage());
             return false;
         }
     }
@@ -72,15 +114,6 @@ public class UserService {
         return null;
     }
 
-    // ✅ Login check
-    public boolean login(String email, String password) {
-        User user = findByEmail(email);
-        if (user != null && user.getPassword().equals(password)) { // plain text comparison
-            return true;
-        }
-        return false;
-    }
-
     // In UserService.java
     public String getRoleByEmail(String email) {
         String sql = "SELECT role FROM user WHERE email = ?";
@@ -97,7 +130,7 @@ public class UserService {
         return null;
     }
 
-    // Add this method to UserService.java
+
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
         String sql = "SELECT * FROM user ORDER BY user_id DESC";
@@ -131,39 +164,7 @@ public class UserService {
         return users;
     }
 
-    // DELETE user
-    public boolean deleteUser(int userId) {
-        String sql = "DELETE FROM user WHERE user_id = ?";
-        try {
-            PreparedStatement ps = conx.prepareStatement(sql);
-            ps.setInt(1, userId);
-            int rows = ps.executeUpdate();
-            return rows > 0;
-        } catch (SQLException e) {
-            System.err.println("Error deleting user: " + e.getMessage());
-            return false;
-        }
-    }
 
-    // UPDATE user
-    public boolean updateUser(User user) {
-        String sql = "UPDATE user SET first_name = ?, last_name = ?, email = ?, phone_number = ?, gender = ?, birth_year = ? WHERE user_id = ?";
-        try {
-            PreparedStatement ps = conx.prepareStatement(sql);
-            ps.setString(1, user.getFirstName());
-            ps.setString(2, user.getLastName());
-            ps.setString(3, user.getEmail());
-            ps.setString(4, user.getPhoneNumber());
-            ps.setString(5, user.getGender());
-            ps.setString(6, user.getBirthYear());
-            ps.setInt(7, user.getUserId());
-            int rows = ps.executeUpdate();
-            return rows > 0;
-        } catch (SQLException e) {
-            System.err.println("Error updating user: " + e.getMessage());
-            return false;
-        }
-    }
 
     // Update User Password
     public boolean updateUserPassword(User user) {
@@ -212,7 +213,6 @@ public class UserService {
         return null;
     }
 
-    // Update User Demographics (Gender, Birth Year)
     public boolean updateUserDemographics(User user) {
         String sql = "UPDATE user SET gender = ?, birth_year = ? WHERE user_id = ?";
         try {

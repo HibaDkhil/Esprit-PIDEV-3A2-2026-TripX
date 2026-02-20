@@ -1,29 +1,25 @@
 package tn.esprit.controllers.user;
 
-import tn.esprit.entities.User;
-import tn.esprit.services.UserService;
-import tn.esprit.controllers.admin.DashboardController;
-import tn.esprit.utils.ValidationUtils;
-
 import javafx.animation.TranslateTransition;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Hyperlink;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import javafx.util.Duration;
-import javafx.scene.control.Label;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
-import java.io.IOException;
-import javafx.scene.Parent;
-import javafx.scene.Node;
-import javafx.event.ActionEvent;
+import javafx.util.Duration;
 import org.mindrot.jbcrypt.BCrypt;
+import tn.esprit.controllers.admin.DashboardController;
+import tn.esprit.entities.User;
+import tn.esprit.services.UserService;
+import tn.esprit.utils.ValidationUtils;
+
+import java.io.IOException;
 
 
 
@@ -256,7 +252,7 @@ public class LoginController {
 
         boolean hasError = false;
 
-        // ✅ Check for empty fields and invalid email format
+        //  Check for empty fields and invalid email format
         if (email.isEmpty()) {
             loginEmailError.setText("Please fill your email");
             hasError = true;
@@ -296,7 +292,7 @@ public class LoginController {
 
         System.out.println("Login successful!");
 
-        // ✅ GET THE FULL USER OBJECT (THIS IS THE KEY FIX)
+        //  GET THE FULL USER OBJECT (THIS IS THE KEY FIX)
 
         String role = userService.getRoleByEmail(email);
 

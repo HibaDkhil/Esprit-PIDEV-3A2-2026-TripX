@@ -10,14 +10,14 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         try {
-            // CHANGEMENT: nouveau chemin vers login.fxml
+            // path to login.fxml
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/user/login.fxml"));
 
             if (loader.getLocation() == null) {
                 System.out.println("ERROR: Cannot find login.fxml!");
                 System.out.println("Looking for: /fxml/user/login.fxml");
 
-                // Afficher les chemins disponibles pour debug
+
                 System.out.println("\n--- Chemins disponibles dans resources ---");
                 java.net.URL url = getClass().getResource("/");
                 if (url != null) {
