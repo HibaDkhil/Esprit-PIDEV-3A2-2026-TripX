@@ -222,3 +222,98 @@
     -fx-padding: 20;
     -fx-spacing: 15;
 }
+
+/* AI Assistant Styles */
+.ai-floating-button {
+    -fx-background-color: #0077be;
+    -fx-text-fill: white;
+    -fx-font-size: 32px;
+    -fx-background-radius: 50;
+    -fx-min-width: 70px;
+    -fx-min-height: 70px;
+    -fx-max-width: 70px;
+    -fx-max-height: 70px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 119, 190, 0.4), 15, 0, 0, 8);
+}
+
+.ai-floating-button:hover {
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+    -fx-background-color: #0088cc;
+}
+
+.ai-chat-panel {
+    -fx-background-color: white;
+    -fx-background-radius: 20 20 0 20;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 30, 0, 0, 15);
+    -fx-border-color: #e1e8ed;
+    -fx-border-radius: 20 20 0 20;
+    -fx-border-width: 1;
+}
+
+.ai-chat-header {
+    -fx-background-color: linear-gradient(to right, #0077be, #00a8ff);
+    -fx-padding: 15 20;
+    -fx-background-radius: 20 20 0 0;
+}
+
+.ai-header-title {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+}
+
+.ai-close-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-size: 20px;
+    -fx-cursor: hand;
+}
+
+.ai-chat-body {
+    -fx-background-color: #f8f9fa;
+}
+
+.ai-chat-footer {
+    -fx-padding: 15;
+    -fx-background-color: white;
+    -fx-background-radius: 0 0 0 20;
+    -fx-border-color: #f1f3f5 transparent transparent transparent;
+}
+
+.ai-input-field {
+    -fx-background-color: #f1f3f5;
+    -fx-background-radius: 20;
+    -fx-padding: 10 15;
+    -fx-border-width: 0;
+}
+
+.ai-send-button {
+    -fx-background-color: #0077be;
+    -fx-text-fill: white;
+    -fx-background-radius: 50%;
+    -fx-min-width: 40px;
+    -fx-min-height: 40px;
+    -fx-cursor: hand;
+}
+
+/* Message Bubbles */
+.ai-bubble-user {
+    -fx-background-color: #0077be;
+    -fx-text-fill: white;
+    -fx-background-radius: 15 15 0 15;
+    -fx-padding: 10 15;
+    -fx-max-width: 250px;
+}
+
+.ai-bubble-bot {
+    -fx-background-color: white;
+    -fx-text-fill: #1a237e;
+    -fx-background-radius: 15 15 15 0;
+    -fx-padding: 10 15;
+    -fx-max-width: 250px;
+    -fx-border-color: #e1e8ed;
+    -fx-border-radius: 15 15 15 0;
+}
+

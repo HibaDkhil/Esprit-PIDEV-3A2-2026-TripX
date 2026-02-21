@@ -18,6 +18,8 @@ import tn.esprit.controllers.admin.DashboardController;
 import tn.esprit.entities.User;
 import tn.esprit.services.UserService;
 import tn.esprit.utils.ValidationUtils;
+import tn.esprit.services.EmailReputationService;
+import java.util.Optional;
 
 import java.io.IOException;
 
@@ -297,7 +299,7 @@ public class LoginController {
         String role = userService.getRoleByEmail(email);
 
         try {
-            if ("ADMIN".equalsIgnoreCase(role)) {
+            if (role != null && role.toLowerCase().startsWith("admin")) {
                 // Load Admin Dashboard
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/admin/dashboard.fxml"));
                 Parent root = loader.load();
@@ -389,50 +391,104 @@ public class LoginController {
 
         // Validate First Name
         if (!ValidationUtils.isValidName(firstName)) {
-            firstNameError.setText(ValidationUtils.isNotEmpty(firstName) ? 
-                ValidationUtils.getNameError("First name") : 
-                ValidationUtils.getRequiredFieldError("First name"));
+            firstNameError.setText(ValidationUtils.isNotEmpty(firstName) ?
+                    ValidationUtils.getNameError("First name") :
+                    ValidationUtils.getRequiredFieldError("First name"));
             firstNameField.getStyleClass().add("input-error");
             hasError = true;
         }
-        
+
         // Validate Last Name
         if (!ValidationUtils.isValidName(lastName)) {
-            lastNameError.setText(ValidationUtils.isNotEmpty(lastName) ? 
-                ValidationUtils.getNameError("Last name") : 
-                ValidationUtils.getRequiredFieldError("Last name"));
+            lastNameError.setText(ValidationUtils.isNotEmpty(lastName) ?
+                    ValidationUtils.getNameError("Last name") :
+                    ValidationUtils.getRequiredFieldError("Last name"));
             lastNameField.getStyleClass().add("input-error");
             hasError = true;
         }
-        
+
         // Validate Email
         if (!ValidationUtils.isValidEmail(email)) {
-            emailError.setText(ValidationUtils.isNotEmpty(email) ? 
-                ValidationUtils.getEmailError() : 
-                ValidationUtils.getRequiredFieldError("Email"));
+            emailError.setText(ValidationUtils.isNotEmpty(email) ?
+                    ValidationUtils.getEmailError() :
+                    ValidationUtils.getRequiredFieldError("Email"));
             emailFieldSignup.getStyleClass().add("input-error");
             hasError = true;
         }
-        
+
         // Validate Password
         if (!ValidationUtils.isValidPassword(password)) {
-            passwordError.setText(ValidationUtils.isNotEmpty(password) ? 
-                ValidationUtils.getPasswordError() : 
-                ValidationUtils.getRequiredFieldError("Password"));
+            passwordError.setText(ValidationUtils.isNotEmpty(password) ?
+                    ValidationUtils.getPasswordError() :
+                    ValidationUtils.getRequiredFieldError("Password"));
             pwdFieldSignup.getStyleClass().add("input-error");
             hasError = true;
         }
-        
+
         // Validate Confirm Password
         if (!ValidationUtils.passwordsMatch(password, confirmPassword)) {
-            confirmPasswordError.setText(ValidationUtils.isNotEmpty(confirmPassword) ? 
-                ValidationUtils.getPasswordMismatchError() : 
-                ValidationUtils.getRequiredFieldError("Confirm password"));
+            confirmPasswordError.setText(ValidationUtils.isNotEmpty(confirmPassword) ?
+                    ValidationUtils.getPasswordMismatchError() :
+                    ValidationUtils.getRequiredFieldError("Confirm password"));
             confirmPwdField.getStyleClass().add("input-error");
             hasError = true;
         }
 
         if (hasError) return; // stop if any error
+
+        // ========== NEW: Check email reputation with AbstractAPI ==========
+        EmailReputationService reputationService = new EmailReputationService();
+        EmailReputationService.EmailReputation reputation = reputationService.checkEmailReputation(email);
+
+        if (reputation == null) {
+            // API error - show warning but allow registration
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Warning");
+            alert.setHeaderText("Email verification service unavailable");
+            alert.setContentText("We couldn't verify your email. You can still register, but please ensure you're using a valid email.");
+            alert.showAndWait();
+        } else {
+            // Check if email is valid
+            if (!reputation.isFormatValid() || !reputation.isSmtpValid()) {
+                emailError.setText("Email appears invalid: " + reputation.getStatusDetail());
+                emailFieldSignup.getStyleClass().add("input-error");
+                return;
+            }
+
+            // Check if email is disposable
+            if (reputation.isDisposable()) {
+                emailError.setText("Disposable emails are not allowed");
+                emailFieldSignup.getStyleClass().add("input-error");
+                return;
+            }
+
+            // Check for data breaches
+            if (reputation.getTotalBreaches() > 0) {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Security Alert");
+                alert.setHeaderText("Email found in data breaches");
+                alert.setContentText("This email appears in " + reputation.getTotalBreaches() +
+                        " data breach(es). It's recommended to use a strong, unique password.\n\nDo you want to continue?");
+
+                alert.getDialogPane().getButtonTypes().clear();
+                alert.getDialogPane().getButtonTypes().addAll(ButtonType.YES, ButtonType.NO);
+
+                Button yesButton = (Button) alert.getDialogPane().lookupButton(ButtonType.YES);
+                yesButton.setStyle("-fx-background-color: #f44336; -fx-text-fill: white;");
+
+                Button noButton = (Button) alert.getDialogPane().lookupButton(ButtonType.NO);
+                noButton.setStyle("-fx-background-color: #4caf50; -fx-text-fill: white;");
+
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.isEmpty() || result.get() != ButtonType.YES) {
+                    return; // User cancelled
+                }
+            }
+
+            // Optional: Show email quality info
+            System.out.println("Email quality score: " + (reputation.getScore() * 100) + "%");
+        }
+        // ========== END OF API INTEGRATION ==========
 
         //  Hash password
         String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
@@ -445,23 +501,23 @@ public class LoginController {
 
         if (success) {
             System.out.println("User created successfully in DB!");
-            
+
             // Redirect to Onboarding
             try {
                 // Fetch the user to get the ID
                 User newUser = userService.findByEmail(email);
-                
+
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/user/onboarding.fxml"));
                 Parent root = loader.load();
-                
+
                 OnboardingController controller = loader.getController();
                 controller.setUser(newUser);
-                
+
                 Stage stage = (Stage) signUpBtn.getScene().getWindow();
                 Scene scene = new Scene(root);
                 stage.setScene(scene);
                 stage.show();
-                
+
             } catch (IOException e) {
                 e.printStackTrace();
                 System.err.println("Failed to load onboarding.fxml");

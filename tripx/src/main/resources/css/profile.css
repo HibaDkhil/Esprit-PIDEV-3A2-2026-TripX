@@ -283,3 +283,21 @@
     -fx-border-width: 2px !important;
     -fx-border-radius: 6px;
 }
+
+/* =========================================
+   EMAIL REPUTATION BUTTON
+   ========================================= */
+
+.check-email-button {
+    -fx-background-color: #0891B2;
+    -fx-text-fill: white;
+    -fx-background-radius: 6;
+    -fx-padding: 10 20;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+
+.check-email-button:hover {
+    -fx-background-color: #0E7490;
+}

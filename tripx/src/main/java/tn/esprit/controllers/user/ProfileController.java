@@ -1,19 +1,23 @@
 package tn.esprit.controllers.user;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.mindrot.jbcrypt.BCrypt;
 import tn.esprit.entities.User;
 import tn.esprit.entities.UserPreferences;
+import tn.esprit.services.EmailReputationService;
 import tn.esprit.services.UserPreferencesService;
 import tn.esprit.services.UserService;
 import tn.esprit.utils.ValidationUtils;
@@ -27,10 +31,12 @@ public class ProfileController {
 
     @FXML private VBox personalInfoView;
     @FXML private VBox searchPreferencesView;
+    @FXML private VBox securityView;
     @FXML private StackPane contentArea;
 
     @FXML private Button btnPersonalInfo;
     @FXML private Button btnPreferences;
+    @FXML private Button btnSecurity;
 
     // Personal Info Fields
     @FXML private TextField firstNameField;
@@ -68,10 +74,13 @@ public class ProfileController {
     @FXML private Label currentAvatarLabel;
     @FXML private Label currentEmailLabel;
 
+    @FXML private Button checkEmailBtn;
+
     private User currentUser;
     private UserPreferences currentPreferences;
     private final UserService userService = new UserService();
     private final UserPreferencesService userPreferencesService = new UserPreferencesService();
+    private final EmailReputationService emailReputationService = new EmailReputationService();
 
     @FXML
     public void initialize() {
@@ -88,6 +97,10 @@ public class ProfileController {
         if (searchPreferencesView != null) {
             searchPreferencesView.setVisible(false);
             searchPreferencesView.setManaged(false);
+        }
+        if (securityView != null) {
+            securityView.setVisible(false);
+            securityView.setManaged(false);
         }
         if (btnPersonalInfo != null) setActiveButton(btnPersonalInfo);
     }
@@ -202,8 +215,30 @@ public class ProfileController {
             searchPreferencesView.setVisible(false);
             searchPreferencesView.setManaged(false);
         }
+        if (securityView != null) {
+            securityView.setVisible(false);
+            securityView.setManaged(false);
+        }
         setActiveButton(btnPersonalInfo);
         System.out.println("DEBUG: Switched to Personal Info View");
+    }
+
+    @FXML
+    void showAccountSecurity(ActionEvent event) {
+        if (personalInfoView != null) {
+            personalInfoView.setVisible(false);
+            personalInfoView.setManaged(false);
+        }
+        if (searchPreferencesView != null) {
+            searchPreferencesView.setVisible(false);
+            searchPreferencesView.setManaged(false);
+        }
+        if (securityView != null) {
+            securityView.setVisible(true);
+            securityView.setManaged(true);
+        }
+        setActiveButton(btnSecurity);
+        System.out.println("DEBUG: Switched to Account Security View");
     }
 
     @FXML
@@ -216,21 +251,23 @@ public class ProfileController {
             searchPreferencesView.setVisible(true);
             searchPreferencesView.setManaged(true);
         }
+        if (securityView != null) {
+            securityView.setVisible(false);
+            securityView.setManaged(false);
+        }
         setActiveButton(btnPreferences);
         System.out.println("DEBUG: Switched to Search Preferences View");
     }
 
     private void setActiveButton(Button activeButton) {
-        // Reset styles
-        if (btnPersonalInfo != null) {
-            btnPersonalInfo.getStyleClass().removeAll("rail-item-active");
-            btnPersonalInfo.getStyleClass().add("rail-item");
+        // Reset styles for all rail buttons
+        Button[] railButtons = {btnPersonalInfo, btnPreferences, btnSecurity};
+        for (Button btn : railButtons) {
+            if (btn != null) {
+                btn.getStyleClass().removeAll("rail-item-active");
+                btn.getStyleClass().add("rail-item");
+            }
         }
-        if (btnPreferences != null) {
-            btnPreferences.getStyleClass().removeAll("rail-item-active");
-            btnPreferences.getStyleClass().add("rail-item");
-        }
-        
         if (activeButton != null) {
             activeButton.getStyleClass().removeAll("rail-item");
             activeButton.getStyleClass().add("rail-item-active");
@@ -629,6 +666,113 @@ public class ProfileController {
         } else {
             showAlert("Error", "Failed to save preferences.");
         }
+    }
+
+    @FXML
+    void handleCheckEmailReputation(ActionEvent event) {
+        String email = currentUser != null ? currentUser.getEmail() : null;
+        if (email == null || email.isBlank()) {
+            showAlert("No Email", "No email address is associated with your account.");
+            return;
+        }
+
+        // Disable button & show loading state
+        if (checkEmailBtn != null) {
+            checkEmailBtn.setDisable(true);
+            checkEmailBtn.setText("⏳ Checking...");
+        }
+
+        // Run API call on background thread to avoid blocking the UI
+        Thread bgThread = new Thread(() -> {
+            EmailReputationService.EmailReputation result =
+                    emailReputationService.checkEmailReputation(email);
+
+            Platform.runLater(() -> {
+                // Restore button
+                if (checkEmailBtn != null) {
+                    checkEmailBtn.setDisable(false);
+                    checkEmailBtn.setText("\uD83D\uDD0D Check Email Reputation");
+                }
+
+                if (result == null) {
+                    showAlert("Connection Error", "Could not reach the email reputation service. Please check your internet connection and try again.");
+                    return;
+                }
+
+                showEmailReputationDialog(email, result);
+            });
+        });
+        bgThread.setDaemon(true);
+        bgThread.start();
+    }
+
+    private void showEmailReputationDialog(String email, EmailReputationService.EmailReputation r) {
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Email Reputation Report");
+        dialog.setHeaderText("Results for: " + email);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+
+        // Build content
+        VBox content = new VBox(12);
+        content.setPadding(new Insets(20));
+        content.setMinWidth(380);
+
+        // --- Valid status ---
+        boolean isValid = r.isFormatValid() && r.isSmtpValid();
+        Label validRow = buildRow(
+                isValid ? "\u2705" : "\u274C",
+                isValid ? "Email is valid and deliverable" : "Email is invalid: " + r.getStatusDetail(),
+                isValid ? "#166534" : "#991B1B",
+                isValid ? "#DCFCE7" : "#FEE2E2"
+        );
+
+        // --- Breaches ---
+        int breaches = r.getTotalBreaches();
+        Label breachRow = buildRow(
+                breaches > 0 ? "\u26A0\uFE0F" : "\u2705",
+                breaches > 0 ? "Found in " + breaches + " data breach(es)" : "No known data breaches",
+                breaches > 0 ? "#92400E" : "#166534",
+                breaches > 0 ? "#FEF3C7" : "#DCFCE7"
+        );
+
+        // --- Quality score ---
+        int scorePercent = (int) Math.round(r.getScore() * 100);
+        String scoreColor = scorePercent >= 70 ? "#166534" : (scorePercent >= 40 ? "#92400E" : "#991B1B");
+        String scoreBg    = scorePercent >= 70 ? "#DCFCE7" : (scorePercent >= 40 ? "#FEF3C7" : "#FEE2E2");
+        Label scoreRow = buildRow("\uD83D\uDCCA", "Quality score: " + scorePercent + "%", scoreColor, scoreBg);
+
+        // --- Disposable ---
+        Label disposableRow = buildRow(
+                "\u2139\uFE0F",
+                r.isDisposable() ? "Disposable/temporary email detected" : "Not a disposable email",
+                r.isDisposable() ? "#92400E" : "#166534",
+                r.isDisposable() ? "#FEF3C7" : "#DCFCE7"
+        );
+
+        // --- Free provider ---
+        Label freeRow = buildRow(
+                "\u2139\uFE0F",
+                r.isFreeEmail() ? "Free email provider (e.g. Gmail, Yahoo)" : "Not a free email provider",
+                "#1E40AF", "#EFF6FF"
+        );
+
+        content.getChildren().addAll(validRow, breachRow, scoreRow, disposableRow, freeRow);
+        dialog.getDialogPane().setContent(content);
+        dialog.showAndWait();
+    }
+
+    private Label buildRow(String icon, String text, String textColor, String bgColor) {
+        Label lbl = new Label(icon + "  " + text);
+        lbl.setStyle(
+            "-fx-background-color: " + bgColor + "; " +
+            "-fx-text-fill: " + textColor + "; " +
+            "-fx-font-size: 13px; " +
+            "-fx-padding: 10 14; " +
+            "-fx-background-radius: 8;"
+        );
+        lbl.setMaxWidth(Double.MAX_VALUE);
+        lbl.setWrapText(true);
+        return lbl;
     }
 
     @FXML

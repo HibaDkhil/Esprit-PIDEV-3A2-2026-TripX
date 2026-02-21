@@ -2,6 +2,7 @@ package tn.esprit.controllers.admin;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
@@ -107,13 +108,92 @@ public class DashboardController {
     }
 
     private void configureSidebar() {
-        // For now, show ALL buttons
-        usersBtn.setVisible(true);
-        destinationsBtn.setVisible(true);
-        accommodationsBtn.setVisible(true);
-        transportBtn.setVisible(true);
-        offersBtn.setVisible(true);
-        blogBtn.setVisible(true);
+        boolean superAdmin = isSuper();
+
+        // Users section — super-admin only
+        setMenuLocked(usersHeader, usersMenu, !superAdmin);
+
+        // Module sections
+        setMenuLocked(destinationsHeader,    destinationsMenu,    !superAdmin && !hasAccess("destinations"));
+        setMenuLocked(accommodationsHeader,  accommodationsMenu,  !superAdmin && !hasAccess("accommodations"));
+        setMenuLocked(transportHeader,       transportMenu,       !superAdmin && !hasAccess("transport"));
+        setMenuLocked(offersHeader,          offersMenu,          !superAdmin && !hasAccess("offers"));
+        setMenuLocked(blogHeader,            blogMenu,            !superAdmin && !hasAccess("blog"));
+    }
+
+    /** Dim and block interaction on a menu section if locked. */
+    private void setMenuLocked(HBox header, VBox menu, boolean locked) {
+        if (header != null) {
+            header.setOpacity(locked ? 0.35 : 1.0);
+            header.setDisable(locked);
+        }
+        if (menu != null) {
+            // Always collapse submenus; they'll be re-opened by the user
+            menu.setVisible(false);
+            menu.setManaged(false);
+        }
+    }
+
+    /** Returns true if the current role is the full super-admin. */
+    private boolean isSuper() {
+        return role != null && role.equalsIgnoreCase("admin");
+    }
+
+    /** Returns true if the current role has access to the given module key. */
+    private boolean hasAccess(String module) {
+        if (isSuper()) return true;
+        if (role == null) return false;
+        return switch (role.toLowerCase()) {
+            case "admindestination"  -> module.equals("destinations");
+            case "adminaccomodation" -> module.equals("accommodations");
+            case "admintransport"   -> module.equals("transport");
+            case "adminblog"        -> module.equals("blog");
+            case "adminoffers"      -> module.equals("offers");
+            default -> false;
+        };
+    }
+
+    /** Displays a full-page access-denied panel in the content area. */
+    private void showAccessDenied(String moduleName) {
+        mainContent.getChildren().clear();
+        VBox box = new VBox(18);
+        box.setAlignment(Pos.CENTER);
+        box.setMaxWidth(500);
+        box.setStyle(
+            "-fx-background-color: #FEF2F2;" +
+            "-fx-background-radius: 16;" +
+            "-fx-padding: 60 50;"
+        );
+
+        Label icon = new Label("\uD83D\uDD12");
+        icon.setStyle("-fx-font-size: 64px;");
+
+        Label title = new Label("Access Denied");
+        title.setStyle(
+            "-fx-font-size: 28px;" +
+            "-fx-font-weight: bold;" +
+            "-fx-text-fill: #991B1B;" +
+            "-fx-font-family: 'Poppins';"
+        );
+
+        Label sub = new Label(
+            "You don't have permission to access the " + moduleName + " module.\n" +
+            "Contact your super administrator to request access."
+        );
+        sub.setStyle(
+            "-fx-font-size: 14px;" +
+            "-fx-text-fill: #B91C1C;" +
+            "-fx-font-family: 'Poppins';" +
+            "-fx-text-alignment: center;"
+        );
+        sub.setWrapText(true);
+        sub.setMaxWidth(400);
+
+        box.getChildren().addAll(icon, title, sub);
+
+        // Centre the box inside the StackPane
+        StackPane.setAlignment(box, Pos.CENTER);
+        mainContent.getChildren().add(box);
     }
 
     @FXML
@@ -308,6 +388,7 @@ public class DashboardController {
     }
 
     private void showUsers() {
+        if (!isSuper()) { showAccessDenied("Users"); return; }
         setActiveButton(usersBtn);
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/admin/user_management.fxml"));
@@ -328,6 +409,7 @@ public class DashboardController {
     }
 
     private void showDestinations() {
+        if (!hasAccess("destinations")) { showAccessDenied("Destinations"); return; }
         setActiveButton(destinationsBtn);
         mainContent.getChildren().clear();
         Label label = new Label("Destination Management Module");
@@ -336,6 +418,7 @@ public class DashboardController {
     }
 
     private void showAccommodations() {
+        if (!hasAccess("accommodations")) { showAccessDenied("Accommodations"); return; }
         setActiveButton(accommodationsBtn);
         mainContent.getChildren().clear();
         Label label = new Label("Accommodation Management Module");
@@ -344,6 +427,7 @@ public class DashboardController {
     }
 
     private void showTransport() {
+        if (!hasAccess("transport")) { showAccessDenied("Transport"); return; }
         setActiveButton(transportBtn);
         mainContent.getChildren().clear();
         Label label = new Label("Transport Management Module");
@@ -352,6 +436,7 @@ public class DashboardController {
     }
 
     private void showOffers() {
+        if (!hasAccess("offers")) { showAccessDenied("Offers"); return; }
         setActiveButton(offersBtn);
         mainContent.getChildren().clear();
         Label label = new Label("Offers Management Module");
@@ -360,6 +445,7 @@ public class DashboardController {
     }
 
     private void showBlog() {
+        if (!hasAccess("blog")) { showAccessDenied("Blog"); return; }
         setActiveButton(blogBtn);
         mainContent.getChildren().clear();
         Label label = new Label("Blog & Community Module");

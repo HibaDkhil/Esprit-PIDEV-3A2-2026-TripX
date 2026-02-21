@@ -204,7 +204,8 @@ public class UserManagementController {
         int regularUsers = 0;
 
         for (User user : userList) {
-            if ("SUPER_ADMIN".equals(user.getRole()) || "ADMIN".equals(user.getRole())) {
+            String userRole = user.getRole();
+            if (userRole != null && userRole.toLowerCase().startsWith("admin")) {
                 admins++;
             } else {
                 regularUsers++;
@@ -321,7 +322,15 @@ public class UserManagementController {
             Label roleLabel = new Label("Role:");
             roleLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-font-family: 'Poppins';");
             ComboBox<String> roleCombo = new ComboBox<>();
-            roleCombo.getItems().addAll("USER", "ADMIN", "SUPER_ADMIN");
+            roleCombo.getItems().addAll(
+                "user",
+                "admin",
+                "adminDestination",
+                "adminAccomodation",
+                "adminTransport",
+                "adminBlog",
+                "adminOffers"
+            );
             roleCombo.setValue(user.getRole() != null ? user.getRole() : "USER");
             roleCombo.setStyle("-fx-background-radius: 8; -fx-padding: 5; -fx-font-size: 14px; -fx-font-family: 'Poppins';");
             roleCombo.setPrefWidth(250);

@@ -45,7 +45,7 @@
             
             <VBox spacing="5.0">
                 <Button fx:id="btnPersonalInfo" maxWidth="Infinity" onAction="#showPersonalInfo" styleClass="rail-item-active" text="Personal info" />
-                <Button fx:id="btnSecurity" maxWidth="Infinity" styleClass="rail-item" text="Account security" />
+                <Button fx:id="btnSecurity" maxWidth="Infinity" onAction="#showAccountSecurity" styleClass="rail-item" text="Account security" />
                 <Button fx:id="btnFavorites" maxWidth="Infinity" styleClass="rail-item" text="Favorites" />
                 <Button fx:id="btnHistory" maxWidth="Infinity" styleClass="rail-item" text="Recently viewed" />
                 <Button fx:id="btnBookings" maxWidth="Infinity" styleClass="rail-item" text="Bookings" />
@@ -175,46 +175,6 @@
                                 </HBox>
 
                             </VBox>
-
-                            <!-- Password Section -->
-                            <VBox spacing="20.0" styleClass="white-card">
-                                <Label styleClass="card-header" text="Security" />
-                                <VBox spacing="15.0">
-                                    <VBox spacing="8.0">
-                                        <Label styleClass="input-label" text="Current Password" />
-                                        <PasswordField fx:id="currentPasswordField" promptText="Enter current password" styleClass="modern-input" />
-                                        <Label fx:id="currentPasswordError" styleClass="error-label" visible="false" />
-                                    </VBox>
-                                    <VBox spacing="8.0">
-                                        <Label styleClass="input-label" text="New Password" />
-                                        <PasswordField fx:id="newPasswordField" promptText="Min 8 chars, uppercase, lowercase, number" styleClass="modern-input" />
-                                        <Label fx:id="newPasswordError" styleClass="error-label" visible="false" />
-                                    </VBox>
-                                    <VBox spacing="8.0">
-                                        <Label styleClass="input-label" text="Confirm New Password" />
-                                        <PasswordField fx:id="confirmPasswordField" promptText="Re-enter new password" styleClass="modern-input" />
-                                        <Label fx:id="confirmPasswordError" styleClass="error-label" visible="false" />
-                                    </VBox>
-                                    
-                                    <!-- Change Password Button -->
-                                    <HBox alignment="CENTER_RIGHT" style="-fx-padding: 10 0 0 0;">
-                                        <Label fx:id="passwordStatusLabel" visible="false" style="-fx-padding: 0 20 0 0;" />
-                                        <Button onAction="#handleChangePassword" styleClass="save-button" text="Change Password" />
-                                    </HBox>
-                                </VBox>
-                                
-                                <Separator />
-                                
-                                <!-- Delete Account Section -->
-                                <VBox spacing="10.0" style="-fx-padding: 10 0 0 0;">
-                                    <Label styleClass="card-header-danger" text="Danger Zone" />
-                                    <Label styleClass="card-subtitle" text="Once you delete your account, there is no going back. Please be certain." wrapText="true" />
-                                    <HBox alignment="CENTER_LEFT">
-                                        <Button onAction="#handleDeleteAccount" styleClass="delete-button" text="Delete My Account" />
-                                    </HBox>
-                                </VBox>
-                            </VBox>
-
                         </VBox>
                     </content>
                 </ScrollPane>
@@ -337,6 +297,77 @@
                                         <Label fx:id="groupLabel" styleClass="settings-card-subtitle" text="Not set" />
                                     </VBox>
                                     <Button onAction="#handleEditGroup" styleClass="secondary-button" text="Edit" />
+                                </HBox>
+                            </VBox>
+
+                        </VBox>
+                    </content>
+                </ScrollPane>
+            </VBox>
+
+            <!-- VIEW 3: ACCOUNT SECURITY -->
+            <VBox fx:id="securityView" spacing="30.0" visible="false" style="-fx-alignment: TOP_LEFT;">
+
+                <!-- Header -->
+                <VBox spacing="5.0">
+                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                        <Label styleClass="page-title" text="Account security" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label text="▼" style="-fx-text-fill: grey; -fx-font-size: 14px;" />
+                    </HBox>
+                    <Label styleClass="page-subtitle" text="Manage your password, check email health, and control account data." />
+                </VBox>
+
+                <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-padding: 0;">
+                    <content>
+                        <VBox spacing="30.0" style="-fx-background-color: transparent;">
+
+                            <!-- Change Password Card -->
+                            <VBox spacing="20.0" styleClass="white-card">
+                                <Label styleClass="card-header" text="🔑 Change Password" />
+                                <VBox spacing="15.0">
+                                    <VBox spacing="8.0">
+                                        <Label styleClass="input-label" text="Current Password" />
+                                        <PasswordField fx:id="currentPasswordField" promptText="Enter current password" styleClass="modern-input" />
+                                        <Label fx:id="currentPasswordError" styleClass="error-label" visible="false" />
+                                    </VBox>
+                                    <VBox spacing="8.0">
+                                        <Label styleClass="input-label" text="New Password" />
+                                        <PasswordField fx:id="newPasswordField" promptText="Min 8 chars, uppercase, lowercase, number" styleClass="modern-input" />
+                                        <Label fx:id="newPasswordError" styleClass="error-label" visible="false" />
+                                    </VBox>
+                                    <VBox spacing="8.0">
+                                        <Label styleClass="input-label" text="Confirm New Password" />
+                                        <PasswordField fx:id="confirmPasswordField" promptText="Re-enter new password" styleClass="modern-input" />
+                                        <Label fx:id="confirmPasswordError" styleClass="error-label" visible="false" />
+                                    </VBox>
+                                    <HBox alignment="CENTER_RIGHT" style="-fx-padding: 10 0 0 0;">
+                                        <Label fx:id="passwordStatusLabel" visible="false" style="-fx-padding: 0 20 0 0;" />
+                                        <Button onAction="#handleChangePassword" styleClass="save-button" text="Change Password" />
+                                    </HBox>
+                                </VBox>
+                            </VBox>
+
+                            <!-- Email Security Check Card -->
+                            <VBox spacing="15.0" styleClass="white-card">
+                                <Label styleClass="card-header" text="📧 Email Security Check" />
+                                <Label styleClass="card-subtitle"
+                                       text="Verify your email's validity, data breach history, quality score, and whether it's a disposable or free provider."
+                                       wrapText="true" />
+                                <HBox alignment="CENTER_LEFT">
+                                    <Button fx:id="checkEmailBtn" onAction="#handleCheckEmailReputation"
+                                            styleClass="check-email-button" text="🔍 Check Email Reputation" />
+                                </HBox>
+                            </VBox>
+
+                            <!-- Danger Zone Card -->
+                            <VBox spacing="15.0" styleClass="white-card">
+                                <Label styleClass="card-header-danger" text="⚠️ Danger Zone" />
+                                <Label styleClass="card-subtitle"
+                                       text="Once you delete your account, there is no going back. All your data will be permanently removed."
+                                       wrapText="true" />
+                                <HBox alignment="CENTER_LEFT">
+                                    <Button onAction="#handleDeleteAccount" styleClass="delete-button" text="Delete My Account" />
                                 </HBox>
                             </VBox>
 
