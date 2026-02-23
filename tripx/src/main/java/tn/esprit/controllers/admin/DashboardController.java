@@ -55,10 +55,12 @@ public class DashboardController {
     @FXML private Button overviewBtn;
     @FXML private Button usersBtn;
     @FXML private Button destinationsBtn;
+    @FXML private Button activitiesBtn;
     @FXML private Button accommodationsBtn;
     @FXML private Button transportBtn;
     @FXML private Button offersBtn;
     @FXML private Button blogBtn;
+    @FXML private Button sidebarBookingBtn;
 
     // Header components
     @FXML private Button headerSettingsBtn;
@@ -87,6 +89,12 @@ public class DashboardController {
     private User currentUser;
     private boolean isDarkMode = false;
     private boolean isSidebarCollapsed = false;
+
+    private static DashboardController instance;
+
+    public static DashboardController getInstance() {
+        return instance;
+    }
 
     public void setRole(String role) {
         this.role = role;
@@ -198,6 +206,7 @@ public class DashboardController {
 
     @FXML
     public void initialize() {
+        instance = this;
         setupSidebarToggle();
         setupNavigation();
         setupHeaderActions();
@@ -292,10 +301,12 @@ public class DashboardController {
         overviewBtn.setOnAction(e -> showOverview());
         usersBtn.setOnAction(e -> showUsers());
         destinationsBtn.setOnAction(e -> showDestinations());
+        if (activitiesBtn != null) activitiesBtn.setOnAction(e -> showActivities());
         accommodationsBtn.setOnAction(e -> showAccommodations());
         transportBtn.setOnAction(e -> showTransport());
         offersBtn.setOnAction(e -> showOffers());
         blogBtn.setOnAction(e -> showBlog());
+        if (sidebarBookingBtn != null) sidebarBookingBtn.setOnAction(e -> showBookings());
     }
 
     private void setupHeaderActions() {
@@ -338,10 +349,10 @@ public class DashboardController {
     }
 
     private void resetAllMenuItems() {
-        Button[] allButtons = {overviewBtn, usersBtn, destinationsBtn, accommodationsBtn,
-                transportBtn, offersBtn, blogBtn};
+        Button[] allButtons = {overviewBtn, usersBtn, destinationsBtn, activitiesBtn,
+                accommodationsBtn, transportBtn, offersBtn, blogBtn, sidebarBookingBtn};
         for (Button btn : allButtons) {
-            btn.getStyleClass().remove("active");
+            if (btn != null) btn.getStyleClass().remove("active");
         }
     }
 
@@ -367,6 +378,9 @@ public class DashboardController {
         } else if (button == blogBtn) {
             breadcrumb1.setText("Blog");
             breadcrumb2.setText("Blog & Community");
+        } else if (button == sidebarBookingBtn) {
+            breadcrumb1.setText("Destinations");
+            breadcrumb2.setText("Bookings");
         }
     }
 
@@ -411,11 +425,52 @@ public class DashboardController {
     private void showDestinations() {
         if (!hasAccess("destinations")) { showAccessDenied("Destinations"); return; }
         setActiveButton(destinationsBtn);
-        mainContent.getChildren().clear();
-        Label label = new Label("Destination Management Module");
-        label.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-font-family: 'Poppins';");
-        mainContent.getChildren().add(label);
+        breadcrumb1.setText("Destinations");
+        breadcrumb2.setText("All Destinations");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/admin/destination_management.fxml"));
+            Node view = loader.load();
+            mainContent.getChildren().clear();
+            mainContent.getChildren().add(view);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Error loading Destination Management: " + e.getMessage());
+        }
     }
+
+    private void showActivities() {
+        if (!hasAccess("destinations")) { showAccessDenied("Activities"); return; }
+        if (activitiesBtn != null) setActiveButton(activitiesBtn);
+        breadcrumb1.setText("Destinations");
+        breadcrumb2.setText("Activities");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/admin/activity_management.fxml"));
+            Node view = loader.load();
+            mainContent.getChildren().clear();
+            mainContent.getChildren().add(view);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Error loading Activity Management: " + e.getMessage());
+        }
+    }
+
+    private void showBookings() {
+        if (!hasAccess("destinations")) { showAccessDenied("Bookings"); return; }
+        if (sidebarBookingBtn != null) setActiveButton(sidebarBookingBtn);
+        breadcrumb1.setText("Destinations");
+        breadcrumb2.setText("Bookings");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/admin/booking_management.fxml"));
+            Node view = loader.load();
+            mainContent.getChildren().clear();
+            mainContent.getChildren().add(view);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Error loading Booking Management: " + e.getMessage());
+        }
+    }
+
+    //------------------------------------el beki mta modules----------------------------
 
     private void showAccommodations() {
         if (!hasAccess("accommodations")) { showAccessDenied("Accommodations"); return; }
@@ -608,7 +663,27 @@ public class DashboardController {
         }
     }
 
-    private void showError(String message) {
+    public void loadView(String fxmlPath, String b1, String b2) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Node view = loader.load();
+            mainContent.getChildren().clear();
+            mainContent.getChildren().add(view);
+            
+            if (breadcrumb1 != null) breadcrumb1.setText(b1);
+            if (breadcrumb2 != null) breadcrumb2.setText(b2);
+            
+            // Try to find the button and set it active
+            resetAllMenuItems();
+            // This is a bit tricky since we don't know which button corresponds to which FXML
+            // But we can manually set it in callers or handle it here if we map them.
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Error loading view: " + fxmlPath);
+        }
+    }
+
+    public void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error");
         alert.setHeaderText(null);

@@ -111,7 +111,8 @@
                             </HBox>
                             <VBox fx:id="destinationsMenu" spacing="0" styleClass="submenu">
                                 <Button fx:id="destinationsBtn" text="All Destinations" styleClass="menu-item"/>
-                                <Button text="Activities" styleClass="menu-item"/>
+                                <Button fx:id="activitiesBtn" text="Activities" styleClass="menu-item"/>
+                                <Button fx:id="sidebarBookingBtn" text="Bookings" styleClass="menu-item"/>
                             </VBox>
                         </VBox>
 

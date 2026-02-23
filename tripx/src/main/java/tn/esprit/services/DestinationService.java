@@ -16,8 +16,8 @@ public class DestinationService {
 
     // CREATE - Add new destination
     public boolean addDestination(Destination destination) {
-        String sql = "INSERT INTO destinations (name, type, country, city, best_season, description, timezone, average_rating) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO destinations (name, type, country, city, best_season, description, timezone, average_rating, image_url) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = conx.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, destination.getName());
@@ -28,6 +28,7 @@ public class DestinationService {
             ps.setString(6, destination.getDescription());
             ps.setString(7, destination.getTimezone());
             ps.setDouble(8, destination.getAverageRating() != null ? destination.getAverageRating() : 0.0);
+            ps.setString(9, destination.getImageUrl());
 
             int affectedRows = ps.executeUpdate();
 
@@ -132,7 +133,7 @@ public class DestinationService {
     // UPDATE - Update destination
     public boolean updateDestination(Destination destination) {
         String sql = "UPDATE destinations SET name=?, type=?, country=?, city=?, best_season=?, " +
-                "description=?, timezone=?, average_rating=? WHERE destination_id=?";
+                "description=?, timezone=?, average_rating=?, image_url=? WHERE destination_id=?";
 
         try (PreparedStatement ps = conx.prepareStatement(sql)) {
             ps.setString(1, destination.getName());
@@ -143,7 +144,8 @@ public class DestinationService {
             ps.setString(6, destination.getDescription());
             ps.setString(7, destination.getTimezone());
             ps.setDouble(8, destination.getAverageRating() != null ? destination.getAverageRating() : 0.0);
-            ps.setLong(9, destination.getDestinationId());
+            ps.setString(9, destination.getImageUrl());
+            ps.setLong(10, destination.getDestinationId());
 
             int affectedRows = ps.executeUpdate();
 
@@ -215,6 +217,13 @@ public class DestinationService {
         d.setDescription(rs.getString("description"));
         d.setTimezone(rs.getString("timezone"));
         d.setAverageRating(rs.getDouble("average_rating"));
+        
+        // Safely check for image_url to avoid "Column not found" if schema is outdated
+        try {
+            d.setImageUrl(rs.getString("image_url"));
+        } catch (SQLException e) {
+            // Column might not exist yet, ignore
+        }
 
         Timestamp timestamp = rs.getTimestamp("created_at");
         if (timestamp != null) {
@@ -271,58 +280,5 @@ public class DestinationService {
             System.err.println("❌ Error getting destinations by country: " + e.getMessage());
         }
         return results;
-    }
-
-    // TEMPORARY METHOD - Add this to DestinationService.java for testing
-    public void addTestDestinationsForWeather() {
-        // Clear existing test data first (optional)
-        String deleteSql = "DELETE FROM destinations WHERE destination_id > 100";
-        try (PreparedStatement ps = conx.prepareStatement(deleteSql)) {
-            ps.executeUpdate();
-            System.out.println("🧹 Cleared old test data");
-        } catch (SQLException e) {
-            // Ignore if no data
-        }
-
-        // Test destinations with different climate types
-        Object[][] testData = {
-                // name, type, country, city, best_season, description, timezone
-                {"Bali Paradise", "beach", "Indonesia", "Bali", "summer", "Tropical paradise with beautiful beaches and lush jungles", "Asia/Makassar"},
-                {"Greek Islands", "island", "Greece", "Santorini", "summer", "Mediterranean beauty with white houses and blue sea", "Europe/Athens"},
-                {"Swiss Alps", "mountain", "Switzerland", "Zermatt", "winter", "Perfect for skiing and mountain adventures", "Europe/Zurich"},
-                {"Maldives Resort", "island", "Maldives", "Male", "all_year", "Luxury overwater bungalows in tropical paradise", "Indian/Maldives"},
-                {"Barcelona City", "city", "Spain", "Barcelona", "summer", "Vibrant city with Mediterranean beaches and Gaudi architecture", "Europe/Madrid"},
-                {"Iceland Aurora", "other", "Iceland", "Reykjavik", "winter", "Northern lights and volcanic landscapes", "Atlantic/Reykjavik"}
-        };
-
-        String sql = "INSERT INTO destinations (name, type, country, city, best_season, description, timezone, average_rating, created_at) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, 4.5, NOW())";
-
-        try (PreparedStatement ps = conx.prepareStatement(sql)) {
-            int count = 0;
-            for (Object[] data : testData) {
-                ps.setString(1, (String) data[0]);
-                ps.setString(2, (String) data[1]);
-                ps.setString(3, (String) data[2]);
-                ps.setString(4, (String) data[3]);
-                ps.setString(5, (String) data[4]);
-                ps.setString(6, (String) data[5]);
-                ps.setString(7, (String) data[6]);
-                ps.executeUpdate();
-                count++;
-            }
-            System.out.println("✅ Added " + count + " test destinations successfully!");
-
-            // Show what was added
-            List<Destination> all = getAllDestinations();
-            System.out.println("\n📋 Current destinations in database:");
-            for (Destination d : all) {
-                System.out.println("   - " + d.getName() + " (" + d.getCountry() + ") - Best season: " + d.getBestSeason());
-            }
-
-        } catch (SQLException e) {
-            System.err.println("❌ Error adding test destinations: " + e.getMessage());
-            e.printStackTrace();
-        }
     }
 }

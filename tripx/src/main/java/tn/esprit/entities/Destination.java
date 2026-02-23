@@ -13,6 +13,7 @@ public class Destination {
     private String description;
     private String timezone;
     private Double averageRating;  // matches average_rating
+    private String imageUrl;      // added for images
     private LocalDateTime createdAt;  // matches created_at
     private boolean isActive;  // we'll add this for UI purposes (not in DB)
 
@@ -141,6 +142,14 @@ public class Destination {
 
     public void setActive(boolean active) {
         isActive = active;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     // Helper methods

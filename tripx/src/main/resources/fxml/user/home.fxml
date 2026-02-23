@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
@@ -15,6 +16,8 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
+
+<?import javafx.scene.control.ProgressIndicator?>
 <StackPane prefHeight="800.0" prefWidth="1200.0" stylesheets="/css/style.css, /css/home.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tn.esprit.controllers.user.HomeController">
     
     <!-- Main Scrollable Content -->
@@ -31,19 +34,21 @@
                     </ImageView>
                     
                     <Region HBox.hgrow="ALWAYS" />
-                    
+
                     <HBox alignment="CENTER" spacing="25.0" styleClass="nav-links-container">
-                        <Label styleClass="nav-link" text="Home" />
-                        <Label styleClass="nav-link" text="Destinations" />
-                        <Label styleClass="nav-link" text="Accommodations" />
-                        <Label styleClass="nav-link" text="Activities" />
-                        <Label styleClass="nav-link" text="Transport" />
+                        <Label onMouseClicked="#handleHomeNav" styleClass="nav-link" text="Home" />
+                        <Label onMouseClicked="#handleDestinationsNav" styleClass="nav-link" text="Destinations" />
+                        <Label onMouseClicked="#handleAccommodationsNav" styleClass="nav-link" text="Accommodations" />
+                        <Label onMouseClicked="#handleActivitiesNav" styleClass="nav-link" text="Activities" />
+                        <Label onMouseClicked="#handleTransportNav" styleClass="nav-link" text="Transport" />
+                        <Label onMouseClicked="#handleBlogNav" styleClass="nav-link" text="Blog" />
                     </HBox>
                     
                     <Region HBox.hgrow="ALWAYS" />
                     
                     <HBox alignment="CENTER" spacing="15.0">
                         <Button onAction="#handleProfile" styleClass="profile-button" text="My Profile" />
+                        <Button onAction="#handleMyBookings" styleClass="profile-button" text="My Bookings" />
                         <Button onAction="#handleLogout" styleClass="logout-button" text="Logout" />
                     </HBox>
                 </HBox>
@@ -63,7 +68,7 @@
                         <Label styleClass="hero-title" text="Live Fully" />
                         <Label styleClass="hero-title" text="Explore Freely" />
                         <Label styleClass="hero-title" text="Travel Deeply" />
-                        <Button onAction="#handleBooking" styleClass="booking-button" text="Start Journey" />
+                        <Button onAction="#handleBrowseDestinations" styleClass="booking-button" text="Explore Destinations" />
                     </VBox>
                     
                     <HBox layoutX="720.0" layoutY="500.0" maxWidth="400.0" styleClass="hero-info-box" AnchorPane.rightAnchor="80.0">
@@ -80,15 +85,15 @@
                     <HBox alignment="CENTER" prefHeight="100.0" spacing="15.0" styleClass="search-bar-container">
                         <VBox spacing="5.0">
                             <Label styleClass="search-label" text="Destination" />
-                            <TextField fx:id="destinationSearchField" promptText="Where to go?" styleClass="search-input" />
+                            <ComboBox fx:id="destinationCombo" promptText="Where to go?" styleClass="search-input" editable="true" prefWidth="180" />
+                        </VBox>
+                        <VBox spacing="5.0">
+                            <Label styleClass="search-label" text="Activity" />
+                            <ComboBox fx:id="activityCombo" promptText="What to do?" styleClass="search-input" editable="true" prefWidth="180" />
                         </VBox>
                         <VBox spacing="5.0">
                             <Label styleClass="search-label" text="Accommodation" />
                             <TextField fx:id="accommodationSearchField" promptText="Stay type?" styleClass="search-input" />
-                        </VBox>
-                        <VBox spacing="5.0">
-                            <Label styleClass="search-label" text="Activity" />
-                            <TextField fx:id="activitySearchField" promptText="What to do?" styleClass="search-input" />
                         </VBox>
                         <VBox spacing="5.0">
                             <Label styleClass="search-label" text="Date" />
@@ -101,29 +106,119 @@
                 <!-- Weather Section -->
                 <VBox alignment="CENTER" spacing="10" styleClass="weather-search-section">
                     <HBox alignment="CENTER" spacing="15" styleClass="weather-search-container">
-                        <Label style="-fx-font-size: 18px; -fx-font-weight: bold;" text="🌤️Search by Weather" />
+                        <Label style="-fx-font-size: 18px; -fx-font-weight: bold;" text="🌤️ Search by Weather" />
                         <Button fx:id="matchWeatherBtn" onAction="#handleWeatherMatch" styleClass="weather-match-button" text="Match My Climate Preferences" />
-                        <Label style="-fx-text-fill: #666;" text="See The different Destination climate" />
+                        <Label style="-fx-text-fill: #666;" text="See destinations matching your preferred climate" />
                     </HBox>
                     <VBox fx:id="weatherResultsContainer" spacing="15" styleClass="weather-results" />
                 </VBox>
 
                 <Separator style="-fx-padding: 20 0;" />
 
-                <!-- Categories Section -->
-                <VBox spacing="50.0" styleClass="content-sections-container">
-                    <VBox spacing="20.0" styleClass="category-section">
-                        <Label styleClass="section-title" text="Featured Destinations" />
-                        <HBox fx:id="destinationsContainer" spacing="30.0" styleClass="cards-scroll-container">
-                            <!-- Placeholder Cards -->
-                            <VBox styleClass="dest-card">
-                                <AnchorPane prefHeight="250.0" prefWidth="350.0" styleClass="card-image-placeholder" />
-                                <VBox spacing="5.0" styleClass="card-details">
-                                    <Label styleClass="card-title" text="Maldives Escape" />
-                                    <Label styleClass="card-desc" text="Crystal clear waters and luxury villas." />
-                                </VBox>
+                <!-- ========== AI TRIP PLANNER SECTION - DARK BLUE THEME ========== -->
+                <VBox spacing="25.0" styleClass="trip-planner-section" style="-fx-background-color: #0a1a2f; -fx-padding: 40; -fx-background-radius: 25; -fx-effect: dropshadow(gaussian, rgba(0,20,50,0.3), 15, 0, 0, 5);">
+
+                    <!-- Header -->
+                    <VBox spacing="8">
+                        <Label text="🤖 AI Trip Planner" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-font-family: 'Poppins'; -fx-text-fill: white;"/>
+                        <Label text="Let artificial intelligence create your perfect day-by-day itinerary" style="-fx-font-size: 14px; -fx-text-fill: #a0b8d4; -fx-font-family: 'Poppins';"/>
+                    </VBox>
+
+                    <!-- Planner Form - White fields -->
+                    <VBox spacing="20" style="-fx-background-color: rgba(255,255,255,0.05); -fx-background-radius: 20; -fx-padding: 25;">
+
+                        <HBox spacing="20" alignment="CENTER">
+
+                            <!-- Destination Selection -->
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label text="🌍 Destination" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-font-family: 'Poppins'; -fx-text-fill: white;"/>
+                                <ComboBox fx:id="plannerDestinationCombo" prefHeight="45" promptText="Select a destination" style="-fx-background-color: white; -fx-background-radius: 12; -fx-font-size: 14px; -fx-padding: 0 10;" HBox.hgrow="ALWAYS"/>
+                                <Label fx:id="plannerDestinationError" style="-fx-text-fill: #ff6b6b; -fx-font-size: 11px;" managed="false" visible="false"/>
+                            </VBox>
+
+                            <!-- Duration -->
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label text="📅 Number of Days" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-font-family: 'Poppins'; -fx-text-fill: white;"/>
+                                <TextField fx:id="plannerDaysField" prefHeight="45" promptText="e.g., 5" style="-fx-background-color: white; -fx-background-radius: 12; -fx-font-size: 14px; -fx-padding: 0 10;" HBox.hgrow="ALWAYS"/>
+                                <Label fx:id="plannerDaysError" style="-fx-text-fill: #ff6b6b; -fx-font-size: 11px;" managed="false" visible="false"/>
+                            </VBox>
+
+                            <!-- Travel Style -->
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label text="🎯 Travel Style" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-font-family: 'Poppins'; -fx-text-fill: white;"/>
+                                <TextField fx:id="plannerStyleField" prefHeight="45" promptText="Based on your profile" style="-fx-background-color: #eef2f7; -fx-background-radius: 12; -fx-font-size: 14px; -fx-padding: 0 10;" editable="false" HBox.hgrow="ALWAYS"/>
+                            </VBox>
+
+                        </HBox>
+
+                        <!-- Generate Button -->
+                        <HBox alignment="CENTER_RIGHT" spacing="15">
+                            <ProgressIndicator fx:id="plannerProgress" visible="false" prefWidth="30" prefHeight="30" style="-fx-progress-color: #4cccad;"/>
+                            <Button fx:id="generatePlanBtn" text="🚀 Generate My Trip Plan" style="-fx-background-color: #4cccad; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-background-radius: 25; -fx-padding: 12 30; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(76,204,173,0.3), 10, 0, 0, 2);"/>
+                        </HBox>
+                    </VBox>
+
+                    <!-- PDF Download Button -->
+                    <HBox alignment="CENTER_RIGHT" spacing="10">
+                        <Button fx:id="downloadPdfBtn" text="📥 Download as PDF" style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 8 20; -fx-cursor: hand;" visible="false" managed="false"/>
+                    </HBox>
+
+                    <!-- Results Area -->
+                    <VBox fx:id="planResultsContainer" spacing="15" visible="false" managed="false">
+                        <Separator style="-fx-background-color: rgba(255,255,255,0.2);"/>
+
+                        <Label text="✨ Your AI-Generated Trip Plan" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-font-family: 'Poppins'; -fx-text-fill: white;"/>
+
+                        <!-- Destination Info -->
+                        <HBox spacing="20" style="-fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 15; -fx-padding: 20;">
+                            <Label fx:id="planDestinationIcon" style="-fx-font-size: 48px;" text="🏝️"/>
+                            <VBox spacing="5">
+                                <Label fx:id="planDestinationName" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-font-family: 'Poppins'; -fx-text-fill: white;"/>
+                                <Label fx:id="planDestinationDesc" style="-fx-font-size: 14px; -fx-text-fill: #a0b8d4;" wrapText="true"/>
                             </VBox>
                         </HBox>
+
+                        <!-- Scrollable Plan -->
+                        <ScrollPane fitToWidth="true" prefHeight="450" style="-fx-background-color: transparent; -fx-background: transparent;">
+                            <VBox fx:id="planDetailsContainer" spacing="15" style="-fx-padding: 20; -fx-background-color: white; -fx-background-radius: 15;">
+                                <!-- Plan will be added here dynamically -->
+                            </VBox>
+                        </ScrollPane>
+
+                        <!-- Book Plan Button -->
+                        <HBox alignment="CENTER_RIGHT" spacing="15">
+                            <Button fx:id="bookPlanBtn" text="📅 Book This Destination" style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 10 25; -fx-cursor: hand;" disable="true"/>
+                        </HBox>
+                    </VBox>
+
+                </VBox>
+                <!-- ========== END OF AI TRIP PLANNER SECTION ========== -->
+
+                <!-- Featured Destinations Section -->
+                <VBox spacing="50.0" styleClass="content-sections-container">
+                    <VBox spacing="15.0" styleClass="category-section">
+                        <HBox alignment="CENTER_LEFT" spacing="20">
+                            <Label styleClass="section-title" text="🌍 Featured Destinations" />
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Button onAction="#handleBrowseDestinations" styleClass="search-button" text="View All" />
+                        </HBox>
+                        <ScrollPane fitToHeight="false" fitToWidth="false" pannable="true" styleClass="cards-scroll-pane" prefHeight="380">
+                            <HBox fx:id="destinationsContainer" spacing="25.0" styleClass="cards-scroll-container" />
+                        </ScrollPane>
+                    </VBox>
+
+                    <Separator />
+
+                    <!-- Featured Activities Section -->
+                    <VBox spacing="15.0" styleClass="category-section">
+                        <HBox alignment="CENTER_LEFT" spacing="20">
+                            <Label styleClass="section-title" text="✨ Popular Activities" />
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Button onAction="#handleBrowseActivities" styleClass="search-button" text="View All" />
+                        </HBox>
+                        <ScrollPane fitToHeight="false" fitToWidth="false" pannable="true" styleClass="cards-scroll-pane" prefHeight="350">
+                            <HBox fx:id="activitiesContainer" spacing="25.0" styleClass="cards-scroll-container" />
+                        </ScrollPane>
                     </VBox>
                 </VBox>
                 
@@ -133,8 +228,6 @@
     </ScrollPane>
 
     <!-- FLOATING AI ASSISTANT COMPONENTS -->
-
-    <!-- FLOATING AI ASSISTANT COMPONENTS -->
     <AnchorPane pickOnBounds="false">
 
         <!-- Chat Panel (Initially Hidden) -->
@@ -142,7 +235,6 @@
               styleClass="ai-chat-panel" visible="false" AnchorPane.bottomAnchor="100.0" AnchorPane.rightAnchor="30.0">
 
             <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="ai-chat-header">
-                <!-- REPLACED EMOJI WITH IMAGEVIEW - COLORS UNCHANGED -->
                 <ImageView fitHeight="32.0" fitWidth="32.0" preserveRatio="true">
                     <image>
                         <Image url="@../../images/robot.png" />
@@ -164,7 +256,7 @@
             </HBox>
         </VBox>
 
-        <!-- Floating Robot Button - REPLACED EMOJI WITH IMAGEVIEW, COLORS UNCHANGED -->
+        <!-- Floating Robot Button -->
         <Button fx:id="aiAssistantBtn" onAction="#toggleChat" styleClass="ai-floating-button"
                 AnchorPane.bottomAnchor="30.0" AnchorPane.rightAnchor="30.0">
             <graphic>
@@ -177,5 +269,177 @@
         </Button>
 
     </AnchorPane>
+
+
+    <!-- ========== ACCOMMODATIONS SECTION (COMMENTED - FOR FUTURE USE) ========== -->
+    <!--
+    <VBox spacing="15.0" styleClass="category-section">
+        <HBox alignment="CENTER_LEFT" spacing="20">
+            <Label styleClass="section-title" text="🏨 Featured Accommodations" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Button onAction="#handleBrowseAccommodations" styleClass="search-button" text="View All" />
+        </HBox>
+        <ScrollPane fitToHeight="false" fitToWidth="false" pannable="true" styleClass="cards-scroll-pane" prefHeight="350">
+            <HBox fx:id="accommodationsContainer" spacing="25.0" styleClass="cards-scroll-container">
+                <VBox styleClass="accommodation-card" style="-fx-background-color: linear-gradient(to bottom, #0a4d7a, #1e6f9f); -fx-background-radius: 15; -fx-padding: 0; -fx-min-width: 250; -fx-max-width: 250; -fx-effect: dropshadow(gaussian, rgba(0,100,150,0.3), 10, 0, 0, 2);">
+                    <StackPane prefHeight="140" style="-fx-background-color: linear-gradient(to bottom, #ffd966, #f1c40f); -fx-background-radius: 15 15 0 0;">
+                        <Label text="🏨" style="-fx-font-size: 48px;"/>
+                    </StackPane>
+                    <VBox spacing="8" style="-fx-padding: 15; -fx-background-color: white; -fx-background-radius: 0 0 15 15;">
+                        <Label text="Luxury Beach Resort" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                        <Label text="📍 Bali, Indonesia" style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d;"/>
+                        <Label text="⭐⭐⭐⭐⭐" style="-fx-font-size: 12px; -fx-text-fill: #f39c12;"/>
+                        <Label text="$199/night" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #27ae60;"/>
+                    </VBox>
+                </VBox>
+                <VBox styleClass="accommodation-card" style="-fx-background-color: linear-gradient(to bottom, #0a4d7a, #1e6f9f); -fx-background-radius: 15; -fx-padding: 0; -fx-min-width: 250; -fx-max-width: 250;">
+                    <StackPane prefHeight="140" style="-fx-background-color: linear-gradient(to bottom, #a9d6e5, #61a5c2); -fx-background-radius: 15 15 0 0;">
+                        <Label text="⛰️" style="-fx-font-size: 48px;"/>
+                    </StackPane>
+                    <VBox spacing="8" style="-fx-padding: 15; -fx-background-color: white; -fx-background-radius: 0 0 15 15;">
+                        <Label text="Mountain Lodge" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                        <Label text="📍 Swiss Alps" style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d;"/>
+                        <Label text="⭐⭐⭐⭐" style="-fx-font-size: 12px; -fx-text-fill: #f39c12;"/>
+                        <Label text="$299/night" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #27ae60;"/>
+                    </VBox>
+                </VBox>
+            </HBox>
+        </ScrollPane>
+    </VBox>
+
+    <Separator />
+    -->
+
+    <!-- ========== OFFERS SECTION (COMMENTED - FOR FUTURE USE) ========== -->
+    <!--
+    <VBox spacing="15.0" styleClass="category-section">
+        <HBox alignment="CENTER_LEFT" spacing="20">
+            <Label styleClass="section-title" text="🎯 Special Offers & Deals" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Button onAction="#handleBrowseOffers" styleClass="search-button" text="View All Offers" />
+        </HBox>
+        <ScrollPane fitToHeight="false" fitToWidth="false" pannable="true" styleClass="cards-scroll-pane" prefHeight="280">
+            <HBox fx:id="offersContainer" spacing="25.0" styleClass="cards-scroll-container">
+                <VBox styleClass="offer-card" style="-fx-background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -fx-background-radius: 15; -fx-padding: 20; -fx-min-width: 280; -fx-max-width: 280;">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="🔥" style="-fx-font-size: 30px;"/>
+                        <Label text="50% OFF" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                    </HBox>
+                    <Label text="Summer Special at Beach Resorts" style="-fx-font-size: 14px; -fx-text-fill: rgba(255,255,255,0.9); -fx-padding: 10 0;"/>
+                    <Label text="Valid until Aug 31" style="-fx-font-size: 12px; -fx-text-fill: #ffd700; -fx-font-weight: bold;"/>
+                    <Button text="Grab Deal →" style="-fx-background-color: white; -fx-text-fill: #667eea; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 8 20; -fx-cursor: hand; -fx-margin: 10 0 0 0;"/>
+                </VBox>
+                <VBox styleClass="offer-card" style="-fx-background-color: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); -fx-background-radius: 15; -fx-padding: 20; -fx-min-width: 280; -fx-max-width: 280;">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="🎫" style="-fx-font-size: 30px;"/>
+                        <Label text="Buy 1 Get 1" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                    </HBox>
+                    <Label text="On all adventure activities" style="-fx-font-size: 14px; -fx-text-fill: rgba(255,255,255,0.9); -fx-padding: 10 0;"/>
+                    <Label text="Limited time offer" style="-fx-font-size: 12px; -fx-text-fill: #ffd700; -fx-font-weight: bold;"/>
+                    <Button text="Book Now →" style="-fx-background-color: white; -fx-text-fill: #f5576c; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 8 20; -fx-cursor: hand; -fx-margin: 10 0 0 0;"/>
+                </VBox>
+            </HBox>
+        </ScrollPane>
+    </VBox>
+
+    <Separator />
+    -->
+
+    <!-- ========== TRANSPORT SECTION (COMMENTED - FOR FUTURE USE) ========== -->
+    <!--
+    <VBox spacing="15.0" styleClass="category-section">
+        <HBox alignment="CENTER_LEFT" spacing="20">
+            <Label styleClass="section-title" text="🚗 Transportation Options" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Button onAction="#handleBrowseTransport" styleClass="search-button" text="View All Transport" />
+        </HBox>
+        <ScrollPane fitToHeight="false" fitToWidth="false" pannable="true" styleClass="cards-scroll-pane" prefHeight="280">
+            <HBox fx:id="transportContainer" spacing="25.0" styleClass="cards-scroll-container">
+                <VBox styleClass="transport-card" style="-fx-background-color: linear-gradient(to bottom, #2c3e50, #3498db); -fx-background-radius: 15; -fx-padding: 20; -fx-min-width: 250; -fx-max-width: 250;">
+                    <Label text="✈️" style="-fx-font-size: 48px; -fx-alignment: center;"/>
+                    <Label text="Flights" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white; -fx-padding: 10 0 5 0;"/>
+                    <Label text="From $199" style="-fx-font-size: 14px; -fx-text-fill: #ffd700; -fx-font-weight: bold;"/>
+                    <Button text="Book Flight" style="-fx-background-color: white; -fx-text-fill: #2c3e50; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 8; -fx-cursor: hand; -fx-margin: 10 0 0 0; -fx-max-width: 150;"/>
+                </VBox>
+                <VBox styleClass="transport-card" style="-fx-background-color: linear-gradient(to bottom, #27ae60, #2ecc71); -fx-background-radius: 15; -fx-padding: 20; -fx-min-width: 250; -fx-max-width: 250;">
+                    <Label text="🚗" style="-fx-font-size: 48px; -fx-alignment: center;"/>
+                    <Label text="Car Rentals" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white; -fx-padding: 10 0 5 0;"/>
+                    <Label text="From $45/day" style="-fx-font-size: 14px; -fx-text-fill: #ffd700; -fx-font-weight: bold;"/>
+                    <Button text="Rent Now" style="-fx-background-color: white; -fx-text-fill: #27ae60; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 8; -fx-cursor: hand; -fx-margin: 10 0 0 0; -fx-max-width: 150;"/>
+                </VBox>
+            </HBox>
+        </ScrollPane>
+    </VBox>
+
+    <Separator />
+    -->
+
+    <!-- ========== BLOG SECTION (COMMENTED - FOR FUTURE USE) ========== -->
+    <!--
+    <VBox spacing="15.0" styleClass="category-section">
+        <HBox alignment="CENTER_LEFT" spacing="20">
+            <Label styleClass="section-title" text="📝 Travel Stories & Reviews" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Button onAction="#handleBrowseBlog" styleClass="search-button" text="Read All Stories" />
+        </HBox>
+        <ScrollPane fitToHeight="false" fitToWidth="false" pannable="true" styleClass="cards-scroll-pane" prefHeight="320">
+            <HBox fx:id="blogContainer" spacing="25.0" styleClass="cards-scroll-container">
+                <VBox styleClass="blog-card" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 0; -fx-min-width: 300; -fx-max-width: 300; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+                    <StackPane prefHeight="120" style="-fx-background-color: #ffd166; -fx-background-radius: 15 15 0 0;">
+                        <Label text="✍️" style="-fx-font-size: 40px;"/>
+                    </StackPane>
+                    <VBox spacing="8" style="-fx-padding: 15;">
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="👤" style="-fx-font-size: 20px;"/>
+                            <Label text="Sarah Johnson" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+                            <Label text="⭐ 4.8" style="-fx-font-size: 12px; -fx-text-fill: #f39c12;"/>
+                        </HBox>
+                        <Label text="My Amazing Bali Adventure" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-wrap-text: true;"/>
+                        <Label text="The beaches were incredible! Highly recommend the snorkeling tour..." style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d; -fx-wrap-text: true;"/>
+                        <HBox alignment="CENTER_RIGHT">
+                            <Button text="Read More" style="-fx-background-color: transparent; -fx-text-fill: #3498db; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 5;"/>
+                        </HBox>
+                    </VBox>
+                </VBox>
+                <VBox styleClass="blog-card" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 0; -fx-min-width: 300; -fx-max-width: 300; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+                    <StackPane prefHeight="120" style="-fx-background-color: #a2d6f9; -fx-background-radius: 15 15 0 0;">
+                        <Label text="📸" style="-fx-font-size: 40px;"/>
+                    </StackPane>
+                    <VBox spacing="8" style="-fx-padding: 15;">
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="👤" style="-fx-font-size: 20px;"/>
+                            <Label text="Mike Chen" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+                            <Label text="⭐ 4.9" style="-fx-font-size: 12px; -fx-text-fill: #f39c12;"/>
+                        </HBox>
+                        <Label text="Skiing in the Swiss Alps" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-wrap-text: true;"/>
+                        <Label text="Best powder snow I've ever experienced! The mountain views are breathtaking..." style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d; -fx-wrap-text: true;"/>
+                        <HBox alignment="CENTER_RIGHT">
+                            <Button text="Read More" style="-fx-background-color: transparent; -fx-text-fill: #3498db; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 5;"/>
+                        </HBox>
+                    </VBox>
+                </VBox>
+                <VBox styleClass="blog-card" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 0; -fx-min-width: 300; -fx-max-width: 300; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+                    <StackPane prefHeight="120" style="-fx-background-color: #f9c74f; -fx-background-radius: 15 15 0 0;">
+                        <Label text="🍜" style="-fx-font-size: 40px;"/>
+                    </StackPane>
+                    <VBox spacing="8" style="-fx-padding: 15;">
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="👤" style="-fx-font-size: 20px;"/>
+                            <Label text="Maria Garcia" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+                            <Label text="⭐ 4.7" style="-fx-font-size: 12px; -fx-text-fill: #f39c12;"/>
+                        </HBox>
+                        <Label text="Food Tour in Barcelona" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-wrap-text: true;"/>
+                        <Label text="Tapas, paella, and the best churros! A culinary journey through Spain..." style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d; -fx-wrap-text: true;"/>
+                        <HBox alignment="CENTER_RIGHT">
+                            <Button text="Read More" style="-fx-background-color: transparent; -fx-text-fill: #3498db; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 5;"/>
+                        </HBox>
+                    </VBox>
+                </VBox>
+            </HBox>
+        </ScrollPane>
+    </VBox>
+
+    <Separator />
+    -->
 
 </StackPane>
