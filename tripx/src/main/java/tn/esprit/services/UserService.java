@@ -18,8 +18,16 @@ public class UserService {
         conx = MyDB.getInstance().getConx();
     }
 
+    private boolean checkConnection() {
+        if (conx == null) {
+            conx = MyDB.getInstance().getConx();
+        }
+        return conx != null;
+    }
+
     // Create new user (SIGNUP)
     public boolean createUser(User user) {
+        if (!checkConnection()) return false;
         String sql = "INSERT INTO user (first_name, last_name, email, password) VALUES (?, ?, ?, ?)";
         try {
             PreparedStatement ps = conx.prepareStatement(sql);
@@ -29,7 +37,7 @@ public class UserService {
             ps.setString(4, user.getPassword()); // plain text for now
             int rows = ps.executeUpdate();
             return rows > 0;
-        } catch (SQLException e) {
+        } catch (SQLException | NullPointerException e) {
             System.err.println("Error creating user: " + e.getMessage());
             return false;
         }
@@ -45,6 +53,7 @@ public class UserService {
     }
 
     public boolean deleteUser(int userId) {
+        if (!checkConnection()) return false;
         String sql = "DELETE FROM user WHERE user_id = ?";
         try {
             PreparedStatement ps = conx.prepareStatement(sql);
@@ -59,6 +68,7 @@ public class UserService {
 
     // UPDATE user
     public boolean updateUser(User user) {
+        if (!checkConnection()) return false;
         String sql = "UPDATE user SET first_name = ?, last_name = ?, email = ?, phone_number = ?, gender = ?, birth_year = ? WHERE user_id = ?";
         try {
             PreparedStatement ps = conx.prepareStatement(sql);
@@ -77,8 +87,9 @@ public class UserService {
         }
     }
 
-    // ✅ Find user by email (for login)
+    //  Find user by email (for login)
     public User findByEmail(String email) {
+        if (!checkConnection()) return null;
         String sql = "SELECT * FROM user WHERE email = ?";
         try {
             PreparedStatement ps = conx.prepareStatement(sql);
@@ -116,6 +127,7 @@ public class UserService {
 
     // In UserService.java
     public String getRoleByEmail(String email) {
+        if (!checkConnection()) return null;
         String sql = "SELECT role FROM user WHERE email = ?";
         try {
             PreparedStatement ps = conx.prepareStatement(sql);
@@ -133,6 +145,7 @@ public class UserService {
 
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
+        if (!checkConnection()) return users;
         String sql = "SELECT * FROM user ORDER BY user_id DESC";
 
         try {
@@ -156,6 +169,12 @@ public class UserService {
                 } catch (SQLException e) {
                     user.setRole("USER"); // Default role if column doesn't exist
                 }
+                // Get status
+                try {
+                    user.setStatus(rs.getString("status"));
+                } catch (SQLException e) {
+                    user.setStatus("ACTIVE");
+                }
                 users.add(user);
             }
         } catch (SQLException e) {
@@ -168,6 +187,7 @@ public class UserService {
 
     // Update User Password
     public boolean updateUserPassword(User user) {
+        if (!checkConnection()) return false;
         String sql = "UPDATE user SET password = ? WHERE user_id = ?";
         try {
             PreparedStatement ps = conx.prepareStatement(sql);
@@ -183,6 +203,7 @@ public class UserService {
 
     // Add this method to UserService.java
     public User findById(int userId) {
+        if (!checkConnection()) return null;
         String sql = "SELECT * FROM user WHERE user_id = ?";
         try {
             PreparedStatement ps = conx.prepareStatement(sql);
@@ -214,6 +235,7 @@ public class UserService {
     }
 
     public boolean updateUserDemographics(User user) {
+        if (!checkConnection()) return false;
         String sql = "UPDATE user SET gender = ?, birth_year = ? WHERE user_id = ?";
         try {
             PreparedStatement ps = conx.prepareStatement(sql);
@@ -229,6 +251,36 @@ public class UserService {
                 System.err.println("Please run: ALTER TABLE user ADD COLUMN gender VARCHAR(50), ADD COLUMN birth_year VARCHAR(50);");
             }
             System.err.println("Error updating user demographics: " + msg);
+            return false;
+        }
+    }
+
+    // Avatar-------------------------------
+    // Update this method to handle the new avatar format
+    public boolean updateUserAvatar(int userId, String avatarId) {
+        if (!checkConnection()) return false;
+        String sql = "UPDATE user SET avatar_id = ? WHERE user_id = ?";
+        try (PreparedStatement ps = conx.prepareStatement(sql)) {
+            ps.setString(1, avatarId); // Now stores "big-smile:Adrian"
+            ps.setInt(2, userId);
+            int rows = ps.executeUpdate();
+            return rows > 0;
+        } catch (SQLException e) {
+            System.err.println("Error updating avatar: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean updateUserStatus(int userId, String status) {
+        if (!checkConnection()) return false;
+        String sql = "UPDATE user SET status = ? WHERE user_id = ?";
+        try (PreparedStatement ps = conx.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setInt(2, userId);
+            int rows = ps.executeUpdate();
+            return rows > 0;
+        } catch (SQLException e) {
+            System.err.println("Error updating user status: " + e.getMessage());
             return false;
         }
     }

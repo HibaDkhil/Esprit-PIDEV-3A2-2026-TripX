@@ -24,8 +24,10 @@
     -fx-background-color: transparent;
     -fx-alignment: center-left;
     -fx-text-fill: #4B5563;
-    -fx-font-size: 14px;
-    -fx-padding: 10 15;
+    -fx-font-size: 15px;
+    /* Slightly larger for better clarity */
+    -fx-padding: 12 25;
+    /* More horizontal padding for wider sidebar */
     -fx-cursor: hand;
     -fx-background-radius: 8;
 }
@@ -39,9 +41,9 @@
     -fx-alignment: center-left;
     -fx-text-fill: #2563EB;
     /* Blue */
-    -fx-font-size: 14px;
+    -fx-font-size: 15px;
     -fx-font-weight: bold;
-    -fx-padding: 10 15;
+    -fx-padding: 12 25;
     -fx-background-radius: 8;
 }
 

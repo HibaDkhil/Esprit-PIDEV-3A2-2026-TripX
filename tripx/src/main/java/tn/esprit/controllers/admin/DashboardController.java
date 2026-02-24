@@ -1,5 +1,6 @@
 package tn.esprit.controllers.admin;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -32,7 +33,7 @@ public class DashboardController {
     @FXML private HBox transportHeader;
     @FXML private HBox offersHeader;
     @FXML private HBox blogHeader;
-
+    @FXML private HBox profileHeaderSection;
     // Menu toggles (triangles)
     @FXML private Button dashboardToggle;
     @FXML private Button usersToggle;
@@ -64,10 +65,8 @@ public class DashboardController {
 
     // Header components
     @FXML private Button headerSettingsBtn;
-    @FXML private MenuButton profileDropdown;
-    @FXML private MenuItem profileMenuItem;
-    @FXML private MenuItem settingsMenuItem;
-    @FXML private MenuItem logoutMenuItem;
+    @FXML private MenuButton profileMenuBtn;
+    @FXML private Label userNameHeaderLabel;
     @FXML private Label avatarText;
 
     // Theme and language
@@ -111,7 +110,9 @@ public class DashboardController {
             String initials = currentUser.getFirstName().substring(0, 1) +
                     currentUser.getLastName().substring(0, 1);
             avatarText.setText(initials.toUpperCase());
-            profileDropdown.setText(currentUser.getFirstName() + " " + currentUser.getLastName());
+            if (userNameHeaderLabel != null) {
+                userNameHeaderLabel.setText(currentUser.getFirstName() + " " + currentUser.getLastName());
+            }
         }
     }
 
@@ -315,18 +316,10 @@ public class DashboardController {
             headerSettingsBtn.setOnAction(e -> showSettings(0));
         }
 
-        // Profile dropdown items - CHANGED: profile now opens ProfileAdmin
-        if (profileMenuItem != null) {
-            profileMenuItem.setOnAction(e -> showProfile()); // ← CHANGED
-        }
-
-        if (settingsMenuItem != null) {
-            settingsMenuItem.setOnAction(e -> showSettings(0)); // Settings tab - index 0
-        }
-
-        // Logout from dropdown
-        if (logoutMenuItem != null) {
-            logoutMenuItem.setOnAction(e -> handleLogout());
+        // Profile section click (directly opens profile)
+        if (profileHeaderSection != null) {
+            profileHeaderSection.setCursor(javafx.scene.Cursor.HAND);
+            // Action is handled by onMouseClicked in FXML (#showProfile)
         }
 
         // Logout from sidebar
@@ -413,6 +406,9 @@ public class DashboardController {
                 controller.setUserData(currentUser, role);
             }
 
+            if (breadcrumb1 != null) breadcrumb1.setText("Users");
+            if (breadcrumb2 != null) breadcrumb2.setText("Manage Users");
+
             mainContent.getChildren().clear();
             mainContent.getChildren().add(view);
 
@@ -475,6 +471,19 @@ public class DashboardController {
     private void showAccommodations() {
         if (!hasAccess("accommodations")) { showAccessDenied("Accommodations"); return; }
         setActiveButton(accommodationsBtn);
+        
+        /* INTEGRATION: Future Accommodation Module
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/admin/accommodation_management.fxml"));
+            Node view = loader.load();
+            mainContent.getChildren().clear();
+            mainContent.getChildren().add(view);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Error loading Accommodation Management: " + e.getMessage());
+        }
+        */
+
         mainContent.getChildren().clear();
         Label label = new Label("Accommodation Management Module");
         label.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-font-family: 'Poppins';");
@@ -484,6 +493,19 @@ public class DashboardController {
     private void showTransport() {
         if (!hasAccess("transport")) { showAccessDenied("Transport"); return; }
         setActiveButton(transportBtn);
+
+        /* INTEGRATION: Future Transport Module
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/admin/transport_management.fxml"));
+            Node view = loader.load();
+            mainContent.getChildren().clear();
+            mainContent.getChildren().add(view);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Error loading Transport Management: " + e.getMessage());
+        }
+        */
+
         mainContent.getChildren().clear();
         Label label = new Label("Transport Management Module");
         label.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-font-family: 'Poppins';");
@@ -493,6 +515,19 @@ public class DashboardController {
     private void showOffers() {
         if (!hasAccess("offers")) { showAccessDenied("Offers"); return; }
         setActiveButton(offersBtn);
+
+        /* INTEGRATION: Future Offers Module
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/admin/offers_management.fxml"));
+            Node view = loader.load();
+            mainContent.getChildren().clear();
+            mainContent.getChildren().add(view);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Error loading Offers Management: " + e.getMessage());
+        }
+        */
+
         mainContent.getChildren().clear();
         Label label = new Label("Offers Management Module");
         label.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-font-family: 'Poppins';");
@@ -502,6 +537,19 @@ public class DashboardController {
     private void showBlog() {
         if (!hasAccess("blog")) { showAccessDenied("Blog"); return; }
         setActiveButton(blogBtn);
+
+        /* INTEGRATION: Future Blog Module
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/admin/blog_management.fxml"));
+            Node view = loader.load();
+            mainContent.getChildren().clear();
+            mainContent.getChildren().add(view);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Error loading Blog Management: " + e.getMessage());
+        }
+        */
+
         mainContent.getChildren().clear();
         Label label = new Label("Blog & Community Module");
         label.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-font-family: 'Poppins';");
@@ -509,7 +557,8 @@ public class DashboardController {
     }
 
     // NEW METHOD: Show Profile
-    private void showProfile() {
+    @FXML
+    private void showProfile(javafx.scene.input.MouseEvent event) {
         try {
             // Clear active button from sidebar
             resetAllMenuItems();
@@ -590,24 +639,38 @@ public class DashboardController {
     private void setupTheme() {
         if (darkModeToggle == null) return;
 
+        // Initial state
+        updateThemeDisplay(isDarkMode);
+
         darkModeToggle.selectedProperty().addListener((obs, oldVal, newVal) -> {
             isDarkMode = newVal;
-            if (sidebar != null && sidebar.getScene() != null) {
-                if (sidebar.getScene().getRoot() instanceof StackPane root) {
-                    if (isDarkMode) {
-                        root.getStyleClass().add("dark-mode");
-                        themeIcon.setText("🌙");
-                    } else {
-                        root.getStyleClass().remove("dark-mode");
-                        themeIcon.setText("☀️");
-                    }
-                }
-            }
+            applyTheme(isDarkMode);
             saveThemePreference(isDarkMode ? "dark" : "light");
         });
 
         // Load saved preference
         loadThemePreference();
+    }
+
+    private void applyTheme(boolean dark) {
+        if (sidebar != null && sidebar.getScene() != null) {
+            StackPane root = (StackPane) sidebar.getScene().getRoot();
+            if (dark) {
+                root.getStyleClass().add("dark-mode");
+            } else {
+                root.getStyleClass().remove("dark-mode");
+            }
+            updateThemeDisplay(dark);
+        }
+    }
+
+    private void updateThemeDisplay(boolean dark) {
+        if (themeIcon != null) {
+            themeIcon.setText(dark ? "🌙" : "☀️");
+        }
+        if (darkModeToggle != null) {
+            darkModeToggle.setSelected(dark);
+        }
     }
 
     private void saveThemePreference(String theme) {
@@ -624,16 +687,16 @@ public class DashboardController {
             Preferences prefs = Preferences.userNodeForPackage(DashboardController.class);
             String theme = prefs.get("theme", "light");
             isDarkMode = theme.equals("dark");
-            darkModeToggle.setSelected(isDarkMode);
 
-            // Update theme icon
-            if (themeIcon != null) {
-                themeIcon.setText(isDarkMode ? "🌙" : "☀️");
-            }
+            // Apply theme after UI is loaded
+            Platform.runLater(() -> {
+                applyTheme(isDarkMode);
+            });
         } catch (Exception e) {
             isDarkMode = false;
         }
     }
+
 
     private void setupLanguageSelector() {
         if (languageSelector == null) return;
@@ -642,14 +705,23 @@ public class DashboardController {
         }
     }
 
+    @FXML
+    private void handleMenuProfile() {
+        showProfile(null);
+    }
+
+    @FXML
+    private void handleMenuSettings() {
+        showSettings(0);
+    }
+
+    @FXML
     private void handleLogout() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/user/login.fxml"));
             Parent root = loader.load();
 
-            Stage stage = (Stage) (profileDropdown != null ?
-                    profileDropdown.getScene().getWindow() :
-                    sidebar.getScene().getWindow());
+            Stage stage = (Stage) sidebar.getScene().getWindow();
 
             javafx.scene.Scene scene = new javafx.scene.Scene(root);
             stage.setScene(scene);

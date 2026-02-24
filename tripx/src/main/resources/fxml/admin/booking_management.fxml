@@ -18,18 +18,22 @@
             stylesheets="@../../css/destination.css">
 
     <top>
-        <VBox spacing="15" styleClass="header-section">
-            <padding>
-                <Insets top="20" right="25" left="25" bottom="15"/>
-            </padding>
-            <HBox alignment="CENTER_LEFT" spacing="10">
-                <Label text="📅 Booking Management" styleClass="page-title"/>
-                <Button fx:id="themeBtn" text="🌙" styleClass="theme-toggle-btn"/>
-                <Region HBox.hgrow="ALWAYS" />
-                <Button fx:id="backBtn" text="⬅ Back to Dashboard" styleClass="action-button"/>
-            </HBox>
-            <Label text="Monitor and manage user bookings" styleClass="page-subtitle"/>
-            <Separator styleClass="section-separator"/>
+        <VBox spacing="0">
+
+
+            <VBox spacing="15" styleClass="header-section">
+                <padding>
+                    <Insets top="20" right="25" left="25" bottom="15"/>
+                </padding>
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="📅 Booking Management" styleClass="page-title"/>
+                    <Button fx:id="themeBtn" text="🌙" styleClass="theme-toggle-btn"/>
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Button fx:id="backBtn" text="⬅ Back to Dashboard" styleClass="action-button"/>
+                </HBox>
+                <Label text="Monitor and manage user bookings" styleClass="page-subtitle"/>
+                <Separator styleClass="section-separator"/>
+            </VBox>
         </VBox>
     </top>
 

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<VBox fx:id="analyticsContainer" spacing="30.0" styleClass="analytics-root" stylesheets="/css/style.css, /css/analytics.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tn.esprit.controllers.user.UserAnalyticsController">
+    <padding>
+        <Insets bottom="30.0" left="30.0" right="30.0" top="10.0" />
+    </padding>
+
+    <!-- Header Section -->
+    <VBox spacing="5.0">
+        <Label styleClass="page-title" text="Your Activity Dashboard" />
+        <Label styleClass="page-subtitle" text="Personalized insights based on your interactions with TripX." />
+    </VBox>
+
+    <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-padding: 0;" vbarPolicy="AS_NEEDED">
+        <content>
+            <VBox spacing="30.0" style="-fx-background-color: transparent;">
+                
+                <!-- KPIs / Summary Cards -->
+                <HBox spacing="20.0">
+                    <children>
+                        <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+                            <Label styleClass="stat-label" text="Most Visited Page" />
+                            <Label fx:id="topPageLabel" styleClass="stat-value" text="Home" />
+                        </VBox>
+                        <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+                            <Label styleClass="stat-label" text="Peak Activity Hour" />
+                            <Label fx:id="peakHourLabel" styleClass="stat-value" text="14:00" />
+                        </VBox>
+                        <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+                            <Label styleClass="stat-label" text="Total Interactions" />
+                            <Label fx:id="totalInteractionsLabel" styleClass="stat-value" text="0" />
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <!-- Charts Section -->
+                <GridPane hgap="25.0" vgap="25.0">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="400.0" percentWidth="50.0" />
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="400.0" percentWidth="50.0" />
+                    </columnConstraints>
+                    
+                    <children>
+                        <!-- Most Used Features Chart -->
+                        <VBox styleClass="white-card" GridPane.columnIndex="0">
+                            <Label styleClass="card-header" text="🔥 Most Used Features" />
+                            <PieChart fx:id="featuresPieChart" prefHeight="300.0" />
+                        </VBox>
+
+                        <!-- Activity by Time Chart -->
+                        <VBox styleClass="white-card" GridPane.columnIndex="1">
+                            <Label styleClass="card-header" text="⏰ Activity by Hour" />
+                            <BarChart fx:id="activityBarChart" legendVisible="false" prefHeight="300.0">
+                                <xAxis>
+                                    <CategoryAxis label="Hour (24h)" />
+                                </xAxis>
+                                <yAxis>
+                                    <NumberAxis label="Interactions" />
+                                </yAxis>
+                            </BarChart>
+                        </VBox>
+                    </children>
+               <rowConstraints>
+                  <RowConstraints />
+               </rowConstraints>
+                </GridPane>
+
+                <!-- History & Recommendations -->
+                <HBox spacing="25.0">
+                    <children>
+                        <!-- Search History -->
+                        <VBox spacing="15.0" styleClass="white-card" HBox.hgrow="ALWAYS">
+                            <Label styleClass="card-header" text="🔍 Recent Search History" />
+                            <VBox fx:id="searchHistoryList" spacing="10.0">
+                                <!-- Dynamically populated list -->
+                            </VBox>
+                        </VBox>
+
+                        <!-- Recommendations -->
+                        <VBox spacing="15.0" styleClass="white-card" HBox.hgrow="ALWAYS">
+                            <Label styleClass="card-header" text="✨ Recommended for You" />
+                            <Label styleClass="card-subtitle" text="Based on your interests and activity." />
+                            <VBox fx:id="recommendationsList" spacing="10.0">
+                                <!-- Dynamically populated cards -->
+                            </VBox>
+                        </VBox>
+                    </children>
+                </HBox>
+
+            </VBox>
+        </content>
+    </ScrollPane>
+</VBox>

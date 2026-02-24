@@ -41,8 +41,23 @@ public class MyDB {
         return instance;
     }
 
+    public boolean isConnected() {
+        try {
+            return conx != null && !conx.isClosed();
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+
     // Get database connection
     public Connection getConx() {
+        try {
+            if (conx == null || conx.isClosed()) {
+                conx = DriverManager.getConnection(URL, USERNAME, PWD);
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ Failed to establish/refresh database connection.");
+        }
         return conx;
     }
 

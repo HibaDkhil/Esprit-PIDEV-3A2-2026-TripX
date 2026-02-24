@@ -27,11 +27,12 @@ public class Main extends Application {
                 return;
             }
 
-            Scene scene = new Scene(loader.load(), 1280, 720);
+            Scene scene = new Scene(loader.load(), tn.esprit.utils.WindowUtils.STANDARD_WIDTH, tn.esprit.utils.WindowUtils.STANDARD_HEIGHT);
 
             primaryStage.setTitle("TRIPX - Login");
             primaryStage.setScene(scene);
-            primaryStage.setResizable(false);
+            primaryStage.setResizable(true);
+            primaryStage.centerOnScreen();
             primaryStage.show();
 
         } catch (Exception e) {

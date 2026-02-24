@@ -13,6 +13,9 @@ public class User {
     private String birthYear;
     private String phoneNumber;
     private Date createdAt;
+    private String avatarId;  // <--
+    private String status = "ACTIVE"; // ACTIVE, SUSPENDED, BANNED
+
     // Constructors
     public User() {
     }
@@ -23,21 +26,25 @@ public class User {
         this.email = email;
         this.password = password;
         this.role = "USER";
+        this.status = "ACTIVE";
     }
 
-    public User(int userId, String firstName, String lastName, String email, String password, String gender, String birthYear, Date createdAt) { // Changed birthDateRange to birthYear
+    public User(int userId, String firstName, String lastName, String email, String password, String gender, String birthYear, Date createdAt) {
         this.userId = userId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
         this.gender = gender;
-        this.birthYear = birthYear; // Changed birthDateRange to birthYear
+        this.birthYear = birthYear;
         this.createdAt = createdAt;
         this.role = "USER";
+        this.status = "ACTIVE";
     }
 
     // Getters and Setters
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
     public int getUserId() {
         return userId;
     }
@@ -84,8 +91,8 @@ public class User {
     public String getGender() { return gender; }
     public void setGender(String gender) { this.gender = gender; }
 
-    public String getBirthYear() { return birthYear; } // Changed getBirthDateRange to getBirthYear
-    public void setBirthYear(String birthYear) { this.birthYear = birthYear; } // Changed setBirthDateRange to setBirthYear
+    public String getBirthYear() { return birthYear; }
+    public void setBirthYear(String birthYear) { this.birthYear = birthYear; }
 
     public String getPhoneNumber() { return phoneNumber; }
     public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
@@ -98,7 +105,16 @@ public class User {
         this.createdAt = createdAt;
     }
 
-    // toString for debugging
+    // ===== NEW: Avatar ID methods =====
+    public String getAvatarId() {
+        return avatarId;
+    }
+
+    public void setAvatarId(String avatarId) {
+        this.avatarId = avatarId;
+    }
+    // =================================
+
     @Override
     public String toString() {
         return "User{" +
@@ -108,7 +124,8 @@ public class User {
                 ", email='" + email + '\'' +
                 ", role='" + role + '\'' +
                 ", gender='" + gender + '\'' +
-                ", birthYear='" + birthYear + '\'' + // Changed birthDateRange to birthYear
+                ", birthYear='" + birthYear + '\'' +
+                ", avatarId='" + avatarId + '\'' +
                 ", createdAt=" + createdAt +
                 '}';
     }

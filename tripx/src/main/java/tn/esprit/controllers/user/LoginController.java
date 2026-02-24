@@ -19,6 +19,8 @@ import tn.esprit.entities.User;
 import tn.esprit.services.UserService;
 import tn.esprit.utils.ValidationUtils;
 import tn.esprit.services.EmailReputationService;
+
+import java.util.List;
 import java.util.Optional;
 
 import java.io.IOException;
@@ -272,7 +274,26 @@ public class LoginController {
 
         //  Attempt login
         UserService userService = new UserService();
-        User loggedInUser = userService.findByEmail(email);
+        User loggedInUser = null;
+        try {
+            loggedInUser = userService.findByEmail(email);
+        } catch (Exception e) {
+            // This is just a safety catch
+        }
+
+        if (loggedInUser == null) {
+            // Check if it's because the user doesn't exist or because DB is offline
+            if (tn.esprit.utils.MyDB.getInstance().getConx() == null) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Database Error");
+                alert.setHeaderText("Communications link failure");
+                alert.setContentText("The database is offline. Please start XAMPP/MySQL Control Panel and refresh.");
+                alert.showAndWait();
+                return;
+            }
+            loginPasswordError.setText("Incorrect email or password");
+            return;
+        }
 
         boolean passwordMatch = false;
         if (loggedInUser != null) {
@@ -309,7 +330,10 @@ public class LoginController {
                 controller.setCurrentUser(loggedInUser);
 
                 Stage stage = (Stage) loginBtn.getScene().getWindow();
-                Scene scene = new Scene(root);
+                double width = stage.getWidth();
+                double height = stage.getHeight();
+                
+                Scene scene = new Scene(root, width, height);
                 stage.setScene(scene);
                 stage.setResizable(true);
                 stage.centerOnScreen();
@@ -324,7 +348,10 @@ public class LoginController {
                 controller.setUser(loggedInUser);
                 
                 Stage stage = (Stage) loginBtn.getScene().getWindow();
-                Scene scene = new Scene(root);
+                double width = stage.getWidth();
+                double height = stage.getHeight();
+                
+                Scene scene = new Scene(root, width, height);
                 stage.setScene(scene);
                 stage.setResizable(true);
                 stage.centerOnScreen();
@@ -525,6 +552,124 @@ public class LoginController {
         } else {
             emailError.setText("Email already exists");
             emailFieldSignup.getStyleClass().add("input-error");
+        }
+    }
+
+    @FXML
+    private void handleGoogleLogin() {
+        processSocialLogin("Google");
+    }
+
+    @FXML
+    private void handleFacebookLogin() {
+        processSocialLogin("Facebook");
+    }
+
+    @FXML
+    private void handleLinkedInLogin() {
+        processSocialLogin("LinkedIn");
+    }
+
+    /**
+     * Simulated Social Login Flow
+     * 1. Opens the provider's login page in the system browser.
+     * 2. Prompts the user to enter their social account email in a dialog.
+     * 3. Validates the email against the database.
+     */
+    private void processSocialLogin(String provider) {
+        String url = "";
+        switch (provider) {
+            case "Google" -> url = "https://accounts.google.com/";
+            case "Facebook" -> url = "https://www.facebook.com/login";
+            case "LinkedIn" -> url = "https://www.linkedin.com/login";
+        }
+
+        System.out.println("Opening " + provider + " login page: " + url);
+        
+        // Open browser
+        try {
+            if (java.awt.Desktop.isDesktopSupported() && java.awt.Desktop.getDesktop().isSupported(java.awt.Desktop.Action.BROWSE)) {
+                java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
+            } else {
+                // Fallback for environments where Desktop isn't supported
+                System.out.println("Desktop browsing not supported. Please login at: " + url);
+            }
+        } catch (Exception e) {
+            System.err.println("Could not open browser: " + e.getMessage());
+        }
+
+        // Show a dialog to simulate finishing the social login
+        javafx.scene.control.TextInputDialog dialog = new javafx.scene.control.TextInputDialog();
+        dialog.setTitle(provider + " Login");
+        dialog.setHeaderText("Complete your " + provider + " sign-in");
+        dialog.setContentText("Enter the email associated with your " + provider + " account:");
+
+        java.util.Optional<String> result = dialog.showAndWait();
+        
+        if (result.isPresent()) {
+            String socialEmail = result.get().trim();
+            if (socialEmail.isEmpty()) return;
+
+            UserService userService = new UserService();
+            User testUser = null;
+            try {
+                testUser = userService.findByEmail(socialEmail);
+            } catch (Exception e) {
+                System.err.println("Database error during social login check: " + e.getMessage());
+            }
+
+            if (testUser == null) {
+                // USER DOES NOT EXIST - Prompt to create account
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Account Not Found");
+                alert.setHeaderText("No TripX account linked to this email");
+                alert.setContentText("We couldn't find an account for " + socialEmail + ". Please create an account first to link your " + provider + " login.");
+                alert.showAndWait();
+                
+                // Switch to signup side automatically
+                handleCreateAccount();
+                emailFieldSignup.setText(socialEmail);
+                return;
+            }
+
+            // SUCCESS - User exists, redirect
+            System.out.println("Social login successful! Redirecting user: " + testUser.getEmail());
+            
+            String role = userService.getRoleByEmail(socialEmail);
+
+            try {
+                if (role != null && role.toLowerCase().startsWith("admin")) {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/admin/dashboard.fxml"));
+                    Parent root = loader.load();
+                    DashboardController controller = loader.getController();
+                    controller.setRole(role);
+                    controller.setCurrentUser(testUser);
+
+                    Stage stage = (Stage) googleBtn.getScene().getWindow();
+                    Scene scene = new Scene(root);
+                    stage.setScene(scene);
+                    stage.centerOnScreen();
+                    stage.show();
+                } else {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/user/home.fxml"));
+                    Parent root = loader.load();
+                    HomeController controller = loader.getController();
+                    controller.setUser(testUser);
+                    
+                    Stage stage = (Stage) googleBtn.getScene().getWindow();
+                    Scene scene = new Scene(root);
+                    stage.setScene(scene);
+                    stage.centerOnScreen();
+                    stage.show();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText("Navigation Failed");
+                alert.setContentText("Could not load the dashboard: " + e.getMessage());
+                alert.showAndWait();
+            }
         }
     }
 

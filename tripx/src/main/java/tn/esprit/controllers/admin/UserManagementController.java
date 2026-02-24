@@ -1,7 +1,10 @@
 package tn.esprit.controllers.admin;
 
 import tn.esprit.entities.User;
+import tn.esprit.entities.Destination;
 import tn.esprit.services.UserService;
+import tn.esprit.services.UserActivityService;
+import tn.esprit.services.DestinationService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -16,7 +19,13 @@ import javafx.geometry.Pos;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.fxml.FXMLLoader;
-import java.io.IOException;
+import javafx.scene.chart.*;
+import javafx.animation.TranslateTransition;
+import javafx.util.Duration;
+import java.time.LocalDate;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.stream.Collectors;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,14 +44,30 @@ public class UserManagementController {
     @FXML private TableColumn<User, Void> actionsColumn;
     @FXML private Button slideArrowBtn;
     @FXML private VBox statsPanel;
+    @FXML private HBox slidingOverlay;
+    @FXML private AnchorPane mainContainer;
+    @FXML private PieChart genderChart;
+    @FXML private BarChart<String, Integer> ageChart;
     @FXML private Label totalUsersStat;
     @FXML private Label adminCountStat;
     @FXML private Label userCountStat;
-    @FXML private Label newUsersStat;
+    @FXML private ListView<String> mostPopularList;
+
+    // Pagination
+    @FXML private Button prevPageBtn;
+    @FXML private Button nextPageBtn;
+    @FXML private Label pageInfoLabel;
 
     private UserService userService;
+    private UserActivityService activityService;
+    private DestinationService destinationService;
     private ObservableList<User> userList;
+    private ObservableList<User> paginatedList;
     private boolean statsVisible = false;
+
+    private int currentPage = 1;
+    private final int pageSize = 10;
+    private int totalPages = 1;
 
     // Ajoute cette méthode pour recevoir les données de l'utilisateur connecté
     public void setUserData(User user, String role) {
@@ -59,6 +84,8 @@ public class UserManagementController {
     @FXML
     public void initialize() {
         userService = new UserService();
+        activityService = new UserActivityService();
+        destinationService = new DestinationService();
 
         // Setup table columns
         setupTableColumns();
@@ -68,6 +95,9 @@ public class UserManagementController {
 
         // Setup search functionality
         setupSearch();
+
+        // Setup pagination
+        setupPagination();
 
         // Setup slide arrow
         setupSlideArrow();
@@ -86,24 +116,44 @@ public class UserManagementController {
         // Status column
         statusColumn.setCellValueFactory(cellData -> {
             User user = cellData.getValue();
-            String status = "Active";
+            String status = user.getStatus() != null ? user.getStatus() : "ACTIVE";
             return javafx.beans.binding.Bindings.createStringBinding(() -> status);
+        });
+        
+        // Add status color logic
+        statusColumn.setCellFactory(column -> new TableCell<User, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    setText(item);
+                    if (item.equals("BANNED")) setStyle("-fx-text-fill: #f44336; -fx-font-weight: bold;");
+                    else if (item.equals("SUSPENDED")) setStyle("-fx-text-fill: #ff9800; -fx-font-weight: bold;");
+                    else setStyle("-fx-text-fill: #4caf50; -fx-font-weight: bold;");
+                }
+            }
         });
 
         // Actions column with buttons
         actionsColumn.setCellFactory(param -> new TableCell<>() {
             private final Button editBtn = new Button("Edit");
             private final Button deleteBtn = new Button("Delete");
-            private final Button suspendBtn = new Button("Suspend");
-            private final Button banBtn = new Button("Ban");
+            private final Button suspendBtn = new Button();
+            private final Button banBtn = new Button();
             private final HBox pane = new HBox(5, editBtn, deleteBtn, suspendBtn, banBtn);
 
             {
                 // Style buttons
                 editBtn.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 5 10;");
                 deleteBtn.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 5 10;");
-                suspendBtn.setStyle("-fx-background-color: #ff9800; -fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 5 10;");
-                banBtn.setStyle("-fx-background-color: #333333; -fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 5 10;");
+                
+                // Common style for status buttons
+                String commonStyle = "-fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 5 10;";
+                suspendBtn.setStyle("-fx-background-color: #ff9800; " + commonStyle);
+                banBtn.setStyle("-fx-background-color: #333333; " + commonStyle);
 
                 // Add hover effects
                 addHoverEffect(editBtn, "#2196F3", "#1976D2");
@@ -114,8 +164,18 @@ public class UserManagementController {
                 // Set actions
                 editBtn.setOnAction(e -> handleEdit(getTableRow().getItem()));
                 deleteBtn.setOnAction(e -> handleDelete(getTableRow().getItem()));
-                suspendBtn.setOnAction(e -> handleSuspend(getTableRow().getItem()));
-                banBtn.setOnAction(e -> handleBan(getTableRow().getItem()));
+                
+                suspendBtn.setOnAction(e -> {
+                    User u = getTableRow().getItem();
+                    if ("SUSPENDED".equals(u.getStatus())) handleUnsuspend(u);
+                    else handleSuspend(u);
+                });
+                
+                banBtn.setOnAction(e -> {
+                    User u = getTableRow().getItem();
+                    if ("BANNED".equals(u.getStatus())) handleUnban(u);
+                    else handleBan(u);
+                });
 
                 pane.setAlignment(Pos.CENTER);
                 pane.setPadding(new Insets(5));
@@ -124,7 +184,16 @@ public class UserManagementController {
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                setGraphic(empty ? null : pane);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    User user = getTableRow().getItem();
+                    if (user != null) {
+                        suspendBtn.setText("SUSPENDED".equals(user.getStatus()) ? "Unsuspend" : "Suspend");
+                        banBtn.setText("BANNED".equals(user.getStatus()) ? "Unban" : "Ban");
+                    }
+                    setGraphic(pane);
+                }
             }
         });
     }
@@ -141,8 +210,43 @@ public class UserManagementController {
     private void loadUsersFromDatabase() {
         List<User> users = userService.getAllUsers();
         userList = FXCollections.observableArrayList(users);
-        userTable.setItems(userList);
+        updatePagination();
         System.out.println("Loaded " + users.size() + " users from database");
+    }
+
+    private void setupPagination() {
+        prevPageBtn.setOnAction(e -> {
+            if (currentPage > 1) {
+                currentPage--;
+                updatePagination();
+            }
+        });
+
+        nextPageBtn.setOnAction(e -> {
+            if (currentPage < totalPages) {
+                currentPage++;
+                updatePagination();
+            }
+        });
+    }
+
+    private void updatePagination() {
+        if (userList == null) return;
+        
+        int total = userList.size();
+        totalPages = Math.max(1, (int) Math.ceil((double) total / pageSize));
+        
+        if (currentPage > totalPages) currentPage = totalPages;
+        
+        int fromIndex = (currentPage - 1) * pageSize;
+        int toIndex = Math.min(fromIndex + pageSize, total);
+        
+        paginatedList = FXCollections.observableArrayList(userList.subList(fromIndex, toIndex));
+        userTable.setItems(paginatedList);
+        
+        pageInfoLabel.setText(String.format("Page %d of %d", currentPage, totalPages));
+        prevPageBtn.setDisable(currentPage == 1);
+        nextPageBtn.setDisable(currentPage == totalPages);
     }
 
     private void setupSearch() {
@@ -155,24 +259,25 @@ public class UserManagementController {
     }
 
     private void filterUsers(String searchText) {
-        if (searchText == null || searchText.isEmpty()) {
-            userTable.setItems(userList);
+        if (searchText == null || searchText.trim().isEmpty()) {
+            updatePagination();
             return;
         }
 
-        ObservableList<User> filteredList = FXCollections.observableArrayList();
-        String lowerSearch = searchText.toLowerCase();
+        String lowerSearch = searchText.toLowerCase().trim();
+        List<User> filtered = userList.stream()
+                .filter(u -> (u.getFirstName() != null && u.getFirstName().toLowerCase().contains(lowerSearch)) ||
+                            (u.getLastName() != null && u.getLastName().toLowerCase().contains(lowerSearch)) ||
+                            (u.getEmail() != null && u.getEmail().toLowerCase().contains(lowerSearch)) ||
+                            String.valueOf(u.getUserId()).contains(lowerSearch) ||
+                            (u.getRole() != null && u.getRole().toLowerCase().contains(lowerSearch)))
+                .collect(Collectors.toList());
 
-        for (User user : userList) {
-            if (user.getFirstName().toLowerCase().contains(lowerSearch) ||
-                    user.getLastName().toLowerCase().contains(lowerSearch) ||
-                    user.getEmail().toLowerCase().contains(lowerSearch) ||
-                    String.valueOf(user.getUserId()).contains(lowerSearch)) {
-                filteredList.add(user);
-            }
-        }
-
-        userTable.setItems(filteredList);
+        userTable.setItems(FXCollections.observableArrayList(filtered));
+        // Reset pagination info for search results
+        pageInfoLabel.setText("Search Results");
+        prevPageBtn.setDisable(true);
+        nextPageBtn.setDisable(true);
     }
 
     private void sortUsers() {
@@ -181,41 +286,130 @@ public class UserManagementController {
     }
 
     private void setupSlideArrow() {
-        statsPanel.setVisible(false);
-        statsPanel.setManaged(false);
+        // Initial state: entire overlay (arrow + panel) is slid to the right
+        // The panel is 600px wide. We keep the arrow visible at the right edge.
+        slidingOverlay.setTranslateX(0); // Position is defined by AnchorPane.rightAnchor in FXML (-600)
+        
+        mainContainer.setPickOnBounds(false); 
 
         slideArrowBtn.setOnAction(e -> toggleStatsPanel());
     }
 
     private void toggleStatsPanel() {
         statsVisible = !statsVisible;
-        statsPanel.setVisible(statsVisible);
-        statsPanel.setManaged(statsVisible);
-        slideArrowBtn.setText(statsVisible ? "▶" : "◀");
-
+        
+        TranslateTransition transition = new TranslateTransition(Duration.millis(500), slidingOverlay);
+        
         if (statsVisible) {
+            transition.setToX(-600); // Slide everything 600px to the left
+            slideArrowBtn.setText("▶");
             updateStatistics();
+        } else {
+            transition.setToX(0); // Slide back to original position (only arrow visible)
+            slideArrowBtn.setText("◀");
         }
+        
+        transition.play();
     }
 
+    @FXML
     private void updateStatistics() {
+        if (userList == null) return;
+
         int total = userList.size();
         int admins = 0;
         int regularUsers = 0;
 
+        Map<String, Integer> genderMap = new HashMap<>();
+        Map<String, Integer> ageGroups = new HashMap<>();
+        ageGroups.put("Under 18", 0);
+        ageGroups.put("18-24", 0);
+        ageGroups.put("25-34", 0);
+        ageGroups.put("35-44", 0);
+        ageGroups.put("45-54", 0);
+        ageGroups.put("55-64", 0);
+        ageGroups.put("65+", 0);
+
+        int currentYear = LocalDate.now().getYear();
+
         for (User user : userList) {
+            // Count roles
             String userRole = user.getRole();
-            if (userRole != null && userRole.toLowerCase().startsWith("admin")) {
+            if (userRole != null && userRole.toLowerCase().contains("admin")) {
                 admins++;
             } else {
                 regularUsers++;
+            }
+
+            // Gender data
+            String gender = user.getGender() != null ? user.getGender() : "Unknown";
+            genderMap.put(gender, genderMap.getOrDefault(gender, 0) + 1);
+
+            // Detailed Age data
+            if (user.getBirthYear() != null && !user.getBirthYear().isEmpty()) {
+                try {
+                    int age = currentYear - Integer.parseInt(user.getBirthYear());
+                    if (age < 18) ageGroups.put("Under 18", ageGroups.get("Under 18") + 1);
+                    else if (age <= 24) ageGroups.put("18-24", ageGroups.get("18-24") + 1);
+                    else if (age <= 34) ageGroups.put("25-34", ageGroups.get("25-34") + 1);
+                    else if (age <= 44) ageGroups.put("35-44", ageGroups.get("35-44") + 1);
+                    else if (age <= 54) ageGroups.put("45-54", ageGroups.get("45-54") + 1);
+                    else if (age <= 64) ageGroups.put("55-64", ageGroups.get("55-64") + 1);
+                    else ageGroups.put("65+", ageGroups.get("65+") + 1);
+                } catch (Exception e) {}
             }
         }
 
         totalUsersStat.setText(String.valueOf(total));
         adminCountStat.setText(String.valueOf(admins));
         userCountStat.setText(String.valueOf(regularUsers));
-        newUsersStat.setText("5"); // Placeholder
+
+        // Update Charts
+        updateCharts(genderMap, ageGroups);
+
+        // Update Behavior Analytics
+        updateBehaviorAnalytics();
+    }
+
+    private void updateBehaviorAnalytics() {
+        if (activityService == null || mostPopularList == null) return;
+
+        List<Long> popularIds = activityService.getGlobalMostVisitedDestinations(5);
+        ObservableList<String> items = FXCollections.observableArrayList();
+
+        for (Long id : popularIds) {
+            Destination d = destinationService.getDestinationById(id);
+            if (d != null) {
+                items.add("📍 " + d.getName() + " (" + d.getCountry() + ")");
+            }
+        }
+
+        if (items.isEmpty()) {
+            items.add("No activity recorded yet.");
+        }
+
+        mostPopularList.setItems(items);
+    }
+
+    private void updateCharts(Map<String, Integer> genderMap, Map<String, Integer> ageGroups) {
+        // Gender PieChart
+        genderChart.getData().clear();
+        genderMap.forEach((gender, count) -> {
+            genderChart.getData().add(new PieChart.Data(gender + " (" + count + ")", count));
+        });
+
+        // Age BarChart
+        ageChart.getData().clear();
+        XYChart.Series<String, Integer> series = new XYChart.Series<>();
+        series.setName("Users by Age Group");
+        
+        // Ensure sorted order in BarChart
+        String[] labels = {"Under 18", "18-24", "25-34", "35-44", "45-54", "55-64", "65+"};
+        for (String label : labels) {
+            series.getData().add(new XYChart.Data<>(label, ageGroups.get(label)));
+        }
+        
+        ageChart.getData().add(series);
     }
 
     // ==================== DELETE OPERATION ====================
@@ -430,14 +624,36 @@ public class UserManagementController {
         alert.showAndWait();
     }
 
-    // Placeholder methods
+    // ==================== STATUS OPERATIONS ====================
     private void handleSuspend(User user) {
-        System.out.println("Suspend user: " + user.getEmail());
-        // TODO: Implement suspend user
+        if (user == null) return;
+        updateStatus(user, "SUSPENDED", "User suspended successfully!");
+    }
+
+    private void handleUnsuspend(User user) {
+        if (user == null) return;
+        updateStatus(user, "ACTIVE", "User unsuspended successfully!");
     }
 
     private void handleBan(User user) {
-        System.out.println("Ban user: " + user.getEmail());
-        // TODO: Implement ban user
+        if (user == null) return;
+        updateStatus(user, "BANNED", "User banned successfully!");
+    }
+
+    private void handleUnban(User user) {
+        if (user == null) return;
+        updateStatus(user, "ACTIVE", "User unbanned successfully!");
+    }
+
+    private void updateStatus(User user, String newStatus, String successMsg) {
+        boolean updated = userService.updateUserStatus(user.getUserId(), newStatus);
+        if (updated) {
+            user.setStatus(newStatus);
+            userTable.refresh();
+            updateStatistics();
+            showSuccessMessage(successMsg);
+        } else {
+            showErrorMessage("Failed to update user status!");
+        }
     }
 }

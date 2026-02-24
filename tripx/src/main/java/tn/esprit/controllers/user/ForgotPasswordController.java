@@ -131,7 +131,10 @@ public class ForgotPasswordController {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/fxml/user/login.fxml"));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
+            double width = stage.getWidth();
+            double height = stage.getHeight();
+            stage.setScene(new Scene(root, width, height));
+            stage.centerOnScreen();
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();

@@ -1,0 +1,62 @@
+﻿[INFO] Scanning for projects...
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for tn.esprit:tripx:jar:1.0-SNAPSHOT
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: com.google.code.gson:gson:jar -> duplicate declaration of version 2.10.1 @ line 71, column 21
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: org.apache.httpcomponents:httpclient:jar -> duplicate declaration of version 4.5.14 @ line 85, column 21
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: org.apache.httpcomponents:httpclient:jar -> duplicate declaration of version 4.5.14 @ line 91, column 21
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: org.apache.httpcomponents:httpclient:jar -> duplicate declaration of version 4.5.14 @ line 101, column 21
+[WARNING] 
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING] 
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING] 
+[INFO] 
+[INFO] --------------------------< tn.esprit:tripx >---------------------------
+[INFO] Building TRIPX 1.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ tripx ---
+[INFO] Copying 33 resources from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\java to target\classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ tripx ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 42 source files with javac [debug target 17] to target\classes
+[INFO] -------------------------------------------------------------
+[WARNING] COMPILATION WARNING : 
+[INFO] -------------------------------------------------------------
+[WARNING] system modules path not set in conjunction with -source 17
+[INFO] 1 warning
+[INFO] -------------------------------------------------------------
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /C:/Users/user/OneDrive/Bureau/tripx/tripx/src/main/java/tn/esprit/controllers/admin/UserManagementController.java:[262,9] cannot find symbol
+  symbol:   variable totalUsersStat
+  location: class tn.esprit.controllers.admin.UserManagementController
+[ERROR] /C:/Users/user/OneDrive/Bureau/tripx/tripx/src/main/java/tn/esprit/controllers/admin/UserManagementController.java:[263,9] cannot find symbol
+  symbol:   variable adminCountStat
+  location: class tn.esprit.controllers.admin.UserManagementController
+[INFO] 2 errors 
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  2.744 s
+[INFO] Finished at: 2026-02-23T21:13:57+01:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.11.0:compile (default-compile) on project tripx: Compilation failure: Compilation failure: 
+[ERROR] /C:/Users/user/OneDrive/Bureau/tripx/tripx/src/main/java/tn/esprit/controllers/admin/UserManagementController.java:[262,9] cannot find symbol
+[ERROR]   symbol:   variable totalUsersStat
+[ERROR]   location: class tn.esprit.controllers.admin.UserManagementController
+[ERROR] /C:/Users/user/OneDrive/Bureau/tripx/tripx/src/main/java/tn/esprit/controllers/admin/UserManagementController.java:[263,9] cannot find symbol
+[ERROR]   symbol:   variable adminCountStat
+[ERROR]   location: class tn.esprit.controllers.admin.UserManagementController
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

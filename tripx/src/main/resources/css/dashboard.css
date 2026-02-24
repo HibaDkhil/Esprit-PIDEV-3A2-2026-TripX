@@ -13,7 +13,7 @@
 .sidebar-container {
     -fx-background-color: linear-gradient(to bottom, #001D39, #0A4174 45%, #4E8EA2 100%);
     -fx-background-radius: 0 24 24 0;
-    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.35), 22, 0, 0, 6);
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.35), 22, 0, 0, 6);
 }
 
 .sidebar-header {
@@ -243,13 +243,38 @@
     -fx-translate-y: -8;
 }
 
-.profile-dropdown {
+.profile-menu-button {
     -fx-background-color: transparent;
-    -fx-text-fill: #063154;
-    -fx-font-weight: 600;
-    -fx-background-radius: 10;
+    -fx-background-radius: 15;
+    -fx-padding: 0;
+    -fx-cursor: hand;
     -fx-border-color: #E8EAF6;
-    -fx-border-radius: 10;
+    -fx-border-radius: 15;
+    -fx-transition: all 0.3s ease;
+}
+
+.profile-menu-button:hover {
+    -fx-background-color: rgba(74, 118, 159, 0.08);
+    -fx-border-color: #4cccad;
+}
+
+.profile-menu-button .label {
+    -fx-text-fill: #063154;
+}
+
+.dark-mode .profile-menu-button {
+    -fx-border-color: #1e293b;
+}
+
+.dark-mode .profile-menu-button .label {
+    -fx-text-fill: #e5e7eb;
+}
+
+.profile-name-header {
+    -fx-text-fill: #063154;
+    -fx-font-weight: 700;
+    -fx-font-size: 14px;
+    -fx-font-family: 'Poppins', sans-serif;
 }
 
 .avatar-circle {
@@ -314,7 +339,15 @@
 .dark-mode .theme-icon,
 .dark-mode .breadcrumb-item,
 .dark-mode .breadcrumb-item.active,
-.dark-mode .profile-dropdown,
+.dark-mode .profile-header-section {
+    -fx-border-color: #1e293b;
+}
+
+.dark-mode .profile-header-section:hover {
+    -fx-background-color: rgba(229, 231, 235, 0.05);
+}
+
+.dark-mode .profile-name-header,
 .dark-mode .sidebar-open-btn,
 .dark-mode .header-settings-btn {
     -fx-text-fill: #e5e7eb;
@@ -429,4 +462,51 @@
 
 .btn_explore:hover {
     -fx-background-color: #1a8cd8;
+}
+
+/* Dark Mode Switch Styles */
+.dark-mode-switch {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-cursor: hand;
+}
+
+.dark-mode-switch .switch-track {
+    -fx-fill: #4a5568;
+    -fx-stroke: #2d3748;
+    -fx-stroke-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 2, 0, 0, 1);
+}
+
+.dark-mode-switch:selected .switch-track {
+    -fx-fill: #4cccad;
+    -fx-stroke: #38a169;
+}
+
+.dark-mode-switch .switch-thumb {
+    -fx-fill: white;
+    -fx-stroke: #cbd5e0;
+    -fx-stroke-width: 1;
+    -fx-translate-x: -10;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 3, 0, 0, 1);
+}
+
+.dark-mode-switch:selected .switch-thumb {
+    -fx-translate-x: 10;
+    -fx-fill: white;
+    -fx-stroke: #4cccad;
+}
+
+/* Animation for smooth transition */
+.switch-thumb {
+    -fx-transition: -fx-translate-x 0.2s ease-in-out;
+}
+
+/* Theme icon animation */
+.theme-icon {
+    -fx-transition: -fx-rotate 0.3s ease;
+}
+
+.dark-mode .theme-icon {
+    -fx-rotate: 360;
 }

@@ -72,6 +72,44 @@
     -fx-background-color: #ff5252;
 }
 
+/* User Display Container */
+.user-display-container {
+    -fx-padding: 5 15 5 5;
+    -fx-background-color: transparent;
+    -fx-background-radius: 30;
+    -fx-border-width: 0;
+    -fx-transition: all 0.3s ease;
+}
+
+.user-display-container:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.home-avatar-circle {
+    -fx-background-color: #f0f2f5;
+    -fx-background-radius: 50;
+    /* Large value or 50% ensures circle */
+    -fx-min-width: 40px;
+    -fx-min-height: 40px;
+    -fx-max-width: 40px;
+    -fx-max-height: 40px;
+    -fx-alignment: center;
+    -fx-shape: "M 100 100 m -75 0 a 75 75 0 1 0 150 0 a 75 75 0 1 0 -150 0";
+    /* Forces circular clipping */
+}
+
+.home-avatar-circle .image-view {
+    -fx-background-radius: 50;
+}
+
+.home-user-name {
+    -fx-text-fill: #0a153a;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
 /* Hero Section */
 .hero-section {
     -fx-background-color: #eeebe8;
@@ -242,8 +280,7 @@
 .weather-results {
     -fx-padding: 25 0;
     -fx-spacing: 20;
-    -fx-min-height: 400px;
-    /* Allow more space for cards */
+    /* Removed fixed min-height to allow collapsing when empty */
 }
 
 /* AI Assistant Styles */

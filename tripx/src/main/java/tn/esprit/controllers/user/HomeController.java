@@ -21,6 +21,7 @@ import javafx.stage.Stage;
 import tn.esprit.entities.Activity;
 import tn.esprit.entities.Destination;
 import tn.esprit.entities.User;
+import tn.esprit.entities.UserActivity;
 import tn.esprit.entities.UserPreferences;
 import tn.esprit.services.*;
 
@@ -32,10 +33,15 @@ import java.util.List;
 public class HomeController {
 
     private User currentUser;
+    @FXML private HBox recommendationsContainer;
+    @FXML private VBox recommendationsSection;
+
+    // Services
     private UserPreferencesService preferencesService;
     private WeatherPreferenceMatcher weatherMatcher;
     private DestinationService destinationService;
     private ActivityService activityService;
+    private UserActivityService activityLogService;
 
     // Search / Combo fields
     @FXML private ComboBox<String> destinationCombo;
@@ -53,10 +59,15 @@ public class HomeController {
     @FXML private TextField chatInputField;
     @FXML private ScrollPane chatScrollPane;
     @FXML private Button aiAssistantBtn;
+    @FXML private Label userNameLabel;
+    @FXML private ImageView userAvatarView;
 
     private GeminiService geminiService;
     //weather
     @FXML private VBox weatherResultsContainer;
+
+    // AVATAR
+    @FXML private Label avatarInitials;
 
     // ========== NEW TRIP PLANNER FIELDS ==========
     @FXML private ComboBox<String> plannerDestinationCombo;
@@ -97,17 +108,122 @@ public class HomeController {
         this.geminiService        = new GeminiService();
         this.destinationService   = new DestinationService();
         this.activityService      = new ActivityService();
+        this.activityLogService   = new UserActivityService();
+
+        // Track page visit
+        tn.esprit.utils.ActivityLogger.logVisit(currentUser, "HOME");
 
         // AI welcome
         addBotMessage("Hi " + (currentUser != null ? currentUser.getFirstName() : "") +
                 "! \ud83e\udd16 I'm your TripX Assistant. How can I help you plan your dream trip today?");
 
-
+        updateUserDisplay();
         initializeTripPlanner();
 
         loadFeaturedDestinations();
         loadFeaturedActivities();
+        loadRecommendations();
         populateSearchCombos();
+    }
+
+    private void loadRecommendations() {
+        if (currentUser == null || activityLogService == null || recommendationsContainer == null) return;
+
+        List<Long> recommendedIds = activityLogService.getRecommendationsByClicks(currentUser.getUserId(), 6);
+        
+        if (recommendedIds.isEmpty()) {
+            recommendationsSection.setVisible(false);
+            recommendationsSection.setManaged(false);
+            return;
+        }
+
+        recommendationsSection.setVisible(true);
+        recommendationsSection.setManaged(true);
+        recommendationsContainer.getChildren().clear();
+
+        for (Long id : recommendedIds) {
+            Destination d = destinationService.getDestinationById(id);
+            if (d != null) {
+                recommendationsContainer.getChildren().add(buildDestinationCard(d));
+            }
+        }
+    }
+
+    private void updateUserDisplay() {
+        if (currentUser == null) return;
+
+        if (userNameLabel != null) {
+            userNameLabel.setText(currentUser.getFirstName() + " " + currentUser.getLastName());
+        }
+
+        // Set initials
+        String initials = "";
+        if (currentUser.getFirstName() != null && !currentUser.getFirstName().isEmpty()) {
+            initials += currentUser.getFirstName().substring(0, 1).toUpperCase();
+        }
+        if (currentUser.getLastName() != null && !currentUser.getLastName().isEmpty()) {
+            initials += currentUser.getLastName().substring(0, 1).toUpperCase();
+        }
+
+        if (initials.isEmpty()) {
+            initials = "U";
+        }
+
+        final String finalInitials = initials;
+
+        // Get final references for lambda
+        final Label finalAvatarInitials = this.avatarInitials;
+        final ImageView finalUserAvatarView = this.userAvatarView;
+
+        // Hide ImageView initially, show initials
+        if (finalUserAvatarView != null) {
+            finalUserAvatarView.setVisible(false);
+            finalUserAvatarView.setManaged(false);
+        }
+
+        if (finalAvatarInitials != null) {
+            finalAvatarInitials.setText(finalInitials);
+            finalAvatarInitials.setVisible(true);
+            finalAvatarInitials.setManaged(true);
+        }
+
+        // Try to load avatar from DiceBear
+        String avatarId = currentUser.getAvatarId();
+        if (avatarId != null && avatarId.contains(":")) {
+            String[] parts = avatarId.split(":");
+            String style = parts[0];
+            String seed = parts[1];
+            String avatarUrl = "https://api.dicebear.com/9.x/" + style + "/png?seed=" + seed + "&size=40&backgroundColor=4cccad";
+
+            Thread loadThread = new Thread(() -> {
+                try {
+                    javafx.scene.image.Image img = new javafx.scene.image.Image(avatarUrl, 40, 40, true, true, true);
+                    Platform.runLater(() -> {
+                        if (finalUserAvatarView != null && !img.isError()) {
+                            finalUserAvatarView.setImage(img);
+
+                            // Create circular clip
+                            javafx.scene.shape.Circle clip = new javafx.scene.shape.Circle(20, 20, 20);
+                            finalUserAvatarView.setClip(clip);
+
+                            // Show ImageView, hide initials
+                            finalUserAvatarView.setVisible(true);
+                            finalUserAvatarView.setManaged(true);
+
+                            if (finalAvatarInitials != null) {
+                                finalAvatarInitials.setVisible(false);
+                                finalAvatarInitials.setManaged(false);
+                            }
+                        }
+                    });
+                } catch (Exception e) {
+                    // Keep showing initials, that's fine
+                    System.err.println("Could not load avatar: " + e.getMessage());
+                }
+            });
+            loadThread.setDaemon(true);
+            loadThread.start();
+        }
     }
 
     @FXML
@@ -253,7 +369,12 @@ public class HomeController {
             "-fx-cursor: hand;"
         ));
 
-        card.setOnMouseClicked(e -> navigateToDestinations(null));
+        card.setOnMouseClicked(e -> {
+            if (currentUser != null && activityLogService != null) {
+                activityLogService.logActivity(new UserActivity(currentUser.getUserId(), "CLICK", d.getDestinationId(), "DESTINATION"));
+            }
+            navigateToDestinations(null);
+        });
 
         return card;
     }
@@ -321,7 +442,12 @@ public class HomeController {
             "-fx-cursor: hand;"
         ));
 
-        card.setOnMouseClicked(e -> navigateToActivities());
+        card.setOnMouseClicked(e -> {
+            if (currentUser != null && activityLogService != null) {
+                activityLogService.logActivity(new UserActivity(currentUser.getUserId(), "CLICK", a.getActivityId(), "ACTIVITY"));
+            }
+            navigateToActivities();
+        });
 
         return card;
     }
@@ -376,8 +502,10 @@ public class HomeController {
         String actQuery  = activityCombo  != null ? activityCombo.getValue()  : null;
 
         if (destQuery != null && !destQuery.trim().isEmpty()) {
+            tn.esprit.utils.ActivityLogger.logSearch(currentUser, destQuery.trim());
             navigateToDestinations(destQuery.trim());
         } else if (actQuery != null && !actQuery.trim().isEmpty()) {
+            tn.esprit.utils.ActivityLogger.logSearch(currentUser, actQuery.trim());
             navigateToActivities();
         } else {
             // weather fallback
@@ -480,6 +608,9 @@ public class HomeController {
         addUserMessage(message);
         chatInputField.clear();
 
+        // Track AI Chat use
+        tn.esprit.utils.ActivityLogger.logFeatureUse(currentUser, "AI_CHAT");
+
         Label loadingLabel = new Label("TripX AI is thinking...");
         loadingLabel.getStyleClass().add("ai-bubble-bot");
         loadingLabel.setStyle("-fx-opacity: 0.6; -fx-font-style: italic;");
@@ -531,6 +662,9 @@ public class HomeController {
             return;
         }
         new Thread(() -> {
+            // Track Climate Match use
+            tn.esprit.utils.ActivityLogger.logFeatureUse(currentUser, "CLIMATE_MATCH");
+
             List<WeatherPreferenceMatcher.DestinationMatch> matches =
                     weatherMatcher.getDestinationsMatchingClimate(prefs);
             Platform.runLater(() -> displayWeatherMatches(matches));
@@ -564,6 +698,8 @@ public class HomeController {
         scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent; -fx-border-width: 0;");
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
+        weatherResultsContainer.setVisible(true);
+        weatherResultsContainer.setManaged(true);
         weatherResultsContainer.getChildren().add(scrollPane);
         // Ensure parent container expands
         weatherResultsContainer.setMinHeight(Region.USE_COMPUTED_SIZE);
@@ -648,17 +784,22 @@ public class HomeController {
     // ─── Profile / Logout ─────────────────────────────────────────────────────
 
     @FXML
-    private void handleProfile(ActionEvent event) {
+    private void handleProfile(MouseEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/user/profile.fxml"));
             Parent root = loader.load();
             ProfileController controller = loader.getController();
             controller.setUser(currentUser);
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
+            double width = stage.getWidth();
+            double height = stage.getHeight();
+            
+            Scene scene = new Scene(root, width, height);
+            stage.setScene(scene);
             stage.centerOnScreen();
         } catch (IOException e) {
             e.printStackTrace();
+            showAlert("Could not open profile: " + e.getMessage());
         }
     }
 
@@ -814,6 +955,9 @@ public class HomeController {
         // Show loading
         plannerProgress.setVisible(true);
         generatePlanBtn.setDisable(true);
+
+        // Track Trip Planner use
+        tn.esprit.utils.ActivityLogger.logFeatureUse(currentUser, "TRIP_PLANNER");
 
         // Build prompt for AI
         String prompt = buildTripPlanPrompt(destination, days, activities, prefs);
@@ -1164,11 +1308,13 @@ public class HomeController {
         } else {
             System.err.println("❌ ERROR: Could not find scene to set root");
             // Fallback to setting a new scene if root swap fails
-            Stage stage = getStage();
-            if (stage != null) {
-                stage.setScene(new Scene(root));
-                stage.centerOnScreen();
-            }
+                Stage stage = getStage();
+                if (stage != null) {
+                    double width = stage.getWidth();
+                    double height = stage.getHeight();
+                    stage.setScene(new Scene(root, width, height));
+                    stage.centerOnScreen();
+                }
         }
     } catch (IOException e) {
             System.err.println("❌ IOException: " + e.getMessage());
@@ -1209,7 +1355,9 @@ public class HomeController {
         } else {
             Stage stage = getStage();
             if (stage != null) {
-                stage.setScene(new Scene(root));
+                double width = stage.getWidth();
+                double height = stage.getHeight();
+                stage.setScene(new Scene(root, width, height));
                 stage.centerOnScreen();
                 System.out.println("✅ Navigated to activities page (setScene)");
             }
@@ -1356,27 +1504,35 @@ private void navigateToBlog() {
 */
 
 
-    public void handleHomeNav(javafx.scene.input.MouseEvent mouseEvent) {
+    @FXML
+    private void handleHomeNav(MouseEvent mouseEvent) {
         System.out.println("Home clicked");
+        // Already on home page, do nothing or refresh
     }
 
-    public void handleDestinationsNav(javafx.scene.input.MouseEvent mouseEvent) {
+    @FXML
+    private void handleDestinationsNav(MouseEvent mouseEvent) {
         navigateToDestinations(null);
     }
 
-    public void handleAccommodationsNav(javafx.scene.input.MouseEvent mouseEvent) {
+    @FXML
+    private void handleAccommodationsNav(MouseEvent mouseEvent) {
         showAlert("Accommodations page coming soon!");
     }
 
-    public void handleActivitiesNav(javafx.scene.input.MouseEvent mouseEvent) {
+    @FXML
+    private void handleActivitiesNav(MouseEvent mouseEvent) {
         navigateToActivities();
     }
 
-    public void handleTransportNav(javafx.scene.input.MouseEvent mouseEvent) {
+    @FXML
+    private void handleTransportNav(MouseEvent mouseEvent) {
         showAlert("Transport page coming soon!");
     }
 
-    public void handleBlogNav(MouseEvent mouseEvent) {
+    @FXML
+    private void handleBlogNav(MouseEvent mouseEvent) {
+        showAlert("Blog page coming soon!");
     }
 
     // ========== FUTURE NAVIGATION METHODS (COMMENTED) ==========
