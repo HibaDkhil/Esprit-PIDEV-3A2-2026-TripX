@@ -17,6 +17,9 @@ import tn.esprit.entities.Destination;
 import tn.esprit.services.ActivityService;
 import tn.esprit.services.DestinationService;
 import tn.esprit.utils.ThemeManager;
+import tn.esprit.utils.ImageHelper;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.Image;
 
 import java.net.URL;
 import java.util.List;
@@ -148,36 +151,58 @@ public class UserActivitiesController implements Initializable {
 
     private VBox createActivityCard(Activity activity) {
         VBox card = new VBox(10);
-        card.setStyle("-fx-background-color: white; -fx-background-radius: 10; " +
-                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2); " +
-                "-fx-padding: 15; -fx-min-width: 280; -fx-max-width: 280; -fx-cursor: hand;");
+        boolean dark = ThemeManager.isDarkMode();
+        String cardBg = dark ? "#2a2a3d" : "white";
+        String shadow = dark ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.1)";
+        String cardStyle = "-fx-background-color: " + cardBg + "; -fx-background-radius: 12; " +
+                "-fx-effect: dropshadow(gaussian, " + shadow + ", 10, 0, 0, 2); " +
+                "-fx-padding: 15; -fx-min-width: 280; -fx-max-width: 280; -fx-cursor: hand;";
+        card.setStyle(cardStyle);
 
         StackPane imageContainer = new StackPane();
         imageContainer.setPrefHeight(150);
         imageContainer.setPrefWidth(250);
-        imageContainer.setStyle(getCategoryColor(activity.getCategory()));
+        
+        Image image = ImageHelper.loadImage("activities", activity.getName());
+        if (image != null) {
+            ImageView imageView = new ImageView(image);
+            imageView.setFitHeight(150);
+            imageView.setFitWidth(250);
+            imageView.setPreserveRatio(false);
+            javafx.scene.shape.Rectangle clip = new javafx.scene.shape.Rectangle(250, 150);
+            clip.setArcWidth(20);
+            clip.setArcHeight(20);
+            imageView.setClip(clip);
+            imageContainer.getChildren().add(imageView);
+        } else {
+            imageContainer.setStyle(getCategoryColor(activity.getCategory()));
+            Label categoryIcon = new Label(getCategoryIcon(activity.getCategory()));
+            categoryIcon.setStyle("-fx-font-size: 48px; -fx-text-fill: white;");
+            imageContainer.getChildren().add(categoryIcon);
+        }
 
-        Label categoryIcon = new Label(getCategoryIcon(activity.getCategory()));
-        categoryIcon.setStyle("-fx-font-size: 48px; -fx-text-fill: white;");
-        imageContainer.getChildren().add(categoryIcon);
+        String textP = dark ? "#e0e0e0" : "#2c3e50";
+        String textS = dark ? "#a0a0b8" : "#7f8c8d";
 
         Label nameLabel = new Label(activity.getName());
-        nameLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");
+        nameLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: " + textP + ";");
         nameLabel.setWrapText(true);
 
         Label destLabel = new Label("📍 " + activity.getDestinationName());
-        destLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #7f8c8d; -fx-font-weight: bold;");
+        destLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: " + textS + "; -fx-font-weight: bold;");
 
         HBox priceBox = new HBox(10);
         priceBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
         Label categoryLabel = new Label(activity.getCategory().toString());
-        categoryLabel.setStyle("-fx-background-color: #e3f2fd; -fx-padding: 5 10; -fx-background-radius: 15; -fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #1976d2;");
+        String catBg = dark ? "#312e81" : "#e3f2fd";
+        String catColor = dark ? "#a5b4fc" : "#1976d2";
+        categoryLabel.setStyle("-fx-background-color: " + catBg + "; -fx-padding: 5 10; -fx-background-radius: 15; -fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: " + catColor + ";");
         Label priceLabel = new Label("$" + String.format("%.2f", activity.getPrice()));
         priceLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #27ae60;");
         priceBox.getChildren().addAll(categoryLabel, priceLabel);
 
         Button bookBtn = new Button("Book & View Destination");
-        bookBtn.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 10 15; -fx-cursor: hand; -fx-font-size: 14px;");
+        bookBtn.setStyle("-fx-background-color: linear-gradient(to right, #27ae60, #2ecc71); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 15; -fx-cursor: hand; -fx-font-size: 14px;");
         bookBtn.setMaxWidth(Double.MAX_VALUE);
         bookBtn.setOnAction(e -> handleRedirection(activity));
 
@@ -203,27 +228,39 @@ public class UserActivitiesController implements Initializable {
         content.setPadding(new Insets(20));
         content.setPrefWidth(500);
 
+        boolean dark = ThemeManager.isDarkMode();
+        String textPrimary = dark ? "#e0e0e0" : "#2c3e50";
+        String textSecondary = dark ? "#a0a0b8" : "#34495e";
+        String textTertiary = dark ? "#c4c4dc" : "#555";
+
         Label nameLabel = new Label(activity.getName());
-        nameLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");
-        if (ThemeManager.isDarkMode()) nameLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #ecf0f1;");
+        nameLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: " + textPrimary + ";");
 
         Label destLabel = new Label("📍 Located in: " + activity.getDestinationName());
-        destLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #34495e; -fx-font-weight: bold;");
+        destLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: " + textSecondary + "; -fx-font-weight: bold;");
 
         javafx.scene.layout.GridPane grid = new javafx.scene.layout.GridPane();
         grid.setHgap(15);
         grid.setVgap(10);
-        grid.addRow(0, new Label("Category:"), new Label(activity.getCategory().name()));
-        grid.addRow(1, new Label("Price:"), new Label("$" + String.format("%.2f", activity.getPrice())));
-        grid.addRow(2, new Label("Capacity:"), new Label(activity.getCapacity() + " people"));
+        String gls = "-fx-text-fill: " + textTertiary + "; -fx-font-weight: bold;";
+        String gvs = "-fx-text-fill: " + textPrimary + ";";
+        Label k1 = new Label("Category:"); Label v1 = new Label(activity.getCategory().name());
+        Label k2 = new Label("Price:"); Label v2 = new Label("$" + String.format("%.2f", activity.getPrice()));
+        Label k3 = new Label("Capacity:"); Label v3 = new Label(activity.getCapacity() + " people");
+        k1.setStyle(gls); v1.setStyle(gvs);
+        k2.setStyle(gls); v2.setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold;");
+        k3.setStyle(gls); v3.setStyle(gvs);
+        grid.addRow(0, k1, v1);
+        grid.addRow(1, k2, v2);
+        grid.addRow(2, k3, v3);
 
         Label descTitle = new Label("Description");
-        descTitle.setStyle("-fx-font-weight: bold; -fx-font-size: 16px; -fx-padding: 10 0 5 0;");
+        descTitle.setStyle("-fx-font-weight: bold; -fx-font-size: 16px; -fx-padding: 10 0 5 0; -fx-text-fill: " + textPrimary + ";");
         TextArea descArea = new TextArea(activity.getDescription());
         descArea.setWrapText(true);
         descArea.setEditable(false);
         descArea.setPrefRowCount(5);
-        descArea.setStyle("-fx-background-color: transparent;");
+        descArea.getStyleClass().add("form-textarea");
 
         Button bookNowBtn = new Button("Book Now (Go to Destination)");
         bookNowBtn.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-cursor: hand;");
@@ -233,8 +270,42 @@ public class UserActivitiesController implements Initializable {
             handleRedirection(activity);
         });
 
-        content.getChildren().addAll(nameLabel, destLabel, grid, descTitle, descArea, bookNowBtn);
-        dialogPane.setContent(content);
+        // Reviews button
+        Button reviewsBtn = new Button("⭐ Reviews & Ratings");
+        reviewsBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-cursor: hand; -fx-background-radius: 5; -fx-font-size: 14px;");
+        reviewsBtn.setMaxWidth(Double.MAX_VALUE);
+        reviewsBtn.setOnAction(e -> {
+            try {
+                javafx.fxml.FXMLLoader reviewLoader = new javafx.fxml.FXMLLoader(getClass().getResource("/fxml/user/reviews_dialog.fxml"));
+                javafx.scene.Parent reviewRoot = reviewLoader.load();
+                ReviewDialogController reviewController = reviewLoader.getController();
+                reviewController.setTarget(tn.esprit.entities.Review.TargetType.ACTIVITY, activity.getActivityId(), activity.getName());
+
+                javafx.stage.Stage reviewStage = new javafx.stage.Stage();
+                reviewStage.setTitle("Reviews: " + activity.getName());
+                reviewStage.setScene(new javafx.scene.Scene(reviewRoot));
+                if (ThemeManager.isDarkMode()) {
+                    ThemeManager.applyTheme(reviewStage.getScene());
+                }
+                reviewStage.showAndWait();
+
+                // Refresh activities after reviews dialog closes
+                loadActivities();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                showError("Could not open reviews dialog.");
+            }
+        });
+
+        content.getChildren().addAll(nameLabel, destLabel, grid, descTitle, descArea, bookNowBtn, reviewsBtn);
+        
+        ScrollPane scrollPane = new ScrollPane(content);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setPrefHeight(500);
+        scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+        
+        dialogPane.setContent(scrollPane);
+        dialogPane.setPrefWidth(550);
         dialogPane.getButtonTypes().add(ButtonType.CLOSE);
         dialog.showAndWait();
     }

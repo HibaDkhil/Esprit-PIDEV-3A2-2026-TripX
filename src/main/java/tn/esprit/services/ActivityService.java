@@ -119,6 +119,22 @@ public class ActivityService {
         return list;
     }
 
+    public Activity getActivityById(Long id) {
+        String sql = "SELECT a.*, d.name as dest_name FROM activities a " +
+                     "LEFT JOIN destinations d ON a.destination_id = d.destination_id " +
+                     "WHERE a.activity_id = ?";
+        try (PreparedStatement ps = conx.prepareStatement(sql)) {
+            ps.setLong(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return mapResultSetToActivity(rs);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     private Activity mapResultSetToActivity(ResultSet rs) throws SQLException {
         Activity a = new Activity();
         a.setActivityId(rs.getLong("activity_id"));

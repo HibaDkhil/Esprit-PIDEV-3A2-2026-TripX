@@ -45,6 +45,7 @@
                 <Button fx:id="backToAdminBtn" text="⚙ Back to Admin" styleClass="action-button-secondary"/>
                 <Button fx:id="myBookingsBtn" text="🎫 My Bookings" styleClass="action-button-primary"/>
                 <Button fx:id="browseActivitiesBtn" text="✨ Browse Activities" styleClass="action-button-primary"/>
+                <Button fx:id="myReviewsBtn" text="📝 My Reviews" styleClass="action-button-primary"/>
                 <Button fx:id="themeBtn" text="🌙" styleClass="theme-toggle-btn"/>
                 <Label fx:id="resultsCountLabel" text="Found 0 destinations" styleClass="results-count"/>
                 <ProgressIndicator fx:id="loadingIndicator" visible="false" prefWidth="20" prefHeight="20"/>

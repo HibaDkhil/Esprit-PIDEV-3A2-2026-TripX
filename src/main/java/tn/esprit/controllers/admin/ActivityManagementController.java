@@ -269,6 +269,7 @@ public class ActivityManagementController implements Initializable {
         removeErrorOnType(capacityField);
         removeErrorOnType(destCombo);
         removeErrorOnType(categoryCombo);
+        removeErrorOnType(descArea);
     }
 
     private void removeErrorOnType(Control control) {
@@ -298,6 +299,12 @@ public class ActivityManagementController implements Initializable {
         if (categoryCombo.getValue() == null) {
             markError(categoryCombo);
             msg.append("- Category is required.\n");
+            valid = false;
+        }
+
+        if (descArea.getText().trim().isEmpty()) {
+            markError(descArea);
+            msg.append("- Description is required.\n");
             valid = false;
         }
 

@@ -114,10 +114,18 @@ public class UserBookingsController implements Initializable {
                             statusLbl.setStyle(statusLbl.getStyle() + "-fx-background-color: #d5f5e3; -fx-text-fill: #2ecc71;");
                             if (ThemeManager.isDarkMode()) statusLbl.setStyle("-fx-font-weight: bold; -fx-padding: 3 8; -fx-background-radius: 4; -fx-background-color: #1e3a2a; -fx-text-fill: #2ecc71;");
                             
-                            Button payBtn = new Button("💳 Proceed to Payment");
-                            payBtn.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;");
-                            payBtn.setOnAction(e -> handlePayment(item));
-                            actions.getChildren().add(payBtn);
+                            if (item.getPaymentStatus() == Booking.PaymentStatus.PAID) {
+                                // Show paid badge instead of pay button
+                                Label paidBadge = new Label("💳 PAID");
+                                paidBadge.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 5 12; -fx-background-radius: 4; -fx-font-size: 12px;");
+                                actions.getChildren().add(paidBadge);
+                            } else {
+                                // Show pay button for unpaid confirmed bookings
+                                Button payBtn = new Button("💳 Proceed to Payment");
+                                payBtn.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 5; -fx-padding: 5 12;");
+                                payBtn.setOnAction(e -> handlePayment(item));
+                                actions.getChildren().add(payBtn);
+                            }
                             break;
                             
                         case CANCELLED:
@@ -171,11 +179,137 @@ public class UserBookingsController implements Initializable {
     }
 
     private void handlePayment(Booking b) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Payment");
-        alert.setHeaderText("Payment for " + b.getBookingReference());
-        alert.setContentText("This feature is coming soon! Total to pay: $" + b.getTotalAmount());
-        alert.showAndWait();
+        // Check if already paid
+        if (b.getPaymentStatus() == Booking.PaymentStatus.PAID) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Already Paid");
+            alert.setHeaderText("Payment Complete");
+            alert.setContentText("This booking has already been paid. Stripe ID: " + b.getStripePaymentId());
+            alert.showAndWait();
+            return;
+        }
+
+        try {
+            tn.esprit.services.StripePaymentService stripeService = new tn.esprit.services.StripePaymentService();
+            String checkoutUrl = stripeService.createCheckoutSession(b);
+
+            if (checkoutUrl == null) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Payment Error");
+                alert.setHeaderText("Could not create payment session");
+                alert.setContentText("Please check your Stripe API key in ApiConfig.java and try again.");
+                alert.showAndWait();
+                return;
+            }
+
+            // Open Stripe Checkout in a WebView
+            javafx.stage.Stage paymentStage = new javafx.stage.Stage();
+            paymentStage.setTitle("💳 Secure Payment - " + b.getBookingReference());
+
+            javafx.scene.web.WebView webView = new javafx.scene.web.WebView();
+            javafx.scene.web.WebEngine webEngine = webView.getEngine();
+
+            // Progress indicator while loading
+            javafx.scene.control.ProgressBar progressBar = new javafx.scene.control.ProgressBar();
+            progressBar.prefWidthProperty().bind(webView.widthProperty());
+            progressBar.progressProperty().bind(webEngine.getLoadWorker().progressProperty());
+            progressBar.visibleProperty().bind(webEngine.getLoadWorker().runningProperty());
+            progressBar.setStyle("-fx-accent: #27ae60;");
+
+            Label headerLabel = new Label("💳 Secure Payment — $" + String.format("%.2f", b.getTotalAmount()) + " " + b.getCurrency());
+            headerLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-padding: 10 15;");
+
+            javafx.scene.layout.VBox paymentLayout = new javafx.scene.layout.VBox();
+            paymentLayout.getChildren().addAll(headerLabel, progressBar, webView);
+            javafx.scene.layout.VBox.setVgrow(webView, javafx.scene.layout.Priority.ALWAYS);
+
+            // Monitor URL changes to detect success/cancel
+            webEngine.locationProperty().addListener((obs, oldUrl, newUrl) -> {
+                if (newUrl != null) {
+                    if (newUrl.startsWith(tn.esprit.utils.ApiConfig.PAYMENT_SUCCESS_URL)) {
+                        // Extract session_id from URL
+                        String sessionId = null;
+                        try {
+                            java.net.URI uri = new java.net.URI(newUrl);
+                            String query = uri.getQuery();
+                            if (query != null) {
+                                for (String param : query.split("&")) {
+                                    String[] pair = param.split("=");
+                                    if (pair.length == 2 && "session_id".equals(pair[0])) {
+                                        sessionId = pair[1];
+                                        break;
+                                    }
+                                }
+                            }
+                        } catch (Exception ignored) {}
+
+                        // Update payment status
+                        final String finalSessionId = sessionId;
+                        javafx.application.Platform.runLater(() -> {
+                            boolean verified = false;
+                            if (finalSessionId != null) {
+                                verified = stripeService.isSessionPaid(finalSessionId);
+                            }
+
+                            if (verified || finalSessionId != null) {
+                                // Update booking in DB
+                                bookingService.updatePaymentStatus(b.getBookingId(), Booking.PaymentStatus.PAID);
+                                if (finalSessionId != null) {
+                                    bookingService.updateStripePaymentId(b.getBookingId(), finalSessionId);
+                                }
+
+                                paymentStage.close();
+
+                                Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                                successAlert.setTitle("Payment Successful! ✅");
+                                successAlert.setHeaderText("Payment Confirmed");
+                                successAlert.setContentText(
+                                    "Your payment of $" + String.format("%.2f", b.getTotalAmount()) +
+                                    " for booking " + b.getBookingReference() + " has been processed successfully!" +
+                                    (finalSessionId != null ? "\n\nStripe Session: " + finalSessionId : "")
+                                );
+                                successAlert.showAndWait();
+
+                                loadData(); // Refresh list
+                            } else {
+                                paymentStage.close();
+                                Alert failAlert = new Alert(Alert.AlertType.WARNING);
+                                failAlert.setTitle("Payment Unverified");
+                                failAlert.setHeaderText("Could not verify payment");
+                                failAlert.setContentText("The payment could not be verified. Please contact support.");
+                                failAlert.showAndWait();
+                            }
+                        });
+
+                    } else if (newUrl.startsWith(tn.esprit.utils.ApiConfig.PAYMENT_CANCEL_URL)) {
+                        javafx.application.Platform.runLater(() -> {
+                            paymentStage.close();
+                            Alert cancelAlert = new Alert(Alert.AlertType.INFORMATION);
+                            cancelAlert.setTitle("Payment Cancelled");
+                            cancelAlert.setHeaderText("Payment was cancelled");
+                            cancelAlert.setContentText("You can try again anytime from your bookings.");
+                            cancelAlert.showAndWait();
+                        });
+                    }
+                }
+            });
+
+            // Load the Stripe Checkout URL
+            webEngine.load(checkoutUrl);
+
+            javafx.scene.Scene paymentScene = new javafx.scene.Scene(paymentLayout, 650, 700);
+            paymentStage.setScene(paymentScene);
+            paymentStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            paymentStage.showAndWait();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Payment Error");
+            alert.setHeaderText("Payment Failed");
+            alert.setContentText("An error occurred while processing payment: " + e.getMessage());
+            alert.showAndWait();
+        }
     }
 
     private void handleEdit(Booking b) {

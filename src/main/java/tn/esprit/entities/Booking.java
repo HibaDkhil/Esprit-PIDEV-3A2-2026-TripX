@@ -26,6 +26,8 @@ public class Booking {
     private double totalAmount;
     private String currency;
     private String notes;
+    private String stripePaymentId;
+    private String userEmail;
     private Timestamp createdAt;
 
     // Transient fields for display purposes (not in DB table directly, joined in Service)
@@ -91,6 +93,12 @@ public class Booking {
 
     public Timestamp getCreatedAt() { return createdAt; }
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
+
+    public String getStripePaymentId() { return stripePaymentId; }
+    public void setStripePaymentId(String stripePaymentId) { this.stripePaymentId = stripePaymentId; }
+
+    public String getUserEmail() { return userEmail; }
+    public void setUserEmail(String userEmail) { this.userEmail = userEmail; }
 
     public String getDestinationName() { return destinationName; }
     public void setDestinationName(String destinationName) { this.destinationName = destinationName; }

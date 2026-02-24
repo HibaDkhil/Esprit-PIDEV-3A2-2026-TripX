@@ -12,6 +12,7 @@ import javafx.scene.layout.HBox;
 import javafx.util.Callback;
 import tn.esprit.entities.Destination;
 import tn.esprit.services.DestinationService;
+import tn.esprit.services.CountryService;
 
 import java.net.URL;
 import java.util.List;
@@ -59,19 +60,22 @@ public class DestinationManagementController implements Initializable {
 
     // --- Services & Data ---
     private DestinationService destinationService;
+    private CountryService countryService;
     private ObservableList<Destination> destinationList;
     private Destination selectedDestination;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         destinationService = new DestinationService();
+        countryService = new CountryService();
         destinationList = FXCollections.observableArrayList();
 
         // 1. Setup UI
         initializeComboBoxes();
         setupTableColumns();
         setupActions();
-        setupValidationListeners(); // Add real-time validation clearing
+        setupValidationListeners();
+        setupCountryAutoFill();
 
         // 2. Load Data
         loadDestinations();
@@ -236,6 +240,40 @@ public class DestinationManagementController implements Initializable {
         }
     }
 
+    /**
+     * Auto-fill timezone and show country info when country name is entered.
+     * Triggered when the country field loses focus.
+     */
+    private void setupCountryAutoFill() {
+        countryField.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
+            if (!isNowFocused && !countryField.getText().trim().isEmpty()) {
+                String country = countryField.getText().trim();
+                new Thread(() -> {
+                    CountryService.CountryData data = countryService.getCountryByName(country);
+                    javafx.application.Platform.runLater(() -> {
+                        if (data != null) {
+                            // Auto-fill timezone if empty
+                            if (timezoneField.getText().trim().isEmpty()) {
+                                timezoneField.setText(data.getPrimaryTimezone());
+                            }
+                            // Show country info tooltip on the country field
+                            String info = data.flagEmoji + " " + data.officialName + "\n" +
+                                    "🏛️ Capital: " + data.capital + "\n" +
+                                    "🌍 Region: " + data.region + "\n" +
+                                    "🗣️ Languages: " + data.getLanguagesString() + "\n" +
+                                    "💰 Currency: " + data.getCurrenciesString();
+                            Tooltip tip = new Tooltip(info);
+                            tip.setStyle("-fx-font-size: 12px;");
+                            countryField.setTooltip(tip);
+                            
+                            statusLabel.setText(data.flagEmoji + " Country info loaded: " + data.commonName);
+                        }
+                    });
+                }).start();
+            }
+        });
+    }
+
     // --- CRUD Operations ---
 
     public void loadDestinations() {
@@ -338,15 +376,38 @@ public class DestinationManagementController implements Initializable {
             msg.append("- Country is required.\n");
             valid = false;
         }
+        if (cityField.getText().trim().isEmpty()) {
+            markError(cityField);
+            msg.append("- City is required.\n");
+            valid = false;
+        } else if (!cityField.getText().trim().matches("^[a-zA-Z\\s-]+$")) {
+            markError(cityField);
+            msg.append("- City must contain only letters, spaces, or hyphens (no numbers).\n");
+            valid = false;
+        }
         if (seasonCombo.getValue() == null) {
             markError(seasonCombo);
             msg.append("- Best Season is required.\n");
             valid = false;
         }
+        if (descriptionArea.getText().trim().isEmpty()) {
+            markError(descriptionArea);
+            msg.append("- Description is required.\n");
+            valid = false;
+        }
+        if (timezoneField.getText().trim().isEmpty()) {
+            markError(timezoneField);
+            msg.append("- Timezone is required.\n");
+            valid = false;
+        }
         
         // Validate Rating
         String r = ratingField.getText().trim();
-        if (!r.isEmpty()) {
+        if (r.isEmpty()) {
+            markError(ratingField);
+            msg.append("- Rating is required.\n");
+            valid = false;
+        } else {
             try {
                 double val = Double.parseDouble(r);
                 if (val < 0 || val > 5) {

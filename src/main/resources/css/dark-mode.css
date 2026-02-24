@@ -1,103 +1,109 @@
-/* Dark Mode Variables & Overrides */
+/* ============================================
+   DARK MODE - Complete Theme Override
+   ============================================ */
+
+/* Root & Global */
 .root {
-    -fx-base: #2d2d2d;
-    -fx-background: #2d2d2d;
-    -fx-control-inner-background: #2d2d2d;
-    -fx-control-inner-background-alt: #363636;
+    -fx-base: #1e1e2e;
+    -fx-background: #1e1e2e;
+    -fx-control-inner-background: #2a2a3d;
+    -fx-control-inner-background-alt: #313147;
     -fx-text-base-color: #e0e0e0;
     -fx-text-fill: #e0e0e0;
+    -fx-accent: #7c3aed;
+    -fx-focus-color: #7c3aed55;
+    -fx-faint-focus-color: #7c3aed22;
 }
 
-/* Header */
+/* ---- Header ---- */
 .header-section {
-    -fx-background-color: #1a1a1a;
-    -fx-border-color: #404040;
+    -fx-background-color: linear-gradient(to right, #312e81, #581c87);
+    -fx-border-color: #404060;
 }
 
 .page-title {
-    -fx-text-fill: #ecf0f1;
+    -fx-text-fill: #f1f5f9;
 }
 
 .page-subtitle {
-    -fx-text-fill: #95a5a6;
+    -fx-text-fill: rgba(255, 255, 255, 0.8);
 }
 
-/* Content Backgrounds */
+.results-count {
+    -fx-text-fill: rgba(255, 255, 255, 0.85);
+}
+
+/* ---- Content backgrounds ---- */
 .content-section,
 .content-scroll,
 .content-scroll .viewport,
 .destinations-grid {
-    -fx-background-color: #1a1a1a;
+    -fx-background-color: #1e1e2e;
 }
 
-/* Cards & Containers */
+/* ---- Cards & Containers ---- */
 .form-section,
 .stats-bar,
 .destination-table,
-.filter-bar,
-.filter-combo,
-.search-field,
-.action-button-secondary {
-    -fx-background-color: #2d2d2d;
-    -fx-border-color: #404040;
+.filter-bar {
+    -fx-background-color: #2a2a3d;
+    -fx-border-color: #3f3f5c;
     -fx-text-fill: #e0e0e0;
 }
 
-/* Text Fields & Inputs */
-.search-field,
+/* ---- Filter / Search ---- */
+.filter-combo,
+.search-field {
+    -fx-background-color: #313147;
+    -fx-border-color: #4a4a6a;
+    -fx-text-fill: #e0e0e0;
+    -fx-prompt-text-fill: #8888aa;
+}
+
+.action-button-secondary {
+    -fx-background-color: #313147;
+    -fx-border-color: #4a4a6a;
+    -fx-text-fill: #c4c4dc;
+}
+
+.action-button-secondary:hover {
+    -fx-background-color: #3f3f5c;
+}
+
+/* ---- Text Fields & Inputs ---- */
+.search-field:focused,
+.form-field:focused,
+.form-textarea:focused,
+.form-combo:focused {
+    -fx-border-color: #7c3aed;
+    -fx-background-color: #363650;
+}
+
 .form-field,
 .form-textarea,
 .form-combo {
-    -fx-background-color: #363636;
+    -fx-background-color: #313147;
     -fx-text-fill: #e0e0e0;
-    -fx-prompt-text-fill: #808080;
-    -fx-border-color: #404040;
+    -fx-prompt-text-fill: #8888aa;
+    -fx-border-color: #4a4a6a;
 }
 
-.search-field:focused,
-.form-field:focused,
-.form-textarea:focused {
-    -fx-border-color: #3498db;
-    -fx-background-color: #404040;
-}
-
-/* Table Specifics */
-.destination-table .column-header,
-.destination-table .column-header .label {
-    -fx-background-color: #363636;
+.form-input {
+    -fx-background-color: #313147;
     -fx-text-fill: #e0e0e0;
+    -fx-prompt-text-fill: #8888aa;
+    -fx-border-color: #4a4a6a;
 }
 
-.destination-table .table-row-cell:odd {
-    -fx-background-color: #2d2d2d;
+/* ---- Labels ---- */
+.form-label {
+    -fx-text-fill: #c4c4dc;
+}
+
+.section-label {
     -fx-text-fill: #e0e0e0;
 }
 
-.destination-table .table-row-cell:even {
-    -fx-background-color: #333333;
-    -fx-text-fill: #e0e0e0;
-}
-
-.destination-table .table-cell {
-    -fx-text-fill: #e0e0e0;
-}
-
-.destination-table .table-row-cell:selected {
-    -fx-background-color: #2980b9;
-    -fx-text-fill: white;
-}
-
-/* User View Cards */
-.destinations-grid .vbox {
-    -fx-background-color: #2d2d2d;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0, 0, 2);
-}
-
-.destinations-grid .vbox .label {
-    -fx-text-fill: #e0e0e0;
-}
-
-/* Exceptions for Labels that should keep color */
 .status-label {
     -fx-text-fill: #2ecc71;
 }
@@ -106,32 +112,240 @@
     -fx-text-fill: #e74c3c;
 }
 
-/* Dialogs */
+/* ---- Table Specifics ---- */
+.destination-table .column-header,
+.destination-table .column-header .label {
+    -fx-background-color: #313147;
+    -fx-text-fill: #c4c4dc;
+}
+
+.destination-table .table-row-cell:odd {
+    -fx-background-color: #2a2a3d;
+    -fx-text-fill: #e0e0e0;
+}
+
+.destination-table .table-row-cell:even {
+    -fx-background-color: #262638;
+    -fx-text-fill: #e0e0e0;
+}
+
+.destination-table .table-cell {
+    -fx-text-fill: #e0e0e0;
+}
+
+.destination-table .table-row-cell:selected {
+    -fx-background-color: #5b21b6;
+    -fx-text-fill: white;
+}
+
+.destination-table .table-row-cell:selected .table-cell {
+    -fx-text-fill: white;
+}
+
+.destination-table .table-row-cell:hover {
+    -fx-background-color: #353550;
+}
+
+/* ---- User View Cards ---- */
+.destinations-grid .vbox {
+    -fx-background-color: #2a2a3d;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 12, 0, 0, 3);
+}
+
+.destinations-grid .vbox .label {
+    -fx-text-fill: #e0e0e0;
+}
+
+.destinations-grid .vbox:hover {
+    -fx-effect: dropshadow(gaussian, rgba(124, 58, 237, 0.35), 18, 0, 0, 5);
+}
+
+/* ---- Dialogs ---- */
 .dialog-pane {
-    -fx-background-color: #2d2d2d;
+    -fx-background-color: #1e1e2e;
+}
+
+.dialog-pane>.content {
+    -fx-background-color: #1e1e2e;
 }
 
 .dialog-pane .label {
     -fx-text-fill: #e0e0e0;
 }
 
-.dialog-pane .content {
-    -fx-background-color: #2d2d2d;
+.dialog-pane .text-area {
+    -fx-background-color: #313147;
+    -fx-text-fill: #e0e0e0;
+    -fx-control-inner-background: #313147;
 }
 
-/* Toggle Button */
+.dialog-pane .text-area .content {
+    -fx-background-color: #313147;
+}
+
+.dialog-pane .text-field {
+    -fx-background-color: #313147;
+    -fx-text-fill: #e0e0e0;
+    -fx-control-inner-background: #313147;
+}
+
+.dialog-pane .button-bar .btn {
+    -fx-background-color: #3f3f5c;
+    -fx-text-fill: #e0e0e0;
+}
+
+.dialog-pane .button-bar .button {
+    -fx-background-color: #3f3f5c;
+    -fx-text-fill: #e0e0e0;
+}
+
+.dialog-pane .button-bar .button:hover {
+    -fx-background-color: #5b21b6;
+    -fx-text-fill: white;
+}
+
+/* GridPane labels in dialogs */
+.dialog-pane .grid-pane .label {
+    -fx-text-fill: #c4c4dc;
+}
+
+/* ---- Scroll Panes ---- */
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.scroll-pane>.viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .scroll-bar .track {
+    -fx-background-color: #2a2a3d;
+}
+
+.scroll-pane .scroll-bar .thumb {
+    -fx-background-color: #4a4a6a;
+    -fx-background-radius: 4;
+}
+
+.scroll-pane .scroll-bar .thumb:hover {
+    -fx-background-color: #6b6b8a;
+}
+
+/* ---- Combo Box Popup ---- */
+.combo-box-popup .list-view {
+    -fx-background-color: #2a2a3d;
+}
+
+.combo-box-popup .list-cell {
+    -fx-background-color: #2a2a3d;
+    -fx-text-fill: #e0e0e0;
+}
+
+.combo-box-popup .list-cell:hover {
+    -fx-background-color: #3f3f5c;
+}
+
+.combo-box-popup .list-cell:selected {
+    -fx-background-color: #5b21b6;
+    -fx-text-fill: white;
+}
+
+/* ---- Spinner ---- */
+.spinner {
+    -fx-background-color: #313147;
+    -fx-border-color: #4a4a6a;
+}
+
+.spinner .text-field {
+    -fx-background-color: #313147;
+    -fx-text-fill: #e0e0e0;
+}
+
+.spinner .increment-arrow-button,
+.spinner .decrement-arrow-button {
+    -fx-background-color: #3f3f5c;
+}
+
+/* ---- DatePicker ---- */
+.date-picker {
+    -fx-background-color: #313147;
+    -fx-border-color: #4a4a6a;
+}
+
+.date-picker .text-field {
+    -fx-background-color: #313147;
+    -fx-text-fill: #e0e0e0;
+}
+
+.date-picker-popup {
+    -fx-background-color: #2a2a3d;
+}
+
+.date-picker-popup .month-year-pane {
+    -fx-background-color: #313147;
+}
+
+.date-picker-popup .day-cell {
+    -fx-text-fill: #e0e0e0;
+    -fx-background-color: #2a2a3d;
+}
+
+.date-picker-popup .day-cell:hover {
+    -fx-background-color: #5b21b6;
+}
+
+.date-picker-popup .selected {
+    -fx-background-color: #7c3aed;
+    -fx-text-fill: white;
+}
+
+/* ---- Toggle Button ---- */
 .theme-toggle-btn {
     -fx-background-color: transparent;
     -fx-cursor: hand;
     -fx-font-size: 16px;
-    -fx-text-fill: #f1c40f;
-    /* Sun color */
+    -fx-text-fill: #fbbf24;
     -fx-padding: 5;
-    -fx-border-color: #f1c40f;
+    -fx-border-color: #fbbf24;
     -fx-border-radius: 20;
     -fx-background-radius: 20;
 }
 
 .theme-toggle-btn:hover {
-    -fx-background-color: rgba(241, 196, 15, 0.1);
+    -fx-background-color: rgba(251, 191, 36, 0.15);
+}
+
+/* ---- Alert / Information dialogs ---- */
+.alert .dialog-pane {
+    -fx-background-color: #2a2a3d;
+}
+
+.alert .dialog-pane .header-panel {
+    -fx-background-color: #313147;
+}
+
+.alert .dialog-pane .header-panel .label {
+    -fx-text-fill: #e0e0e0;
+}
+
+/* ---- Tab Pane ---- */
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: #1e1e2e;
+}
+
+.tab-pane .tab {
+    -fx-background-color: #2a2a3d;
+}
+
+.tab-pane .tab .tab-label {
+    -fx-text-fill: #c4c4dc;
+}
+
+.tab-pane .tab:selected {
+    -fx-background-color: #5b21b6;
+}
+
+.tab-pane .tab:selected .tab-label {
+    -fx-text-fill: white;
 }

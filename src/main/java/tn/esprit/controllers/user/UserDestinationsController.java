@@ -16,7 +16,12 @@ import javafx.scene.layout.StackPane;
 import tn.esprit.entities.Destination;
 import tn.esprit.services.DestinationService;
 import tn.esprit.services.ActivityService;
+import tn.esprit.services.WeatherService;
+import tn.esprit.services.CountryService;
 import tn.esprit.utils.ThemeManager;
+import tn.esprit.utils.ImageHelper;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.Image;
 
 import java.net.URL;
 import java.util.List;
@@ -40,6 +45,8 @@ public class UserDestinationsController implements Initializable {
     // Added missing fields
     private DestinationService destinationService;
     private ActivityService activityService;
+    private WeatherService weatherService;
+    private CountryService countryService;
     private ObservableList<Destination> destinations;
     private List<Destination> allDestinations;
 
@@ -47,6 +54,8 @@ public class UserDestinationsController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         destinationService = new DestinationService();
         activityService = new ActivityService();
+        weatherService = new WeatherService();
+        countryService = new CountryService();
         destinations = FXCollections.observableArrayList();
 
         setupFilters();
@@ -79,7 +88,8 @@ public class UserDestinationsController implements Initializable {
     }
 
     @FXML private Button myBookingsBtn;
-    @FXML private Button browseActivitiesBtn; // New button
+    @FXML private Button browseActivitiesBtn;
+    @FXML private Button myReviewsBtn; // New button binding
 
     private void setupActions() {
         searchBtn.setOnAction(e -> filterDestinations());
@@ -92,6 +102,10 @@ public class UserDestinationsController implements Initializable {
 
         if (browseActivitiesBtn != null) {
             browseActivitiesBtn.setOnAction(e -> navigateToActivities());
+        }
+
+        if (myReviewsBtn != null) {
+            myReviewsBtn.setOnAction(e -> showMyReviews());
         }
         
         if (themeBtn != null) {
@@ -195,54 +209,115 @@ public class UserDestinationsController implements Initializable {
 
     private VBox createDestinationCard(Destination destination) {
         VBox card = new VBox(10);
-        card.setStyle("-fx-background-color: white; -fx-background-radius: 10; " +
-                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2); " +
-                "-fx-padding: 15; -fx-min-width: 280; -fx-max-width: 280; -fx-cursor: hand;");
+        boolean dark = ThemeManager.isDarkMode();
+        String cardBg = dark ? "#2a2a3d" : "white";
+        String shadow = dark ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.1)";
+        String cardStyle = "-fx-background-color: " + cardBg + "; -fx-background-radius: 12; " +
+                "-fx-effect: dropshadow(gaussian, " + shadow + ", 10, 0, 0, 2); " +
+                "-fx-padding: 15; -fx-min-width: 280; -fx-max-width: 280; -fx-cursor: hand;";
+        card.setStyle(cardStyle);
 
-        card.setOnMouseEntered(e -> card.setStyle(card.getStyle() + "-fx-effect: dropshadow(gaussian, rgba(52,152,219,0.5), 15, 0, 0, 5);"));
-        card.setOnMouseExited(e -> card.setStyle("-fx-background-color: white; -fx-background-radius: 10; " +
-                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2); " +
-                "-fx-padding: 15; -fx-min-width: 280; -fx-max-width: 280;"));
+        String hoverShadow = dark ? "rgba(124,58,237,0.4)" : "rgba(102,126,234,0.4)";
+        card.setOnMouseEntered(e -> card.setStyle(cardStyle + "-fx-effect: dropshadow(gaussian, " + hoverShadow + ", 18, 0, 0, 5); -fx-scale-x: 1.02; -fx-scale-y: 1.02;"));
+        card.setOnMouseExited(e -> card.setStyle(cardStyle));
 
         StackPane imageContainer = new StackPane();
         imageContainer.setPrefHeight(150);
         imageContainer.setPrefWidth(250);
-        imageContainer.setStyle(getBackgroundColorForType(destination.getType()));
+        
+        Image image = ImageHelper.loadImage("destinations", destination.getName());
+        if (image != null) {
+            ImageView imageView = new ImageView(image);
+            imageView.setFitHeight(150);
+            imageView.setFitWidth(250);
+            imageView.setPreserveRatio(false); // Fill the container
+            // Use clipping for rounded corners on image
+            javafx.scene.shape.Rectangle clip = new javafx.scene.shape.Rectangle(250, 150);
+            clip.setArcWidth(20);
+            clip.setArcHeight(20);
+            imageView.setClip(clip);
+            imageContainer.getChildren().add(imageView);
+        } else {
+            imageContainer.setStyle(getBackgroundColorForType(destination.getType()));
+            Label typeIcon = new Label(getIconForType(destination.getType()));
+            typeIcon.setStyle("-fx-font-size: 48px; -fx-text-fill: white;");
+            imageContainer.getChildren().add(typeIcon);
+        }
 
-        Label typeIcon = new Label(getIconForType(destination.getType()));
-        typeIcon.setStyle("-fx-font-size: 48px; -fx-text-fill: white;");
-        imageContainer.getChildren().add(typeIcon);
+        String textPrimary = dark ? "#e0e0e0" : "#2c3e50";
+        String textSecondary = dark ? "#a0a0b8" : "#7f8c8d";
+        String textTertiary = dark ? "#c4c4dc" : "#34495e";
 
         Label nameLabel = new Label(destination.getName());
-        nameLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");
+        nameLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: " + textPrimary + ";");
         nameLabel.setWrapText(true);
 
         Label locationLabel = new Label("📍 " + destination.getFullLocation());
-        locationLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #7f8c8d;");
+        locationLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: " + textSecondary + ";");
 
         HBox infoBox = new HBox(10);
         infoBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
         Label typeLabel = new Label(getTypeDisplayName(destination.getType()));
-        typeLabel.setStyle("-fx-background-color: #e3f2fd; -fx-padding: 5 10; -fx-background-radius: 15; -fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #1976d2;");
+        String typeBg = dark ? "#312e81" : "#e3f2fd";
+        String typeColor = dark ? "#a5b4fc" : "#1976d2";
+        typeLabel.setStyle("-fx-background-color: " + typeBg + "; -fx-padding: 5 10; -fx-background-radius: 15; -fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: " + typeColor + ";");
         Label ratingLabel = new Label("⭐ " + String.format("%.1f", destination.getAverageRating()));
         ratingLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #f39c12;");
         infoBox.getChildren().addAll(typeLabel, ratingLabel);
 
         Label seasonLabel = new Label("📅 Best: " + getSeasonDisplayName(destination.getBestSeason()));
-        seasonLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #34495e;");
+        seasonLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: " + textTertiary + ";");
+
+        // Weather badge (fetched async)
+        String weatherBg = dark ? "#1a2744" : "#e8f4fd";
+        String weatherColor = dark ? "#60a5fa" : "#2980b9";
+        Label weatherBadge = new Label("🌤️ Loading...");
+        weatherBadge.setStyle("-fx-background-color: " + weatherBg + "; -fx-padding: 4 10; -fx-background-radius: 12; -fx-font-size: 12px; -fx-text-fill: " + weatherColor + "; -fx-font-weight: bold;");
+        
+        // Fetch weather asynchronously
+        new Thread(() -> {
+            WeatherService.WeatherData weather = weatherService.getWeather(
+                destination.getCity() != null ? destination.getCity() : destination.getName(),
+                destination.getCountry()
+            );
+            javafx.application.Platform.runLater(() -> {
+                if (weather != null) {
+                    weatherBadge.setText(weather.getEmoji() + " " + weather.getTempString());
+                    weatherBadge.setTooltip(new Tooltip(weather.getSummary()));
+                } else {
+                    weatherBadge.setText("");
+                    weatherBadge.setVisible(false);
+                }
+            });
+        }).start();
+
+        // Country flag badge
+        Label flagBadge = new Label("");
+        flagBadge.setStyle("-fx-font-size: 16px;");
+        new Thread(() -> {
+            CountryService.CountryData countryData = countryService.getCountryByName(destination.getCountry());
+            javafx.application.Platform.runLater(() -> {
+                if (countryData != null && countryData.flagEmoji != null) {
+                    flagBadge.setText(countryData.flagEmoji);
+                }
+            });
+        }).start();
+
+        HBox weatherAndFlagBox = new HBox(8, flagBadge, weatherBadge);
+        weatherAndFlagBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
 
         String desc = destination.getDescription();
         if (desc != null && desc.length() > 100) desc = desc.substring(0, 97) + "...";
         Label descLabel = new Label(desc);
         descLabel.setWrapText(true);
-        descLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #34495e; -fx-line-spacing: 2;");
+        descLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: " + textTertiary + "; -fx-line-spacing: 2;");
 
         Button bookBtn = new Button("Book Now");
-        bookBtn.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 10 15; -fx-cursor: hand; -fx-font-size: 14px;");
+        bookBtn.setStyle("-fx-background-color: linear-gradient(to right, #27ae60, #2ecc71); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 15; -fx-cursor: hand; -fx-font-size: 14px;");
         bookBtn.setMaxWidth(Double.MAX_VALUE);
         bookBtn.setOnAction(e -> handleBooking(destination));
 
-        card.getChildren().addAll(imageContainer, nameLabel, locationLabel, infoBox, seasonLabel, descLabel, bookBtn);
+        card.getChildren().addAll(imageContainer, nameLabel, locationLabel, infoBox, seasonLabel, weatherAndFlagBox, descLabel, bookBtn);
         card.setOnMouseClicked(e -> showDestinationDetails(destination));
 
         return card;
@@ -264,24 +339,53 @@ public class UserDestinationsController implements Initializable {
         content.setPadding(new Insets(20));
         content.setPrefWidth(500);
 
-        Label nameLabel = new Label(destination.getName());
-        nameLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");
-        if (ThemeManager.isDarkMode()) nameLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #ecf0f1;");
+        boolean dark = ThemeManager.isDarkMode();
+        String textPrimary = dark ? "#e0e0e0" : "#2c3e50";
+        String textSecondary = dark ? "#a0a0b8" : "#7f8c8d";
+        String textTertiary = dark ? "#c4c4dc" : "#555";
+        String sectionStyle = "-fx-font-weight: bold; -fx-font-size: 16px; -fx-padding: 10 0 5 0; -fx-text-fill: " + textPrimary + ";";
 
+        Label nameLabel = new Label(destination.getName());
+        nameLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: " + textPrimary + ";");
 
         javafx.scene.layout.GridPane grid = new javafx.scene.layout.GridPane();
         grid.setHgap(15);
         grid.setVgap(10);
+        String gridLabelStyle = "-fx-text-fill: " + textTertiary + "; -fx-font-weight: bold;";
+        String gridValueStyle = "-fx-text-fill: " + textPrimary + ";";
         int row = 0;
-        grid.addRow(row++, new Label("Type:"), new Label(getTypeDisplayName(destination.getType())));
-        grid.addRow(row++, new Label("Country:"), new Label(destination.getCountry()));
-        if (destination.getCity() != null) grid.addRow(row++, new Label("City:"), new Label(destination.getCity()));
-        grid.addRow(row++, new Label("Season:"), new Label(getSeasonDisplayName(destination.getBestSeason())));
-        if (destination.getTimezone() != null) grid.addRow(row++, new Label("Timezone:"), new Label(destination.getTimezone()));
-        grid.addRow(row++, new Label("Rating:"), new Label("⭐ " + destination.getAverageRating()));
+        Label[] gridLabels = {
+            new Label("Type:"), new Label(getTypeDisplayName(destination.getType())),
+            new Label("Country:"), new Label(destination.getCountry())
+        };
+        grid.addRow(row++, gridLabels[0], gridLabels[1]);
+        grid.addRow(row++, gridLabels[2], gridLabels[3]);
+        if (destination.getCity() != null) {
+            Label cityKey = new Label("City:"); Label cityVal = new Label(destination.getCity());
+            cityKey.setStyle(gridLabelStyle); cityVal.setStyle(gridValueStyle);
+            grid.addRow(row++, cityKey, cityVal);
+        }
+        Label seasonKey = new Label("Season:"); Label seasonVal = new Label(getSeasonDisplayName(destination.getBestSeason()));
+        seasonKey.setStyle(gridLabelStyle); seasonVal.setStyle(gridValueStyle);
+        grid.addRow(row++, seasonKey, seasonVal);
+        if (destination.getTimezone() != null) {
+            Label tzKey = new Label("Timezone:"); Label tzVal = new Label(destination.getTimezone());
+            tzKey.setStyle(gridLabelStyle); tzVal.setStyle(gridValueStyle);
+            grid.addRow(row++, tzKey, tzVal);
+        }
+        Label ratingKey = new Label("Rating:"); Label ratingVal = new Label("⭐ " + destination.getAverageRating());
+        ratingKey.setStyle(gridLabelStyle); ratingVal.setStyle("-fx-text-fill: #f39c12; -fx-font-weight: bold;");
+        grid.addRow(row++, ratingKey, ratingVal);
+        for (Label l : gridLabels) {
+            if (grid.getRowIndex(l) != null) {
+                // Apply styles to the first batch
+            }
+        }
+        gridLabels[0].setStyle(gridLabelStyle); gridLabels[1].setStyle(gridValueStyle);
+        gridLabels[2].setStyle(gridLabelStyle); gridLabels[3].setStyle(gridValueStyle);
 
         Label descTitle = new Label("About");
-        descTitle.setStyle("-fx-font-weight: bold; -fx-font-size: 16px; -fx-padding: 10 0 5 0;");
+        descTitle.setStyle(sectionStyle);
         TextArea descArea = new TextArea(destination.getDescription());
         descArea.setWrapText(true);
         descArea.setEditable(false);
@@ -289,24 +393,25 @@ public class UserDestinationsController implements Initializable {
         descArea.getStyleClass().add("form-textarea");
 
         Label actLabel = new Label("Activities & Experiences");
-        actLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 16px; -fx-padding: 10 0 5 0;");
+        actLabel.setStyle(sectionStyle);
         
         VBox activitiesBox = new VBox(10);
         List<tn.esprit.entities.Activity> activities = activityService.getActivitiesByDestination(destination.getDestinationId());
         
         if (activities.isEmpty()) {
             Label noAct = new Label("No specific activities listed yet.");
-            noAct.setStyle("-fx-text-fill: #7f8c8d; -fx-font-style: italic;");
+            noAct.setStyle("-fx-text-fill: " + textSecondary + "; -fx-font-style: italic;");
             activitiesBox.getChildren().add(noAct);
         } else {
+            String actRowBg = dark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)";
             for (tn.esprit.entities.Activity a : activities) {
                 HBox actRow = new HBox(10);
                 actRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-                actRow.setStyle("-fx-background-color: rgba(0,0,0,0.05); -fx-padding: 8; -fx-background-radius: 5;");
+                actRow.setStyle("-fx-background-color: " + actRowBg + "; -fx-padding: 8; -fx-background-radius: 5;");
                 
                 Label aIcon = new Label("✨");
                 Label aName = new Label(a.getName());
-                aName.setStyle("-fx-font-weight: bold;");
+                aName.setStyle("-fx-font-weight: bold; -fx-text-fill: " + textPrimary + ";");
                 Label aPrice = new Label(String.format("$%.0f", a.getPrice()));
                 aPrice.setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold;");
                 
@@ -323,8 +428,130 @@ public class UserDestinationsController implements Initializable {
         actScroll.setPrefHeight(150);
         actScroll.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
 
-        content.getChildren().addAll(nameLabel, grid, descTitle, descArea, actLabel, actScroll);
-        dialogPane.setContent(content);
+        // --- Weather Section ---
+        Label weatherTitle = new Label("Current Weather");
+        weatherTitle.setStyle(sectionStyle);
+
+        VBox weatherBox = new VBox(5);
+        Label weatherLoading = new Label("🌤️ Fetching weather data...");
+        weatherLoading.setStyle("-fx-text-fill: " + textSecondary + "; -fx-font-style: italic;");
+        weatherBox.getChildren().add(weatherLoading);
+
+        // Fetch weather async
+        new Thread(() -> {
+            WeatherService.WeatherData weather = weatherService.getWeather(
+                destination.getCity() != null ? destination.getCity() : destination.getName(),
+                destination.getCountry()
+            );
+            javafx.application.Platform.runLater(() -> {
+                weatherBox.getChildren().clear();
+                if (weather != null) {
+                    VBox weatherCard = new VBox(4);
+                    String wcBg = dark ? "#1a332e" : "#e8f8f5";
+                    weatherCard.setStyle("-fx-background-color: " + wcBg + "; -fx-padding: 12; -fx-background-radius: 8;");
+                    
+                    Label tempLbl = new Label(weather.getEmoji() + " " + weather.getTempString() + " — " + weather.description.substring(0,1).toUpperCase() + weather.description.substring(1));
+                    tempLbl.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: " + textPrimary + ";");
+                    
+                    Label feelsLbl = new Label("🌡️ Feels like " + String.format("%.0f°C", weather.feelsLike));
+                    Label humidLbl = new Label("💧 Humidity: " + weather.humidity + "%");
+                    Label windLbl = new Label("💨 Wind: " + String.format("%.1f m/s", weather.windSpeed));
+                    
+                    feelsLbl.setStyle("-fx-text-fill: " + textTertiary + ";");
+                    humidLbl.setStyle("-fx-text-fill: " + textTertiary + ";");
+                    windLbl.setStyle("-fx-text-fill: " + textTertiary + ";");
+                    
+                    weatherCard.getChildren().addAll(tempLbl, feelsLbl, humidLbl, windLbl);
+                    weatherBox.getChildren().add(weatherCard);
+                } else {
+                    Label noWeather = new Label("Could not fetch weather data.");
+                    noWeather.setStyle("-fx-text-fill: #e74c3c; -fx-font-style: italic;");
+                    weatherBox.getChildren().add(noWeather);
+                }
+            });
+        }).start();
+
+        // --- Country Info Section ---
+        Label countryTitle = new Label("Country Information");
+        countryTitle.setStyle(sectionStyle);
+
+        VBox countryBox = new VBox(5);
+        Label countryLoading = new Label("🌍 Fetching country info...");
+        countryLoading.setStyle("-fx-text-fill: " + textSecondary + "; -fx-font-style: italic;");
+        countryBox.getChildren().add(countryLoading);
+
+        // Fetch country info async
+        new Thread(() -> {
+            CountryService.CountryData countryData = countryService.getCountryByName(destination.getCountry());
+            javafx.application.Platform.runLater(() -> {
+                countryBox.getChildren().clear();
+                if (countryData != null) {
+                    VBox countryCard = new VBox(4);
+                    String ccBg = dark ? "#2c2a1a" : "#fef9e7";
+                    countryCard.setStyle("-fx-background-color: " + ccBg + "; -fx-padding: 12; -fx-background-radius: 8;");
+                    
+                    Label flagLbl = new Label(countryData.flagEmoji + " " + countryData.officialName);
+                    flagLbl.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: " + textPrimary + ";");
+                    
+                    Label capitalLbl = new Label("🏛️ Capital: " + countryData.capital);
+                    Label regionLbl = new Label("🌍 Region: " + countryData.region + (countryData.subregion.isEmpty() ? "" : " (" + countryData.subregion + ")"));
+                    Label popLbl = new Label("👥 Population: " + countryData.getPopulationString());
+                    Label langLbl = new Label("🗣️ Languages: " + countryData.getLanguagesString());
+                    Label currLbl = new Label("💰 Currency: " + countryData.getCurrenciesString());
+                    
+                    String detailStyle = "-fx-text-fill: " + textTertiary + ";";
+                    capitalLbl.setStyle(detailStyle);
+                    regionLbl.setStyle(detailStyle);
+                    popLbl.setStyle(detailStyle);
+                    langLbl.setStyle(detailStyle);
+                    currLbl.setStyle(detailStyle);
+                    
+                    countryCard.getChildren().addAll(flagLbl, capitalLbl, regionLbl, popLbl, langLbl, currLbl);
+                    countryBox.getChildren().add(countryCard);
+                } else {
+                    Label noCountry = new Label("Could not fetch country info.");
+                    noCountry.setStyle("-fx-text-fill: #e74c3c; -fx-font-style: italic;");
+                    countryBox.getChildren().add(noCountry);
+                }
+            });
+        }).start();
+
+        // --- Reviews Button ---
+        Button reviewsBtn = new Button("⭐ Reviews & Ratings");
+        reviewsBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-cursor: hand; -fx-background-radius: 5; -fx-font-size: 14px;");
+        reviewsBtn.setMaxWidth(Double.MAX_VALUE);
+        reviewsBtn.setOnAction(e -> {
+            try {
+                javafx.fxml.FXMLLoader reviewLoader = new javafx.fxml.FXMLLoader(getClass().getResource("/fxml/user/reviews_dialog.fxml"));
+                javafx.scene.Parent reviewRoot = reviewLoader.load();
+                ReviewDialogController reviewController = reviewLoader.getController();
+                reviewController.setTarget(tn.esprit.entities.Review.TargetType.DESTINATION, destination.getDestinationId(), destination.getName());
+
+                Stage reviewStage = new Stage();
+                reviewStage.setTitle("Reviews: " + destination.getName());
+                reviewStage.setScene(new javafx.scene.Scene(reviewRoot));
+                if (ThemeManager.isDarkMode()) {
+                    ThemeManager.applyTheme(reviewStage.getScene());
+                }
+                reviewStage.showAndWait();
+
+                // Refresh the destination rating after reviews dialog closes
+                loadDestinations();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                showError("Could not open reviews dialog.");
+            }
+        });
+
+        content.getChildren().addAll(nameLabel, grid, weatherTitle, weatherBox, countryTitle, countryBox, descTitle, descArea, actLabel, actScroll, reviewsBtn);
+        
+        ScrollPane scrollPane = new ScrollPane(content);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setPrefHeight(600);
+        scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+        
+        dialogPane.setContent(scrollPane);
+        dialogPane.setPrefWidth(550);
         dialogPane.getButtonTypes().add(ButtonType.CLOSE);
         dialog.showAndWait();
     }
@@ -402,6 +629,9 @@ public class UserDestinationsController implements Initializable {
         alert.setTitle("Error");
         alert.setHeaderText(null);
         alert.setContentText(message);
+        if (ThemeManager.isDarkMode()) {
+            ThemeManager.applyTheme(alert.getDialogPane().getScene());
+        }
         alert.showAndWait();
     }
 
@@ -457,4 +687,35 @@ public class UserDestinationsController implements Initializable {
             default: return season.toString();
         }
     }
+    private void showMyReviews() {
+        try {
+            URL fxmlLocation = getClass().getResource("/fxml/user/my_reviews_dialog.fxml");
+            if (fxmlLocation == null) {
+                showError("FXML file not found: /fxml/user/my_reviews_dialog.fxml");
+                return;
+            }
+            FXMLLoader loader = new FXMLLoader(fxmlLocation);
+            Parent root = loader.load();
+            
+            Stage stage = new Stage();
+            stage.setTitle("My Reviews & Ratings");
+            stage.setScene(new javafx.scene.Scene(root));
+            
+            // Apply base stylesheet
+            URL cssUrl = getClass().getResource("/css/user-destinations.css");
+            if (cssUrl != null) {
+                stage.getScene().getStylesheets().add(cssUrl.toExternalForm());
+            }
+            
+            // Apply theme
+            ThemeManager.applyTheme(stage.getScene());
+            
+            stage.showAndWait();
+            loadDestinations();
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Could not open My Reviews dialog: " + e.getMessage());
+        }
+    }
+
 }

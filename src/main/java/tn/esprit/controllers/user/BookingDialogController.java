@@ -9,6 +9,7 @@ import tn.esprit.entities.Booking;
 import tn.esprit.entities.Destination;
 import tn.esprit.services.ActivityService;
 import tn.esprit.services.BookingService;
+import tn.esprit.services.EmailService;
 import tn.esprit.utils.SessionManager;
 
 import java.sql.Timestamp;
@@ -24,6 +25,7 @@ public class BookingDialogController {
     @FXML private ComboBox<Activity> activityCombo;
     @FXML private Label totalLabel;
     @FXML private TextArea notesArea;
+    @FXML private TextField emailField;
     @FXML private Button confirmBtn;
     @FXML private Button cancelBtn;
 
@@ -84,6 +86,9 @@ public class BookingDialogController {
         endDatePicker.setValue(existingBooking.getEndAt().toLocalDateTime().toLocalDate());
         guestsSpinner.getValueFactory().setValue(existingBooking.getNumGuests());
         notesArea.setText(existingBooking.getNotes());
+        if (emailField != null && existingBooking.getUserEmail() != null) {
+            emailField.setText(existingBooking.getUserEmail());
+        }
 
         if (existingBooking.getActivityId() != null) {
             activityCombo.getItems().stream()
@@ -123,20 +128,39 @@ public class BookingDialogController {
     }
 
     private void handleConfirm() {
-        if (!isEditMode) {
-             // ... Creation Logic (Date Validations) ...
-            if (startDatePicker.getValue() == null || endDatePicker.getValue() == null) {
-                showAlert("Date Required", "Please select start and end dates.");
+        // Date Validations (Must apply to both Create and Update)
+        if (startDatePicker.getValue() == null || endDatePicker.getValue() == null) {
+            showAlert("Date Required", "Please select start and end dates.");
+            return;
+        }
+        
+        // Email validation (required for new bookings)
+        if (emailField != null) {
+            String email = emailField.getText() != null ? emailField.getText().trim() : "";
+            if (email.isEmpty()) {
+                showAlert("Email Required", "Please enter your email address.");
                 return;
             }
+            if (!EmailService.isValidEmail(email)) {
+                showAlert("Invalid Email", "Please enter a valid email address (e.g. name@example.com).");
+                return;
+            }
+        }
+
+        // Start date check (only for new bookings or if start date is being changed)
+        if (!isEditMode) {
             if (startDatePicker.getValue().isBefore(LocalDate.now())) {
                 showAlert("Invalid Date", "Start date cannot be in the past.");
                 return;
             }
-            if (endDatePicker.getValue().isBefore(startDatePicker.getValue())) {
-                showAlert("Invalid Date", "End date must be after start date.");
-                return;
-            }
+        } else {
+            // For updates, we still want to ensure dates are logical
+            // If they are editing, we assume they might be correcting a date
+        }
+
+        if (endDatePicker.getValue().isBefore(startDatePicker.getValue())) {
+            showAlert("Invalid Date", "End date must be after start date.");
+            return;
         }
 
         // Prepare Booking object
@@ -168,9 +192,20 @@ public class BookingDialogController {
         
         booking.setNotes(notesArea.getText());
 
+        // Set email
+        if (emailField != null && emailField.getText() != null) {
+            booking.setUserEmail(emailField.getText().trim());
+        }
+
         // Recalculate total if key fields changed
         String priceText = totalLabel.getText().replace("$", "").replace(",", ".");
         booking.setTotalAmount(Double.parseDouble(priceText));
+
+        // Set destination name for email (transient field)
+        booking.setDestinationName(destination.getName());
+        if (activityCombo.getValue() != null) {
+            booking.setActivityName(activityCombo.getValue().getName());
+        }
 
         boolean success;
         if (isEditMode) {
@@ -180,10 +215,25 @@ public class BookingDialogController {
         }
 
         if (success) {
+            // Send confirmation email asynchronously for new bookings
+            if (!isEditMode && booking.getUserEmail() != null && !booking.getUserEmail().isEmpty()) {
+                new Thread(() -> {
+                    try {
+                        EmailService.getInstance().sendBookingConfirmation(booking);
+                    } catch (Exception e) {
+                        System.err.println("Email sending failed: " + e.getMessage());
+                    }
+                }).start();
+            }
+
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Success");
             alert.setHeaderText(isEditMode ? "Booking Updated!" : "Booking Confirmed!");
-            alert.setContentText(isEditMode ? "Your changes have been saved." : "Reference: " + booking.getBookingReference());
+            String msg = isEditMode ? "Your changes have been saved." : "Reference: " + booking.getBookingReference();
+            if (!isEditMode && booking.getUserEmail() != null) {
+                msg += "\nA confirmation email will be sent to " + booking.getUserEmail();
+            }
+            alert.setContentText(msg);
             alert.showAndWait();
             closeDialog();
         } else {

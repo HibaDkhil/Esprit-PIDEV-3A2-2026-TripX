@@ -17,7 +17,7 @@ public class BookingService {
     }
 
     public boolean createBooking(Booking booking) {
-        String sql = "INSERT INTO bookingdes (booking_reference, user_id, destination_id, activity_id, start_at, end_at, num_guests, status, payment_status, total_amount, currency, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO bookingdes (booking_reference, user_id, destination_id, activity_id, start_at, end_at, num_guests, status, payment_status, total_amount, currency, notes, user_email) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try {
             // Generate Unique Reference if not provided
             if (booking.getBookingReference() == null || booking.getBookingReference().isEmpty()) {
@@ -43,6 +43,7 @@ public class BookingService {
             ps.setDouble(10, booking.getTotalAmount());
             ps.setString(11, booking.getCurrency());
             ps.setString(12, booking.getNotes());
+            ps.setString(13, booking.getUserEmail());
 
             int rows = ps.executeUpdate();
             return rows > 0;
@@ -159,6 +160,19 @@ public class BookingService {
         }
     }
 
+    public boolean updateStripePaymentId(long bookingId, String stripePaymentId) {
+        String sql = "UPDATE bookingdes SET stripe_payment_id = ? WHERE booking_id = ?";
+        try {
+            PreparedStatement ps = cnx.prepareStatement(sql);
+            ps.setString(1, stripePaymentId);
+            ps.setLong(2, bookingId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     private Booking mapResultSetToBooking(ResultSet rs) throws SQLException {
         Booking b = new Booking();
         b.setBookingId(rs.getLong("booking_id"));
@@ -194,6 +208,14 @@ public class BookingService {
         b.setCurrency(rs.getString("currency"));
         b.setNotes(rs.getString("notes"));
         b.setCreatedAt(rs.getTimestamp("created_at"));
+
+        try {
+            b.setStripePaymentId(rs.getString("stripe_payment_id"));
+        } catch (SQLException ignored) {}
+
+        try {
+            b.setUserEmail(rs.getString("user_email"));
+        } catch (SQLException ignored) {}
 
         // Transient fields
         b.setDestinationName(rs.getString("dest_name"));
