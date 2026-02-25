@@ -57,6 +57,24 @@ ALTER TABLE bookingdes ADD COLUMN IF NOT EXISTS user_email VARCHAR(255);
 -- Add average_rating column to activities
 ALTER TABLE activities ADD COLUMN IF NOT EXISTS average_rating DOUBLE DEFAULT 0.0;
 
+-- Add latitude and longitude columns to destinations
+ALTER TABLE destinations ADD COLUMN IF NOT EXISTS latitude DOUBLE;
+ALTER TABLE destinations ADD COLUMN IF NOT EXISTS longitude DOUBLE;
+
+-- Update sample destinations with coordinates
+UPDATE destinations SET latitude=48.8566, longitude=2.3522 WHERE name='Eiffel Tower';
+UPDATE destinations SET latitude=36.1069, longitude=-112.1129 WHERE name='Grand Canyon';
+UPDATE destinations SET latitude=4.1755, longitude=73.5093 WHERE name='Maldives';
+
+-- Add estimated_budget and popularity columns for recommendation engine
+ALTER TABLE destinations ADD COLUMN IF NOT EXISTS estimated_budget DOUBLE DEFAULT 0.0;
+ALTER TABLE destinations ADD COLUMN IF NOT EXISTS popularity INT DEFAULT 0;
+
+-- Update sample destinations with budget values
+UPDATE destinations SET estimated_budget=150.0 WHERE name='Eiffel Tower';
+UPDATE destinations SET estimated_budget=80.0 WHERE name='Grand Canyon';
+UPDATE destinations SET estimated_budget=300.0 WHERE name='Maldives';
+
 -- Table: reviews (for destinations and activities)
 CREATE TABLE IF NOT EXISTS reviews (
     review_id    BIGINT AUTO_INCREMENT PRIMARY KEY,

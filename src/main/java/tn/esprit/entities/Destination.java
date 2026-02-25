@@ -14,6 +14,10 @@ public class Destination {
     private String timezone;
     private Double averageRating;  // matches average_rating
     private LocalDateTime createdAt;  // matches created_at
+    private Double latitude;
+    private Double longitude;
+    private Double estimatedBudget;  // average cost per person
+    private Integer popularity;      // booking count
     private boolean isActive;  // we'll add this for UI purposes (not in DB)
 
     // Enum for destination type (matches your DB enum)
@@ -133,6 +137,38 @@ public class Destination {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
+
+    public Double getEstimatedBudget() {
+        return estimatedBudget;
+    }
+
+    public void setEstimatedBudget(Double estimatedBudget) {
+        this.estimatedBudget = estimatedBudget;
+    }
+
+    public Integer getPopularity() {
+        return popularity;
+    }
+
+    public void setPopularity(Integer popularity) {
+        this.popularity = popularity;
     }
 
     public boolean isActive() {

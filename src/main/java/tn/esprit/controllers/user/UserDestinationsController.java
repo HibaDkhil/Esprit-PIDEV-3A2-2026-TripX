@@ -18,6 +18,7 @@ import tn.esprit.services.DestinationService;
 import tn.esprit.services.ActivityService;
 import tn.esprit.services.WeatherService;
 import tn.esprit.services.CountryService;
+import tn.esprit.services.RecommendationService;
 import tn.esprit.utils.ThemeManager;
 import tn.esprit.utils.ImageHelper;
 import javafx.scene.image.ImageView;
@@ -90,6 +91,8 @@ public class UserDestinationsController implements Initializable {
     @FXML private Button myBookingsBtn;
     @FXML private Button browseActivitiesBtn;
     @FXML private Button myReviewsBtn; // New button binding
+    @FXML private Button showMapBtn;
+    @FXML private Button recommendBtn;
 
     private void setupActions() {
         searchBtn.setOnAction(e -> filterDestinations());
@@ -106,6 +109,14 @@ public class UserDestinationsController implements Initializable {
 
         if (myReviewsBtn != null) {
             myReviewsBtn.setOnAction(e -> showMyReviews());
+        }
+
+        if (showMapBtn != null) {
+            showMapBtn.setOnAction(e -> showMap());
+        }
+
+        if (recommendBtn != null) {
+            recommendBtn.setOnAction(e -> showRecommendations());
         }
         
         if (themeBtn != null) {
@@ -716,6 +727,246 @@ public class UserDestinationsController implements Initializable {
             e.printStackTrace();
             showError("Could not open My Reviews dialog: " + e.getMessage());
         }
+    }
+
+    private void showMap() {
+        try {
+            Stage mapStage = new Stage();
+            mapStage.setTitle("\ud83d\uddfa\ufe0f Destinations Map");
+
+            javafx.scene.web.WebView webView = new javafx.scene.web.WebView();
+            javafx.scene.web.WebEngine webEngine = webView.getEngine();
+
+            // Build JSON array from all loaded destinations
+            StringBuilder json = new StringBuilder("[");
+            boolean first = true;
+            List<Destination> source = (allDestinations != null) ? allDestinations : destinations;
+            for (Destination d : source) {
+                if (d.getLatitude() == null || d.getLongitude() == null) continue;
+                if (!first) json.append(",");
+                first = false;
+                json.append("{")
+                    .append("\"name\":\"").append(escapeJson(d.getName())).append("\",")
+                    .append("\"lat\":").append(d.getLatitude()).append(",")
+                    .append("\"lng\":").append(d.getLongitude()).append(",")
+                    .append("\"type\":\"").append(d.getType() != null ? d.getType().name() : "other").append("\",")
+                    .append("\"country\":\"").append(escapeJson(d.getCountry())).append("\",")
+                    .append("\"city\":\"").append(escapeJson(d.getCity() != null ? d.getCity() : "")).append("\",")
+                    .append("\"rating\":").append(d.getAverageRating() != null ? d.getAverageRating() : 0)
+                    .append("}");
+            }
+            json.append("]");
+            String destinationsJson = json.toString();
+
+            // Load the HTML page and inject data once loaded
+            URL htmlUrl = getClass().getResource("/html/leaflet_map.html");
+            if (htmlUrl == null) {
+                showError("Map HTML file not found: /html/leaflet_map.html");
+                return;
+            }
+
+            webEngine.getLoadWorker().stateProperty().addListener((obs, oldState, newState) -> {
+                if (newState == javafx.concurrent.Worker.State.SUCCEEDED) {
+                    webEngine.executeScript("loadMarkers('" + destinationsJson.replace("'", "\\'") + "')");
+                }
+            });
+
+            webEngine.load(htmlUrl.toExternalForm());
+
+            javafx.scene.Scene scene = new javafx.scene.Scene(webView, 900, 600);
+            mapStage.setScene(scene);
+            mapStage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Could not open map: " + e.getMessage());
+        }
+    }
+
+    private String escapeJson(String text) {
+        if (text == null) return "";
+        return text.replace("\\", "\\\\")
+                   .replace("\"", "\\\"")
+                   .replace("\n", "\\n")
+                   .replace("\r", "\\r")
+                   .replace("\t", "\\t");
+    }
+
+    private void showRecommendations() {
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("🤖 AI Destination Recommendations");
+        dialog.setHeaderText(null);
+
+        DialogPane dialogPane = dialog.getDialogPane();
+        dialogPane.getStylesheets().add(getClass().getResource("/css/user-destinations.css").toExternalForm());
+        if (ThemeManager.isDarkMode()) {
+            dialogPane.getStylesheets().add(getClass().getResource("/css/dark-mode.css").toExternalForm());
+        }
+        dialogPane.getStyleClass().add("details-dialog");
+
+        boolean dark = ThemeManager.isDarkMode();
+        String textPrimary = dark ? "#e0e0e0" : "#1a1a2e";
+        String textSecondary = dark ? "#a0a0b8" : "#555";
+        String cardBg = dark ? "#2a2a3d" : "#f8f9fa";
+        String accentGradient = dark ? "linear-gradient(to right, #7c3aed, #a855f7)" : "linear-gradient(to right, #667eea, #764ba2)";
+
+        VBox content = new VBox(15);
+        content.setPadding(new Insets(20));
+        content.setPrefWidth(550);
+
+        // Title
+        Label title = new Label("🤖 Smart Recommendations");
+        title.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: " + textPrimary + ";");
+
+        Label subtitle = new Label("Powered by content-based filtering with weighted scoring");
+        subtitle.setStyle("-fx-font-size: 13px; -fx-text-fill: " + textSecondary + "; -fx-font-style: italic;");
+
+        // Preference inputs
+        Label catLabel = new Label("🏷️ Preferred Category");
+        catLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: " + textPrimary + ";");
+
+        ComboBox<Destination.DestinationType> categoryCombo = new ComboBox<>();
+        categoryCombo.setItems(javafx.collections.FXCollections.observableArrayList(Destination.DestinationType.values()));
+        categoryCombo.setPromptText("Select a category...");
+        categoryCombo.setPrefWidth(300);
+        categoryCombo.getStyleClass().add("filter-combo");
+
+        Label budgetLabel = new Label("💰 Maximum Budget (per person, $)");
+        budgetLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: " + textPrimary + ";");
+
+        TextField budgetField = new TextField();
+        budgetField.setPromptText("e.g. 200");
+        budgetField.setPrefWidth(300);
+        budgetField.getStyleClass().add("search-field");
+
+        // Results container
+        VBox resultsBox = new VBox(12);
+        resultsBox.setPadding(new Insets(10, 0, 0, 0));
+
+        Button getRecsBtn = new Button("✨ Get Recommendations");
+        getRecsBtn.setStyle("-fx-background-color: " + accentGradient + "; -fx-text-fill: white; -fx-font-weight: bold; " +
+                "-fx-background-radius: 8; -fx-padding: 12 24; -fx-cursor: hand; -fx-font-size: 14px;");
+        getRecsBtn.setMaxWidth(Double.MAX_VALUE);
+
+        getRecsBtn.setOnAction(e -> {
+            resultsBox.getChildren().clear();
+
+            Destination.DestinationType selectedType = categoryCombo.getValue();
+            double maxBudget = 0;
+            try {
+                String budgetText = budgetField.getText().trim();
+                if (!budgetText.isEmpty()) {
+                    maxBudget = Double.parseDouble(budgetText);
+                }
+            } catch (NumberFormatException ex) {
+                showError("Please enter a valid budget number.");
+                return;
+            }
+
+            // Show loading
+            Label loadingLabel = new Label("🔄 Analyzing destinations...");
+            loadingLabel.setStyle("-fx-text-fill: " + textSecondary + "; -fx-font-style: italic;");
+            resultsBox.getChildren().add(loadingLabel);
+
+            final double budget = maxBudget;
+            new Thread(() -> {
+                RecommendationService recService = new RecommendationService();
+                java.util.List<RecommendationService.ScoredDestination> results = recService.getRecommendations(selectedType, budget);
+
+                javafx.application.Platform.runLater(() -> {
+                    resultsBox.getChildren().clear();
+
+                    if (results.isEmpty()) {
+                        Label noResults = new Label("No destinations found. Try different preferences.");
+                        noResults.setStyle("-fx-text-fill: #e74c3c; -fx-font-style: italic;");
+                        resultsBox.getChildren().add(noResults);
+                        return;
+                    }
+
+                    Label resultsTitle = new Label("🏆 Top " + results.size() + " Recommendations");
+                    resultsTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: " + textPrimary + ";");
+                    resultsBox.getChildren().add(resultsTitle);
+
+                    int rank = 1;
+                    for (RecommendationService.ScoredDestination sd : results) {
+                        Destination d = sd.getDestination();
+
+                        VBox card = new VBox(6);
+                        card.setStyle("-fx-background-color: " + cardBg + "; -fx-padding: 14; -fx-background-radius: 10; " +
+                                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 6, 0, 0, 2);");
+
+                        // Rank + Name row
+                        HBox headerRow = new HBox(10);
+                        headerRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+                        String medalEmoji = rank == 1 ? "🥇" : rank == 2 ? "🥈" : rank == 3 ? "🥉" : "#" + rank;
+                        Label rankLabel = new Label(medalEmoji);
+                        rankLabel.setStyle("-fx-font-size: 20px;");
+
+                        Label nameLabel = new Label(d.getName());
+                        nameLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: " + textPrimary + ";");
+
+                        javafx.scene.layout.Region spacer = new javafx.scene.layout.Region();
+                        HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+
+                        // Score badge
+                        Label scoreBadge = new Label(sd.getScorePercent());
+                        String badgeColor = sd.getScore() >= 0.7 ? "#10b981" : sd.getScore() >= 0.4 ? "#f59e0b" : "#ef4444";
+                        scoreBadge.setStyle("-fx-background-color: " + badgeColor + "; -fx-text-fill: white; " +
+                                "-fx-padding: 4 12; -fx-background-radius: 12; -fx-font-weight: bold; -fx-font-size: 13px;");
+
+                        headerRow.getChildren().addAll(rankLabel, nameLabel, spacer, scoreBadge);
+
+                        // Details row
+                        Label detailsLabel = new Label("📍 " + d.getFullLocation() + "  •  " +
+                                getTypeDisplayName(d.getType()) + "  •  ⭐ " + String.format("%.1f", d.getAverageRating()));
+                        detailsLabel.setStyle("-fx-text-fill: " + textSecondary + "; -fx-font-size: 12.5px;");
+
+                        // Budget & popularity info
+                        String budgetInfo = d.getEstimatedBudget() != null && d.getEstimatedBudget() > 0
+                                ? String.format("$%.0f/person", d.getEstimatedBudget()) : "N/A";
+                        String popInfo = d.getPopularity() != null && d.getPopularity() > 0
+                                ? d.getPopularity() + " bookings" : "New";
+
+                        Label metricsLabel = new Label("💰 " + budgetInfo + "  •  📊 " + popInfo + "  •  " + sd.getMatchLabel());
+                        metricsLabel.setStyle("-fx-text-fill: " + textSecondary + "; -fx-font-size: 12px;");
+
+                        // Score bar
+                        javafx.scene.layout.StackPane barBg = new javafx.scene.layout.StackPane();
+                        barBg.setStyle("-fx-background-color: " + (dark ? "#3a3a4d" : "#e5e7eb") + "; -fx-background-radius: 4; -fx-pref-height: 6;");
+                        barBg.setMaxWidth(Double.MAX_VALUE);
+
+                        javafx.scene.layout.StackPane barFill = new javafx.scene.layout.StackPane();
+                        barFill.setStyle("-fx-background-color: " + badgeColor + "; -fx-background-radius: 4; -fx-pref-height: 6;");
+                        barFill.setMaxWidth(500 * sd.getScore());
+                        barFill.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+                        javafx.scene.layout.StackPane barContainer = new javafx.scene.layout.StackPane(barBg, barFill);
+                        javafx.scene.layout.StackPane.setAlignment(barFill, javafx.geometry.Pos.CENTER_LEFT);
+
+                        card.getChildren().addAll(headerRow, detailsLabel, metricsLabel, barContainer);
+                        resultsBox.getChildren().add(card);
+                        rank++;
+                    }
+                });
+            }).start();
+        });
+
+        content.getChildren().addAll(title, subtitle,
+                new javafx.scene.control.Separator(),
+                catLabel, categoryCombo, budgetLabel, budgetField, getRecsBtn,
+                new javafx.scene.control.Separator(),
+                resultsBox);
+
+        ScrollPane scrollPane = new ScrollPane(content);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setPrefHeight(600);
+        scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+
+        dialogPane.setContent(scrollPane);
+        dialogPane.setPrefWidth(600);
+        dialogPane.getButtonTypes().add(ButtonType.CLOSE);
+        dialog.showAndWait();
     }
 
 }

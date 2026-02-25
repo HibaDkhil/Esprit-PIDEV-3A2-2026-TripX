@@ -16,8 +16,8 @@ public class DestinationService {
 
     // CREATE - Add new destination
     public boolean addDestination(Destination destination) {
-        String sql = "INSERT INTO destinations (name, type, country, city, best_season, description, timezone, average_rating) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO destinations (name, type, country, city, best_season, description, timezone, average_rating, latitude, longitude, estimated_budget, popularity) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = conx.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, destination.getName());
@@ -28,6 +28,10 @@ public class DestinationService {
             ps.setString(6, destination.getDescription());
             ps.setString(7, destination.getTimezone());
             ps.setDouble(8, destination.getAverageRating() != null ? destination.getAverageRating() : 0.0);
+            if (destination.getLatitude() != null) { ps.setDouble(9, destination.getLatitude()); } else { ps.setNull(9, java.sql.Types.DOUBLE); }
+            if (destination.getLongitude() != null) { ps.setDouble(10, destination.getLongitude()); } else { ps.setNull(10, java.sql.Types.DOUBLE); }
+            ps.setDouble(11, destination.getEstimatedBudget() != null ? destination.getEstimatedBudget() : 0.0);
+            ps.setInt(12, destination.getPopularity() != null ? destination.getPopularity() : 0);
 
             int affectedRows = ps.executeUpdate();
 
@@ -132,7 +136,7 @@ public class DestinationService {
     // UPDATE - Update destination
     public boolean updateDestination(Destination destination) {
         String sql = "UPDATE destinations SET name=?, type=?, country=?, city=?, best_season=?, " +
-                "description=?, timezone=?, average_rating=? WHERE destination_id=?";
+                "description=?, timezone=?, average_rating=?, latitude=?, longitude=?, estimated_budget=?, popularity=? WHERE destination_id=?";
 
         try (PreparedStatement ps = conx.prepareStatement(sql)) {
             ps.setString(1, destination.getName());
@@ -143,7 +147,11 @@ public class DestinationService {
             ps.setString(6, destination.getDescription());
             ps.setString(7, destination.getTimezone());
             ps.setDouble(8, destination.getAverageRating() != null ? destination.getAverageRating() : 0.0);
-            ps.setLong(9, destination.getDestinationId());
+            if (destination.getLatitude() != null) { ps.setDouble(9, destination.getLatitude()); } else { ps.setNull(9, java.sql.Types.DOUBLE); }
+            if (destination.getLongitude() != null) { ps.setDouble(10, destination.getLongitude()); } else { ps.setNull(10, java.sql.Types.DOUBLE); }
+            ps.setDouble(11, destination.getEstimatedBudget() != null ? destination.getEstimatedBudget() : 0.0);
+            ps.setInt(12, destination.getPopularity() != null ? destination.getPopularity() : 0);
+            ps.setLong(13, destination.getDestinationId());
 
             int affectedRows = ps.executeUpdate();
 
@@ -215,6 +223,14 @@ public class DestinationService {
         d.setDescription(rs.getString("description"));
         d.setTimezone(rs.getString("timezone"));
         d.setAverageRating(rs.getDouble("average_rating"));
+
+    double lat = rs.getDouble("latitude");
+    if (!rs.wasNull()) { d.setLatitude(lat); }
+    double lng = rs.getDouble("longitude");
+    if (!rs.wasNull()) { d.setLongitude(lng); }
+
+        d.setEstimatedBudget(rs.getDouble("estimated_budget"));
+        d.setPopularity(rs.getInt("popularity"));
 
         Timestamp timestamp = rs.getTimestamp("created_at");
         if (timestamp != null) {

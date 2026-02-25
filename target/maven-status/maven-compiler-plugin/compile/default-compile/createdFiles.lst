@@ -25,8 +25,10 @@ tn\esprit\controllers\admin\DestinationManagementController$2.class
 tn\esprit\services\EmailService.class
 tn\esprit\services\DestinationService.class
 tn\esprit\entities\Destination.class
+tn\esprit\services\RecommendationService.class
 tn\esprit\controllers\admin\ActivityManagementController.class
 tn\esprit\services\WeatherService.class
+tn\esprit\services\RecommendationService$ScoredDestination.class
 tn\esprit\services\WeatherService$WeatherData.class
 tn\esprit\controllers\admin\ActivityManagementController$1.class
 tn\esprit\services\ReviewService.class
