@@ -1,0 +1,76 @@
+/*
+ * transport-dark.css
+ *
+ * MAVEN PROJECT PLACEMENT:
+ *   src/main/resources/tn/esprit/css/transport-dark.css
+ *
+ * FXML reference (add inside <BorderPane> tag):
+ *   <stylesheets>
+ *       <URL value="@/tn/esprit/css/transport-dark.css"/>
+ *   </stylesheets>
+ *
+ * The controller adds/removes "dark-mode" class on the root BorderPane.
+ * That makes ALL children switch to dark — not just the sidebar.
+ */
+
+/* ── Root ── */
+.dark-mode {
+    -fx-background-color: #121827;
+}
+
+/* ── Content center ── */
+.dark-mode > .center > .stack-pane {
+    -fx-background-color: #1a2233 !important;
+}
+
+/* ── Top bar ── */
+.dark-mode > .top > .h-box {
+    -fx-background-color: #1a2233 !important;
+    -fx-border-color: #2d3a52 !important;
+}
+.dark-mode > .top .label {
+    -fx-text-fill: #c8d6e5 !important;
+}
+.dark-mode > .top .text-field {
+    -fx-background-color: #243050 !important;
+    -fx-border-color: #2d3a52 !important;
+    -fx-text-fill: #c8d6e5 !important;
+    -fx-prompt-text-fill: #5e7a99 !important;
+}
+
+/* ── TableView ── */
+.dark-mode .table-view {
+    -fx-background-color: #1e2a40 !important;
+    -fx-border-color: #2d3a52;
+}
+.dark-mode .table-view .column-header-background {
+    -fx-background-color: #16213a !important;
+}
+.dark-mode .table-view .column-header .label {
+    -fx-text-fill: #8bafc8 !important;
+    -fx-font-weight: bold;
+}
+.dark-mode .table-view .table-row-cell {
+    -fx-background-color: #1e2a40 !important;
+    -fx-border-color: #243050 !important;
+}
+.dark-mode .table-view .table-row-cell:odd {
+    -fx-background-color: #243050 !important;
+}
+.dark-mode .table-view .table-row-cell:selected {
+    -fx-background-color: #0a4174 !important;
+}
+.dark-mode .table-view .table-cell {
+    -fx-text-fill: #c8d6e5 !important;
+}
+
+/* ── Section labels in content area ── */
+.dark-mode > .center .label {
+    -fx-text-fill: #c8d6e5;
+}
+
+/* ── Dark mode toggle when ON ── */
+.dark-mode #darkModeToggle {
+    -fx-background-color: #4FB3B5 !important;
+    -fx-text-fill: white !important;
+}

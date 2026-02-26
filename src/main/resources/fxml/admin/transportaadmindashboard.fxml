@@ -1,81 +1,252 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
 
+<!--
+    FIX: Added stylesheets reference for dark-mode CSS.
+    The dark-mode class is applied to the root BorderPane by the controller,
+    which means ALL children (not just sidebar) are styled in dark mode.
+    Add a CSS file (transport-dark.css) to your resources with .dark-mode rules.
+-->
 <BorderPane prefWidth="1280" prefHeight="750"
             xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="tn.esprit.controllers.admin.TransportAdminDashboardController"
-            style="-fx-background-color: #F1EAE7;">
+            styleClass="root-pane">
+    <stylesheets>
+        <String fx:value="@../../tn/esprit/css/transport-dark.css"/>
+    </stylesheets>
 
-    <!-- LEFT SIDEBAR -->
+    <!-- ═══════════════════════════════════════════════
+         LEFT SIDEBAR
+         ═══════════════════════════════════════════════ -->
     <left>
-        <VBox prefWidth="220" spacing="12"
-              style="-fx-background-color: #1F294C; -fx-padding: 28;">
+        <VBox fx:id="sidebar" prefWidth="240" minWidth="240" maxWidth="240"
+              style="-fx-background-color: linear-gradient(to bottom, #001D39 0%, #0A4174 45%, #4E8EA2 100%);
+                     -fx-background-radius: 0 20 20 0;
+                     -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.35), 22, 0, 0, 6);">
 
-            <Label text="ADMIN"
-                   style="-fx-text-fill: #4FB3B5; -fx-font-size: 22px; -fx-font-weight: bold;" />
-            <Label text="DASHBOARD"
-                   style="-fx-text-fill: #FFFFFF; -fx-font-size: 22px; -fx-font-weight: bold;" />
+            <!-- Logo header -->
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <padding><Insets top="24" right="18" bottom="20" left="22"/></padding>
+                <VBox spacing="2">
+                    <Label text="TripX"
+                           style="-fx-text-fill: #BDD8E9; -fx-font-size: 22px; -fx-font-weight: 800;"/>
+                    <Label text="Admin Dashboard"
+                           style="-fx-text-fill: #7BBDE8; -fx-font-size: 11px; -fx-font-weight: 600;"/>
+                </VBox>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button fx:id="sidebarToggle" text="◀"
+                        style="-fx-background-color: rgba(189,216,233,0.15); -fx-text-fill: #BDD8E9;
+                               -fx-font-weight: 700; -fx-background-radius: 8; -fx-cursor: hand;
+                               -fx-padding: 5 10 5 10;"/>
+            </HBox>
 
-            <Separator style="-fx-background-color: #4FB3B5;" />
+            <!-- Sidebar search -->
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <padding><Insets top="4" right="16" bottom="10" left="16"/></padding>
+                <TextField promptText="Search modules..."
+                           style="-fx-background-color: rgba(255,255,255,0.08);
+                                  -fx-border-color: rgba(189,216,233,0.2);
+                                  -fx-border-radius: 8; -fx-background-radius: 8;
+                                  -fx-text-fill: #BDD8E9;
+                                  -fx-prompt-text-fill: rgba(189,216,233,0.55);
+                                  -fx-padding: 6 10 6 10;"
+                           HBox.hgrow="ALWAYS"/>
+                <Button text="🔍"
+                        style="-fx-background-color: linear-gradient(to bottom, #4E8EA2, #6EA2B3);
+                               -fx-text-fill: white; -fx-background-radius: 8; -fx-cursor: hand;
+                               -fx-padding: 6 10 6 10;"/>
+            </HBox>
 
-            <Button fx:id="btnTransport"
-                    text="Manage Transport"
-                    maxWidth="Infinity"
-                    onAction="#showTransportTab"
-                    style="-fx-background-color: #4FB3B5; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px; -fx-padding: 10 15 10 15; -fx-cursor: hand; -fx-background-radius: 6;" />
+            <!-- Navigation menu -->
+            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                        style="-fx-background-color: transparent; -fx-border-color: transparent;">
+                <VBox spacing="2" style="-fx-padding: 8 0 8 0;">
 
-            <Button fx:id="btnSchedule"
-                    text="Manage Schedules"
-                    maxWidth="Infinity"
-                    onAction="#showScheduleTab"
-                    style="-fx-background-color: transparent; -fx-text-fill: #CCCCCC; -fx-font-size: 13px; -fx-padding: 10 15 10 15; -fx-cursor: hand; -fx-background-radius: 6;" />
+                    <Label text="TRANSPORT MODULE"
+                           style="-fx-text-fill: rgba(189,216,233,0.5); -fx-font-size: 10px;
+                                  -fx-font-weight: 700; -fx-padding: 10 18 4 18;"/>
 
-            <Button fx:id="btnBooking"
-                    text="Manage Bookings"
-                    maxWidth="Infinity"
-                    onAction="#showBookingTab"
-                    style="-fx-background-color: transparent; -fx-text-fill: #CCCCCC; -fx-font-size: 13px; -fx-padding: 10 15 10 15; -fx-cursor: hand; -fx-background-radius: 6;" />
+                    <Button fx:id="btnTransport"
+                            text="✈  Manage Transport"
+                            maxWidth="Infinity"
+                            onAction="#showTransportTab"
+                            style="-fx-background-color: rgba(189,216,233,0.18);
+                                   -fx-text-fill: white; -fx-font-weight: bold;
+                                   -fx-font-size: 13px; -fx-padding: 10 18 10 18;
+                                   -fx-cursor: hand; -fx-background-radius: 10;
+                                   -fx-alignment: CENTER_LEFT;"/>
 
-            <Region VBox.vgrow="ALWAYS" />
+                    <Button fx:id="btnSchedule"
+                            text="🗓  Manage Schedules"
+                            maxWidth="Infinity"
+                            onAction="#showScheduleTab"
+                            style="-fx-background-color: transparent;
+                                   -fx-text-fill: #BDD8E9; -fx-font-size: 13px;
+                                   -fx-padding: 10 18 10 18; -fx-cursor: hand;
+                                   -fx-background-radius: 10; -fx-alignment: CENTER_LEFT;"/>
 
-            <Separator style="-fx-background-color: #4FB3B5;" />
+                    <Button fx:id="btnBooking"
+                            text="📋  Manage Bookings"
+                            maxWidth="Infinity"
+                            onAction="#showBookingTab"
+                            style="-fx-background-color: transparent;
+                                   -fx-text-fill: #BDD8E9; -fx-font-size: 13px;
+                                   -fx-padding: 10 18 10 18; -fx-cursor: hand;
+                                   -fx-background-radius: 10; -fx-alignment: CENTER_LEFT;"/>
 
-            <Button fx:id="btnLogout"
-                    text="Logout"
-                    maxWidth="Infinity"
-                    onAction="#handleLogout"
-                    style="-fx-background-color: #F06E32; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px; -fx-padding: 10 15 10 15; -fx-cursor: hand; -fx-background-radius: 6;" />
+                </VBox>
+            </ScrollPane>
+
+            <!-- Sidebar footer -->
+            <VBox spacing="10"
+                  style="-fx-padding: 14 18 18 18;
+                         -fx-background-color: rgba(0,29,57,0.40);
+                         -fx-border-color: rgba(189,216,233,0.15);
+                         -fx-border-width: 1 0 0 0;">
+
+                <Separator style="-fx-background-color: rgba(189,216,233,0.2);"/>
+
+                <!-- Dark mode toggle -->
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="🌙" style="-fx-text-fill: #BDD8E9;"/>
+                    <Label text="Dark Mode"
+                           style="-fx-text-fill: #BDD8E9; -fx-font-weight: 600;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <ToggleButton fx:id="darkModeToggle" text="OFF"
+                                  style="-fx-background-color: rgba(189,216,233,0.2);
+                                         -fx-text-fill: #BDD8E9;
+                                         -fx-background-radius: 10; -fx-cursor: hand;
+                                         -fx-padding: 4 12 4 12;"/>
+                </HBox>
+
+                <!-- Language selector -->
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="🌐" style="-fx-text-fill: #BDD8E9;"/>
+                    <ComboBox fx:id="languageSelector" prefWidth="140"
+                              style="-fx-background-color: #f4f4f5; -fx-background-radius: 8;">
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="English"/>
+                                <String fx:value="Français"/>
+                                <String fx:value="العربية"/>
+                            </FXCollections>
+                        </items>
+                    </ComboBox>
+                </HBox>
+
+                <!-- Logout -->
+                <Button fx:id="btnLogout"
+                        text="🚪  Logout"
+                        maxWidth="Infinity"
+                        onAction="#handleLogout"
+                        style="-fx-background-color: #F06E32; -fx-text-fill: white;
+                               -fx-font-weight: bold; -fx-font-size: 13px;
+                               -fx-padding: 9 15 9 15; -fx-cursor: hand;
+                               -fx-background-radius: 8; -fx-alignment: CENTER_LEFT;"/>
+            </VBox>
         </VBox>
     </left>
 
-    <!-- TOP BAR -->
+    <!-- ═══════════════════════════════════════════════
+         TOP BAR
+         ═══════════════════════════════════════════════ -->
     <top>
-        <HBox alignment="CENTER_LEFT" spacing="15"
-              style="-fx-background-color: #FFFFFF; -fx-padding: 15 25 15 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 2);">
-            <Label fx:id="topTitle"
-                   text="Transport Module"
-                   style="-fx-text-fill: #1F294C; -fx-font-size: 20px; -fx-font-weight: bold;" />
-            <Region HBox.hgrow="ALWAYS" />
-            <Label text="Admin Panel"
-                   style="-fx-text-fill: #4FB3B5; -fx-font-size: 13px;" />
+        <HBox alignment="CENTER_LEFT" spacing="16"
+              style="-fx-background-color: linear-gradient(to right, #F7F6F2, #FFFFFF);
+                     -fx-padding: 14 28 14 20;
+                     -fx-border-color: transparent transparent #E8EAF6 transparent;
+                     -fx-border-width: 0 0 1 0;
+                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 2);">
+
+            <!-- Sidebar re-open button -->
+            <Button fx:id="sidebarOpenButton" text="☰"
+                    style="-fx-background-color: transparent; -fx-text-fill: #063154;
+                           -fx-font-size: 18px; -fx-font-weight: 700;
+                           -fx-padding: 5 9 5 9; -fx-background-radius: 8;
+                           -fx-cursor: hand;"
+                    visible="false" managed="false"/>
+
+            <!-- Breadcrumb -->
+            <HBox alignment="CENTER_LEFT" spacing="8">
+                <Label text="Transport"
+                       style="-fx-text-fill: #49769F; -fx-font-size: 13px; -fx-font-weight: 600;"/>
+                <Label text="›"
+                       style="-fx-text-fill: #BCC5CC;"/>
+                <Label fx:id="topTitle" text="Manage Transport"
+                       style="-fx-text-fill: #063154; -fx-font-size: 13px; -fx-font-weight: 700;"/>
+            </HBox>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <!-- Right actions -->
+            <HBox alignment="CENTER_RIGHT" spacing="14">
+                <TextField promptText="Search across modules..."
+                           style="-fx-background-color: #F5F7FA; -fx-background-radius: 10;
+                                  -fx-border-color: #E8EAF6; -fx-border-radius: 10;
+                                  -fx-padding: 9 14 9 14; -fx-pref-width: 220;"/>
+
+                <StackPane>
+                    <Button text="🔔"
+                            style="-fx-background-color: transparent; -fx-text-fill: #49769F;
+                                   -fx-font-size: 18px; -fx-cursor: hand;"/>
+                    <Circle radius="5"
+                            style="-fx-fill: #EF5350; -fx-stroke: white; -fx-stroke-width: 1.5;
+                                   -fx-translate-x: 9; -fx-translate-y: -8;"/>
+                </StackPane>
+
+                <MenuButton fx:id="profileDropdown" text="Admin"
+                            style="-fx-background-color: transparent; -fx-text-fill: #063154;
+                                   -fx-font-weight: 600; -fx-background-radius: 10;
+                                   -fx-border-color: #E8EAF6; -fx-border-radius: 10;
+                                   -fx-padding: 6 14 6 14;">
+                    <graphic>
+                        <StackPane>
+                            <Circle radius="15"
+                                    style="-fx-fill: linear-gradient(to bottom right, #0A4174, #025F67);"/>
+                            <Label text="A"
+                                   style="-fx-text-fill: white; -fx-font-size: 12px;
+                                          -fx-font-weight: bold;"/>
+                        </StackPane>
+                    </graphic>
+                    <items>
+                        <MenuItem text="👤  My Profile"/>
+                        <MenuItem text="⚙️  Settings"/>
+                        <SeparatorMenuItem/>
+                        <MenuItem text="🚪  Logout" onAction="#handleLogout"/>
+                    </items>
+                </MenuButton>
+            </HBox>
         </HBox>
     </top>
 
-    <!-- CENTER CONTENT -->
+    <!-- ═══════════════════════════════════════════════
+         CENTER — content area
+         ═══════════════════════════════════════════════ -->
     <center>
-        <StackPane fx:id="contentArea">
+        <StackPane fx:id="contentArea"
+                   style="-fx-background-color: #F1EAE7;">
             <padding>
-                <Insets top="20" right="20" bottom="20" left="20" />
+                <Insets top="20" right="20" bottom="20" left="20"/>
             </padding>
         </StackPane>
     </center>

@@ -6,697 +6,1392 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
 import tn.esprit.entities.Bookingtrans;
 import tn.esprit.entities.Schedule;
 import tn.esprit.entities.Transport;
 import tn.esprit.services.BookingtransService;
 import tn.esprit.services.ScheduleService;
 import tn.esprit.services.TransportService;
+import tn.esprit.utils.MyDatabase;
 
+import java.sql.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class TransportUserInterfaceController {
 
-    /* ── FXML Nodes ── */
     @FXML private StackPane contentArea;
-    @FXML private Button    btnBrowse;
-    @FXML private Button    btnSchedules;
-    @FXML private Button    btnMyBookings;
     @FXML private Label     welcomeLabel;
+    @FXML private Button    btnSchedules;
+    @FXML private Button    btnTransport;
+    @FXML private Button    btnMyBookings;
 
-    /* ── Services ── */
     private final TransportService    transportService = new TransportService();
     private final ScheduleService     scheduleService  = new ScheduleService();
     private final BookingtransService bookingService   = new BookingtransService();
 
-    /* ── Session ── */
-    // Set this before loading the FXML, e.g. controller.setUserId(loggedInUser.getId())
-    private int currentUserId = 1; // default; replace with real session user ID
+    private int currentUserId = 1;
+    private Map<Long, String> destinationNames = null;
 
-    /* ── Style Constants ── */
-    private static final String NAV_ACTIVE =
-            "-fx-background-color: #4FB3B5; -fx-text-fill: white; " +
-                    "-fx-font-weight: bold; -fx-font-size: 13px; " +
-                    "-fx-padding: 10 15 10 15; -fx-cursor: hand; -fx-background-radius: 6;";
+    private static final DateTimeFormatter DT_FMT  = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd MMM yyyy");
 
-    private static final String NAV_INACTIVE =
-            "-fx-background-color: transparent; -fx-text-fill: #CCCCCC; " +
-                    "-fx-font-size: 13px; -fx-padding: 10 15 10 15; " +
-                    "-fx-cursor: hand; -fx-background-radius: 6;";
-
+    /* ═══════════ STYLES ═══════════ */
+    private static final String TAB_ACTIVE =
+            "-fx-background-color: #1F294C; -fx-text-fill: white; -fx-font-weight: bold; " +
+                    "-fx-font-size: 13px; -fx-padding: 12 32 12 32; -fx-cursor: hand; -fx-background-radius: 0;";
+    private static final String TAB_INACTIVE =
+            "-fx-background-color: white; -fx-text-fill: #1F294C; -fx-font-size: 13px; " +
+                    "-fx-padding: 12 32 12 32; -fx-cursor: hand; -fx-background-radius: 0;";
     private static final String BTN_TEAL =
-            "-fx-background-color: #4FB3B5; -fx-text-fill: white; " +
-                    "-fx-font-weight: bold; -fx-padding: 8 18 8 18; " +
-                    "-fx-cursor: hand; -fx-background-radius: 5;";
-
-    private static final String BTN_ORANGE =
-            "-fx-background-color: #F06E32; -fx-text-fill: white; " +
-                    "-fx-font-weight: bold; -fx-padding: 8 18 8 18; " +
-                    "-fx-cursor: hand; -fx-background-radius: 5;";
-
+            "-fx-background-color: #4FB3B5; -fx-text-fill: white; -fx-font-weight: bold; " +
+                    "-fx-padding: 9 22 9 22; -fx-cursor: hand; -fx-background-radius: 5;";
     private static final String BTN_DARK =
-            "-fx-background-color: #1F294C; -fx-text-fill: white; " +
-                    "-fx-font-weight: bold; -fx-padding: 8 18 8 18; " +
-                    "-fx-cursor: hand; -fx-background-radius: 5;";
+            "-fx-background-color: #1F294C; -fx-text-fill: white; -fx-font-weight: bold; " +
+                    "-fx-padding: 9 22 9 22; -fx-cursor: hand; -fx-background-radius: 5;";
+    private static final String BTN_BOOK =
+            "-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; " +
+                    "-fx-font-size: 13px; -fx-padding: 10 0 10 0; -fx-cursor: hand; -fx-background-radius: 0 0 8 8;";
+    private static final String BTN_BOOKED =
+            "-fx-background-color: #aaa; -fx-text-fill: white; -fx-font-weight: bold; " +
+                    "-fx-font-size: 12px; -fx-padding: 10 0 10 0; -fx-background-radius: 0 0 8 8;";
+    private static final String BTN_DETAIL =
+            "-fx-background-color: #F1EAE7; -fx-text-fill: #1F294C; -fx-font-weight: bold; " +
+                    "-fx-font-size: 12px; -fx-padding: 8 0 8 0; -fx-cursor: hand; -fx-background-radius: 0;";
+    private static final String FORM_FIELD =
+            "-fx-padding: 7 11 7 11; -fx-background-radius: 5; " +
+                    "-fx-border-color: #D0C8C3; -fx-border-radius: 5; -fx-font-size: 12px;";
+    private static final String TOGGLE_ON =
+            "-fx-background-color: #1F294C; -fx-text-fill: white; -fx-font-weight: bold; " +
+                    "-fx-padding: 9 26 9 26; -fx-cursor: hand; -fx-font-size: 13px;";
+    private static final String TOGGLE_OFF =
+            "-fx-background-color: #E8E3DF; -fx-text-fill: #555; " +
+                    "-fx-padding: 9 26 9 26; -fx-cursor: hand; -fx-font-size: 13px;";
 
-    private static final String BTN_RED =
-            "-fx-background-color: #c0392b; -fx-text-fill: white; " +
-                    "-fx-font-weight: bold; -fx-padding: 8 18 8 18; " +
-                    "-fx-cursor: hand; -fx-background-radius: 5;";
+    /* ═══════════ INIT ═══════════ */
 
-    private static final DateTimeFormatter DT_FMT =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    @FXML public void initialize() { showSchedulesTab(); }
 
-    /* ══════════════════════════════════════════════════════
-       INIT
-       ══════════════════════════════════════════════════════ */
-
-    @FXML
-    public void initialize() {
-        showBrowseTab();
-    }
-
-    /** Call this right after FXMLLoader to inject the logged-in user's ID. */
     public void setUserId(int userId) {
         this.currentUserId = userId;
-        if (welcomeLabel != null)
-            welcomeLabel.setText("Welcome, User #" + userId);
+        if (welcomeLabel != null) welcomeLabel.setText("Welcome, User #" + userId);
     }
 
-    /* ══════════════════════════════════════════════════════
-       NAV HIGHLIGHTING
-       ══════════════════════════════════════════════════════ */
-
-    private void setActiveNav(Button active) {
-        btnBrowse    .setStyle(NAV_INACTIVE);
-        btnSchedules .setStyle(NAV_INACTIVE);
-        btnMyBookings.setStyle(NAV_INACTIVE);
-        active.setStyle(NAV_ACTIVE);
+    private void setActiveTab(Button active) {
+        btnSchedules .setStyle(TAB_INACTIVE);
+        btnTransport .setStyle(TAB_INACTIVE);
+        btnMyBookings.setStyle(TAB_INACTIVE);
+        active.setStyle(TAB_ACTIVE);
     }
-
-    /* ══════════════════════════════════════════════════════
-       LOGOUT
-       ══════════════════════════════════════════════════════ */
 
     @FXML
     public void handleLogout() {
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
-                "Are you sure you want to logout?", ButtonType.YES, ButtonType.NO);
-        confirm.setTitle("Logout");
-        confirm.setHeaderText(null);
-        confirm.showAndWait().ifPresent(r -> {
-            if (r == ButtonType.YES) {
-                Stage stage = (Stage) contentArea.getScene().getWindow();
-                stage.close();
+        Alert a = new Alert(Alert.AlertType.CONFIRMATION);
+        a.setHeaderText(null); a.setContentText("Are you sure you want to logout?");
+        a.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
+        a.showAndWait().ifPresent(r -> {
+            if (r == ButtonType.YES) ((Stage) contentArea.getScene().getWindow()).close();
+        });
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       DESTINATION NAMES
+       ⚠  Adjust table/column names to match  teammate's
+          actual destination entity once their code is ready.
+          Current query:  SELECT id, name FROM destination
+          Change "destination" → your table name
+          Change "id"          → your primary key column name
+          Change "name"        → your destination name column
+       ═══════════════════════════════════════════════════════ */
+    private Map<Long, String> getDestinationName() {
+        if (destinationNames != null) return destinationNames;
+        destinationNames = new LinkedHashMap<>();
+        try {
+            Connection con = MyDatabase.getInstance().getConx();
+            // ↓↓↓  UPDATE THESE 3 IDENTIFIERS WHEN YOUR TEAMMATE'S TABLE IS READY  ↓↓↓
+            String sql = "SELECT id, name FROM destinations ORDER BY name";
+            // Example after update:  "SELECT destination_id, destination_name FROM destinations ORDER BY destination_name"
+            try (Statement st = con.createStatement(); ResultSet rs = st.executeQuery(sql)) {
+                while (rs.next())
+                    destinationNames.put(rs.getLong("id"), rs.getString("name"));
             }
-        });
+        } catch (Exception e) {
+            // Table not yet available — all destinations will show as "Destination #<id>"
+            System.out.println("Destination names unavailable (showing IDs): " + e.getMessage());
+        }
+        return destinationNames;
     }
 
-    /* ══════════════════════════════════════════════════════
-       ── BROWSE TRANSPORTS TAB ──
-       ══════════════════════════════════════════════════════ */
-
-    @FXML
-    public void showBrowseTab() {
-        setActiveNav(btnBrowse);
-        buildBrowseView();
+    private String destName(long id) {
+        String n = getDestinationName().get(id);
+        return n != null ? n : "Destination #" + id;
     }
 
-    @SuppressWarnings("unchecked")
-    private void buildBrowseView() {
-        TableView<Transport> table = new TableView<>();
-        styleTable(table);
+    /* ═══════════ AVAILABILITY HELPERS ═══════════ */
 
-        TableColumn<Transport, Integer> idCol    = col("ID",         "transportId",        55);
-        TableColumn<Transport, String>  typeCol  = col("Type",       "transportType",      90);
-        TableColumn<Transport, String>  provCol  = col("Provider",   "providerName",       150);
-        TableColumn<Transport, String>  modelCol = col("Model",      "vehicleModel",       150);
-        TableColumn<Transport, Double>  priceCol = col("Base Price", "basePrice",          100);
-        TableColumn<Transport, Integer> capCol   = col("Capacity",   "capacity",           80);
-        TableColumn<Transport, Integer> unitCol  = col("Available",  "availableUnits",     80);
-        TableColumn<Transport, Double>  ecoCol   = col("Eco ★",      "sustainabilityRating", 75);
-        TableColumn<Transport, String>  amenCol  = col("Amenities",  "amenities",          180);
-
-        table.getColumns().addAll(idCol, typeCol, provCol, modelCol,
-                priceCol, capCol, unitCol, ecoCol, amenCol);
-
-        List<Transport> transports = transportService.getAllTransports();
-        table.setItems(FXCollections.observableArrayList(transports));
-
-        // ── Search bar ──
-        TextField searchField = new TextField();
-        searchField.setPromptText("Search by provider or type...");
-        searchField.setStyle("-fx-padding: 7 12 7 12; -fx-background-radius: 5; " +
-                "-fx-border-color: #4FB3B5; -fx-border-radius: 5;");
-        searchField.setPrefWidth(300);
-
-        searchField.textProperty().addListener((obs, oldVal, newVal) -> {
-            String lower = newVal.toLowerCase();
-            table.setItems(FXCollections.observableArrayList(
-                    transports.stream()
-                            .filter(t -> t.getProviderName().toLowerCase().contains(lower)
-                                    || t.getTransportType().toLowerCase().contains(lower)
-                                    || t.getVehicleModel().toLowerCase().contains(lower))
-                            .toList()
-            ));
-        });
-
-        Button bookBtn = btn("✈  Book This Transport", BTN_TEAL);
-        bookBtn.setOnAction(e -> {
-            Transport sel = table.getSelectionModel().getSelectedItem();
-            if (sel != null) openBookingForm(sel, null);
-            else showAlert("Please select a transport first.");
-        });
-
-        HBox topBar = new HBox(12, searchField, new Region(), bookBtn);
-        HBox.setHgrow(topBar.getChildren().get(1), Priority.ALWAYS);
-        topBar.setAlignment(Pos.CENTER_LEFT);
-
-        Label title = sectionTitle("✈   Available Transports");
-        VBox layout = new VBox(14, title, topBar, table);
-        VBox.setVgrow(table, Priority.ALWAYS);
-
-        contentArea.getChildren().setAll(layout);
+    private int getBookedSeatsForSchedule(int scheduleId) {
+        return bookingService.getAllBookings().stream()
+                .filter(b -> b.getScheduleId() == scheduleId
+                        && !"CANCELLED".equals(b.getBookingStatus()))
+                .mapToInt(Bookingtrans::getTotalSeats).sum();
     }
 
-    /* ══════════════════════════════════════════════════════
-       ── VIEW SCHEDULES TAB ──
-       ══════════════════════════════════════════════════════ */
+    /**
+     * FIX: A VEHICLE schedule becomes unavailable as soon as ANY non-cancelled
+     * booking exists for it (not just CONFIRMED). This prevents double-booking
+     * even while the first booking is still PENDING admin confirmation.
+     */
+    private boolean isVehicleScheduleUnavailable(int scheduleId) {
+        return bookingService.getAllBookings().stream()
+                .anyMatch(b -> b.getScheduleId() == scheduleId
+                        && !"CANCELLED".equals(b.getBookingStatus()));
+    }
 
-    @FXML
-    public void showSchedulesTab() {
-        setActiveNav(btnSchedules);
+    private int remainingSeatsForFlight(Schedule s, Map<Integer, Transport> tMap) {
+        Transport t = tMap.get(s.getTransportId());
+        if (t == null) return 0;
+        return t.getCapacity() - getBookedSeatsForSchedule(s.getScheduleId());
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       SCHEDULES TAB
+       ═══════════════════════════════════════════════════════ */
+
+    @FXML public void showSchedulesTab() {
+        setActiveTab(btnSchedules);
         buildSchedulesView();
     }
 
     @SuppressWarnings("unchecked")
     private void buildSchedulesView() {
-        TableView<Schedule> table = new TableView<>();
-        styleTable(table);
+        List<Schedule>  allSched = scheduleService.getAllSchedules();
+        List<Transport> allTrans = transportService.getAllTransports();
+        Map<Integer, Transport> transMap = new HashMap<>();
+        allTrans.forEach(t -> transMap.put(t.getTransportId(), t));
+        Map<Long, String> destNames = getDestinationName();
 
-        TableColumn<Schedule, Integer> idCol     = col("ID",         "scheduleId",       55);
-        TableColumn<Schedule, Integer> transCol  = col("Transport",  "transportId",      90);
-        TableColumn<Schedule, String>  classCol  = col("Class",      "travelClass",      90);
-        TableColumn<Schedule, String>  statusCol = col("Status",     "status",           100);
-        TableColumn<Schedule, Double>  multCol   = col("Price ×",    "priceMultiplier",  80);
-        TableColumn<Schedule, Integer> delayCol  = col("Delay(min)", "delayMinutes",     90);
-        TableColumn<Schedule, Double>  demandCol = col("Demand",     "aiDemandScore",    80);
+        List<Schedule>[] displayed = new List[]{
+                allSched.stream()
+                        .filter(s -> !"CANCELLED".equals(s.getStatus()))
+                        .collect(Collectors.toList())
+        };
 
-        /* Departure column formatted */
-        TableColumn<Schedule, LocalDateTime> depCol = new TableColumn<>("Departure");
-        depCol.setCellValueFactory(new PropertyValueFactory<>("departureDatetime"));
-        depCol.setCellFactory(tc -> new TableCell<>() {
-            @Override protected void updateItem(LocalDateTime item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null ? "" : item.format(DT_FMT));
-            }
-        });
-        depCol.setPrefWidth(130);
+        FlowPane cards = new FlowPane();
+        cards.setHgap(18); cards.setVgap(18);
+        cards.setPadding(new Insets(6, 0, 6, 0));
 
-        /* Arrival column formatted */
-        TableColumn<Schedule, LocalDateTime> arrCol = new TableColumn<>("Arrival");
-        arrCol.setCellValueFactory(new PropertyValueFactory<>("arrivalDatetime"));
-        arrCol.setCellFactory(tc -> new TableCell<>() {
-            @Override protected void updateItem(LocalDateTime item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null ? "" : item.format(DT_FMT));
-            }
-        });
-        arrCol.setPrefWidth(130);
-
-        /* Status color-coded */
-        statusCol.setCellFactory(tc -> new TableCell<>() {
-            @Override protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) { setText(null); setStyle(""); return; }
-                setText(item);
-                switch (item) {
-                    case "ON_TIME"   -> setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold;");
-                    case "DELAYED"   -> setStyle("-fx-text-fill: #F06E32; -fx-font-weight: bold;");
-                    case "CANCELLED" -> setStyle("-fx-text-fill: #c0392b; -fx-font-weight: bold;");
-                    default          -> setStyle("");
+        Runnable render = () -> {
+            cards.getChildren().clear();
+            if (displayed[0].isEmpty()) {
+                Label empty = new Label("No schedules match your search.");
+                empty.setStyle("-fx-font-size: 14px; -fx-text-fill: #888;");
+                cards.getChildren().add(empty);
+            } else {
+                for (Schedule s : displayed[0]) {
+                    Transport t = transMap.get(s.getTransportId());
+                    if (t != null) cards.getChildren().add(
+                            buildScheduleCard(s, t, transMap, destNames));
                 }
             }
-        });
+        };
+        render.run();
 
-        table.getColumns().addAll(idCol, transCol, depCol, arrCol,
-                classCol, statusCol, multCol, delayCol, demandCol);
+        ToggleGroup tg = new ToggleGroup();
+        ToggleButton allBtn  = tog("All",      tg, true);
+        ToggleButton fltBtn  = tog("Flights",   tg, false);
+        ToggleButton vehBtn  = tog("Vehicles",  tg, false);
 
-        List<Schedule> schedules = scheduleService.getAllSchedules();
-        table.setItems(FXCollections.observableArrayList(schedules));
+        StackPane searchSwap = new StackPane();
+        searchSwap.setVisible(false); searchSwap.setManaged(false);
 
-        /* Filter: only ON_TIME */
-        CheckBox onlyAvailable = new CheckBox("Show only ON TIME schedules");
-        onlyAvailable.setStyle("-fx-text-fill: #1F294C; -fx-font-weight: bold;");
-        onlyAvailable.selectedProperty().addListener((obs, old, checked) -> {
-            if (checked) {
-                table.setItems(FXCollections.observableArrayList(
-                        schedules.stream().filter(s -> "ON_TIME".equals(s.getStatus())).toList()
-                ));
+        VBox flightPanel  = buildFlightSearchPanel (allSched, transMap, destNames, displayed, render);
+        VBox vehiclePanel = buildVehicleSearchPanel(allSched, transMap, destNames, displayed, render);
+
+        tg.selectedToggleProperty().addListener((obs, old, nv) -> {
+            if (nv == null) { old.setSelected(true); return; }
+            allBtn.setStyle(nv == allBtn ? TOGGLE_ON : TOGGLE_OFF);
+            fltBtn.setStyle(nv == fltBtn ? TOGGLE_ON : TOGGLE_OFF);
+            vehBtn.setStyle(nv == vehBtn ? TOGGLE_ON : TOGGLE_OFF);
+            if (nv == allBtn) {
+                searchSwap.setVisible(false); searchSwap.setManaged(false);
+                displayed[0] = allSched.stream().filter(s -> !"CANCELLED".equals(s.getStatus()))
+                        .collect(Collectors.toList());
+            } else if (nv == fltBtn) {
+                searchSwap.getChildren().setAll(flightPanel);
+                searchSwap.setVisible(true); searchSwap.setManaged(true);
+                displayed[0] = allSched.stream()
+                        .filter(s -> !"CANCELLED".equals(s.getStatus()))
+                        .filter(s -> isFlight(s, transMap)).collect(Collectors.toList());
             } else {
-                table.setItems(FXCollections.observableArrayList(schedules));
+                searchSwap.getChildren().setAll(vehiclePanel);
+                searchSwap.setVisible(true); searchSwap.setManaged(true);
+                displayed[0] = allSched.stream()
+                        .filter(s -> !"CANCELLED".equals(s.getStatus()))
+                        .filter(s -> isVehicle(s, transMap)).collect(Collectors.toList());
             }
+            render.run();
         });
 
-        Button bookBtn = btn("📋  Book Selected Schedule", BTN_TEAL);
-        bookBtn.setOnAction(e -> {
-            Schedule sel = table.getSelectionModel().getSelectedItem();
-            if (sel == null) { showAlert("Please select a schedule first."); return; }
-            if ("CANCELLED".equals(sel.getStatus())) {
-                showAlert("This schedule has been cancelled and cannot be booked.");
-                return;
-            }
-            openBookingForm(null, sel);
-        });
-
-        HBox topBar = new HBox(12, onlyAvailable, new Region(), bookBtn);
+        Label title = sectionTitle("Schedules");
+        HBox typeRow = new HBox(allBtn, fltBtn, vehBtn);
+        HBox topBar  = new HBox(title, new Region(), typeRow);
         HBox.setHgrow(topBar.getChildren().get(1), Priority.ALWAYS);
         topBar.setAlignment(Pos.CENTER_LEFT);
 
-        Label title = sectionTitle("🗓   Available Schedules");
-        VBox layout = new VBox(14, title, topBar, table);
-        VBox.setVgrow(table, Priority.ALWAYS);
+        ScrollPane scroll = new ScrollPane(cards);
+        scroll.setFitToWidth(true);
+        scroll.setStyle("-fx-background-color: transparent; -fx-border-color: transparent;");
+        VBox.setVgrow(scroll, Priority.ALWAYS);
 
+        VBox layout = new VBox(14, topBar, searchSwap, scroll);
+        VBox.setVgrow(scroll, Priority.ALWAYS);
         contentArea.getChildren().setAll(layout);
     }
 
-    /* ══════════════════════════════════════════════════════
-       ── BOOKING FORM POPUP ──
-       Called from both Browse and Schedules tabs.
-       ══════════════════════════════════════════════════════ */
+    private ToggleButton tog(String text, ToggleGroup g, boolean selected) {
+        ToggleButton b = new ToggleButton(text);
+        b.setToggleGroup(g); b.setSelected(selected);
+        b.setStyle(selected ? TOGGLE_ON : TOGGLE_OFF);
+        return b;
+    }
+
+    private boolean isFlight(Schedule s, Map<Integer, Transport> tm) {
+        Transport t = tm.get(s.getTransportId());
+        return t != null && "FLIGHT".equals(t.getTransportType());
+    }
+
+    private boolean isVehicle(Schedule s, Map<Integer, Transport> tm) {
+        Transport t = tm.get(s.getTransportId());
+        return t != null && "VEHICLE".equals(t.getTransportType());
+    }
+
+    /* ── FIX: Flight search uses only DEPARTURE date (arrival date removed) ── */
+    @SuppressWarnings("unchecked")
+    private VBox buildFlightSearchPanel(List<Schedule> all, Map<Integer, Transport> tMap,
+                                        Map<Long, String> dNames,
+                                        List<Schedule>[] disp, Runnable render) {
+        // "From" = free text (airport / city name)
+        TextField fromField = new TextField();
+        fromField.setPromptText("Type departure airport or city...");
+        fromField.setStyle(FORM_FIELD); fromField.setPrefWidth(210);
+
+        // "To" = dropdown of known destination names
+        List<Long> arrIds = all.stream().filter(s -> isFlight(s, tMap))
+                .map(Schedule::getArrivalDestinationId).distinct().sorted().collect(Collectors.toList());
+        ComboBox<String> toBox = destCombo(arrIds, "Any Arrival", dNames);
+
+        // FIX: only departure date — arrival date removed entirely
+        DatePicker depDp = dp("Departure date (optional)");
+
+        ComboBox<String> clsBox = new ComboBox<>(
+                FXCollections.observableArrayList("Any Class","ECONOMY","PREMIUM","BUSINESS","FIRST"));
+        clsBox.setValue("Any Class"); clsBox.setStyle(FORM_FIELD); clsBox.setMaxWidth(Double.MAX_VALUE);
+
+        Label errLbl = errLabel();
+
+        Button searchBtn = mkBtn("Search Flights", BTN_TEAL);
+        Button clearBtn  = mkBtn("Clear",          BTN_DARK);
+
+        searchBtn.setOnAction(e -> {
+            errLbl.setText("");
+            String from  = fromField.getText().trim().toLowerCase();
+            Long   toId  = parseDestId(toBox.getValue(), dNames);
+            LocalDate dD = depDp.getValue();
+            String cls   = clsBox.getValue();
+
+            boolean aFrom=false, aTo=false, aDep=false, aCls=false;
+            List<Schedule> res = new ArrayList<>();
+
+            for (Schedule s : all) {
+                if (!"CANCELLED".equals(s.getStatus()) && isFlight(s, tMap)) {
+                    boolean ok1 = from.isEmpty()
+                            || destName(s.getDepartureDestinationId()).toLowerCase().contains(from);
+                    boolean ok2 = toId == null   || s.getArrivalDestinationId() == toId;
+                    // FIX: only departure date check — no arrival date
+                    boolean ok3 = dD   == null
+                            || (s.getDepartureDatetime() != null
+                            && s.getDepartureDatetime().toLocalDate().equals(dD));
+                    boolean ok4 = "Any Class".equals(cls) || cls.equals(s.getTravelClass());
+
+                    if (ok1) aFrom=true; if (ok2) aTo=true;
+                    if (ok3) aDep=true;  if (ok4) aCls=true;
+                    if (ok1&&ok2&&ok3&&ok4) res.add(s);
+                }
+            }
+
+            if (res.isEmpty()) {
+                StringBuilder sb = new StringBuilder("No flights found:\n");
+                if (!from.isEmpty() && !aFrom)
+                    sb.append("- No departure airport/city matching \"").append(from).append("\"\n");
+                if (toId != null && !aTo)
+                    sb.append("- No flights arriving at ").append(toBox.getValue()).append("\n");
+                if (dD != null && !aDep)
+                    sb.append("- No flights departing on ").append(dD.format(DATE_FMT)).append("\n");
+                if (!"Any Class".equals(cls) && !aCls)
+                    sb.append("- No flights offering class: ").append(cls).append("\n");
+                errLbl.setText(sb.toString());
+            } else { disp[0] = res; render.run(); }
+        });
+
+        clearBtn.setOnAction(e -> {
+            fromField.clear(); toBox.setValue("Any Arrival");
+            depDp.setValue(null); clsBox.setValue("Any Class"); errLbl.setText("");
+            disp[0] = all.stream().filter(s -> !"CANCELLED".equals(s.getStatus())
+                    && isFlight(s, tMap)).collect(Collectors.toList());
+            render.run();
+        });
+
+        Label hdr = new Label("Filter Flights");
+        hdr.setStyle("-fx-font-weight:bold;-fx-text-fill:#1F294C;-fx-font-size:13px;");
+
+        GridPane g = buildFormGrid(158, 215);
+        int r = 0;
+        g.addRow(r++, fl("From (airport/city)"), fromField);
+        g.addRow(r++, fl("To (arrival city)"),   toBox);
+        g.addRow(r++, fl("Departure date"),      depDp);   // only departure date
+        g.addRow(r++, fl("Travel class"),        clsBox);
+
+        HBox btnRow = new HBox(10, searchBtn, clearBtn); btnRow.setAlignment(Pos.CENTER_LEFT);
+        VBox p = new VBox(10, hdr, g, btnRow, errLbl);
+        p.setPadding(new Insets(14));
+        p.setStyle("-fx-background-color:white;-fx-background-radius:8;" +
+                "-fx-effect:dropshadow(gaussian,rgba(0,0,0,.07),6,0,0,2);");
+        return p;
+    }
 
     /**
-     * Class multipliers relative to ECONOMY base price.
-     * ECONOMY = 1.0x  (the base price the admin entered)
-     * PREMIUM  = 1.5x
-     * BUSINESS = 2.2x
-     * FIRST    = 3.0x
-     *
-     * If the admin set the transport's base price for PREMIUM (e.g. €150),
-     * that is treated as the ECONOMY anchor and all classes scale from it.
-     * The schedule's priceMultiplier (demand/delay factor) is applied on top.
+     * FIX: Vehicle search date logic corrected.
+     * The user searches for a rental period they WANT.
+     * The admin sets the availability window for the vehicle.
+     * A vehicle is shown if:   admin.rentalStart <= user.wantedStart
+     *                     AND  admin.rentalEnd   >= user.wantedEnd
+     * i.e. the vehicle's availability window CONTAINS the user's requested period.
      */
-    private double classMultiplier(String travelClass) {
-        return switch (travelClass == null ? "ECONOMY" : travelClass) {
-            case "PREMIUM"  -> 1.5;
-            case "BUSINESS" -> 2.2;
-            case "FIRST"    -> 3.0;
-            default         -> 1.0; // ECONOMY
+    @SuppressWarnings("unchecked")
+    private VBox buildVehicleSearchPanel(List<Schedule> all, Map<Integer, Transport> tMap,
+                                         Map<Long, String> dNames,
+                                         List<Schedule>[] disp, Runnable render) {
+        List<Long> depIds = all.stream().filter(s -> isVehicle(s, tMap))
+                .map(Schedule::getDepartureDestinationId).distinct().sorted().collect(Collectors.toList());
+        ComboBox<String> placeBox = destCombo(depIds, "Any Location", dNames);
+
+        DatePicker startDp = dp("Rental start (optional)");
+        DatePicker endDp   = dp("Rental end (optional)");
+
+        Label mapNote = new Label(
+                "Pickup & Drop-off map selection coming soon\n(Map API integration pending)");
+        mapNote.setStyle("-fx-text-fill:#888;-fx-font-size:11px;-fx-font-style:italic;" +
+                "-fx-background-color:#F1EAE7;-fx-padding:8 12 8 12;-fx-background-radius:5;");
+        mapNote.setWrapText(true);
+
+        Label errLbl = errLabel();
+        Button searchBtn = mkBtn("Search Vehicles", BTN_TEAL);
+        Button clearBtn  = mkBtn("Clear",           BTN_DARK);
+
+        searchBtn.setOnAction(e -> {
+            errLbl.setText("");
+            Long      place = parseDestId(placeBox.getValue(), dNames);
+            LocalDate wStart = startDp.getValue();   // what the user WANTS to start
+            LocalDate wEnd   = endDp.getValue();     // what the user WANTS to end
+
+            boolean aP=false, aS=false, aE=false;
+            List<Schedule> res = new ArrayList<>();
+
+            for (Schedule s : all) {
+                if (!"CANCELLED".equals(s.getStatus()) && isVehicle(s, tMap)) {
+                    boolean ok1 = place == null
+                            || s.getDepartureDestinationId() == place;
+
+                    // FIX: admin's window must START on or before the user's wanted start
+                    boolean ok2 = wStart == null || s.getRentalStart() == null
+                            || !s.getRentalStart().toLocalDate().isAfter(wStart);
+
+                    // FIX: admin's window must END on or after the user's wanted end
+                    boolean ok3 = wEnd == null || s.getRentalEnd() == null
+                            || !s.getRentalEnd().toLocalDate().isBefore(wEnd);
+
+                    if (ok1) aP=true; if (ok2) aS=true; if (ok3) aE=true;
+                    if (ok1&&ok2&&ok3) res.add(s);
+                }
+            }
+
+            if (res.isEmpty()) {
+                StringBuilder sb = new StringBuilder("No vehicles found:\n");
+                if (place  != null && !aP)
+                    sb.append("- No vehicles at ").append(placeBox.getValue()).append("\n");
+                if (wStart != null && !aS)
+                    sb.append("- No vehicles available from ").append(wStart.format(DATE_FMT)).append("\n");
+                if (wEnd   != null && !aE)
+                    sb.append("- No vehicles available until ").append(wEnd.format(DATE_FMT)).append("\n");
+                errLbl.setText(sb.toString());
+            } else { disp[0] = res; render.run(); }
+        });
+
+        clearBtn.setOnAction(e -> {
+            placeBox.setValue("Any Location"); startDp.setValue(null); endDp.setValue(null);
+            errLbl.setText("");
+            disp[0] = all.stream().filter(s -> !"CANCELLED".equals(s.getStatus())
+                    && isVehicle(s, tMap)).collect(Collectors.toList());
+            render.run();
+        });
+
+        Label hdr = new Label("Filter Vehicles");
+        hdr.setStyle("-fx-font-weight:bold;-fx-text-fill:#1F294C;-fx-font-size:13px;");
+
+        GridPane g = buildFormGrid(158, 215);
+        int r = 0;
+        g.addRow(r++, fl("Your Location"),  placeBox);
+        g.addRow(r++, fl("Rental Start"),   startDp);
+        g.addRow(r++, fl("Rental End"),     endDp);
+        g.addRow(r++, fl("Pickup/Drop-off"),mapNote);
+
+        HBox btnRow = new HBox(10, searchBtn, clearBtn); btnRow.setAlignment(Pos.CENTER_LEFT);
+        VBox p = new VBox(10, hdr, g, btnRow, errLbl);
+        p.setPadding(new Insets(14));
+        p.setStyle("-fx-background-color:white;-fx-background-radius:8;" +
+                "-fx-effect:dropshadow(gaussian,rgba(0,0,0,.07),6,0,0,2);");
+        return p;
+    }
+
+    /* ── Schedule result card ── */
+    private VBox buildScheduleCard(Schedule s, Transport t,
+                                   Map<Integer, Transport> tMap, Map<Long, String> dn) {
+        boolean flight = "FLIGHT".equals(t.getTransportType());
+
+        boolean unavail; String availText, availColor;
+        if (flight) {
+            int rem = remainingSeatsForFlight(s, tMap);
+            unavail    = rem <= 0;
+            availText  = unavail ? "Fully Booked" : rem + " seat" + (rem > 1 ? "s" : "") + " left";
+            availColor = unavail ? "#c0392b" : (rem <= 5 ? "#E07020" : "#27ae60");
+        } else {
+            // FIX: any non-cancelled booking locks the vehicle
+            unavail    = isVehicleScheduleUnavailable(s.getScheduleId());
+            availText  = unavail ? "Unavailable" : "Available";
+            availColor = unavail ? "#c0392b" : "#27ae60";
+        }
+
+        String hdrColor = unavail ? "#888" : (flight ? "#1F294C" : "#2C5F6E");
+
+        Label provLbl  = new Label(t.getProviderName());
+        provLbl.setStyle("-fx-text-fill:white;-fx-font-weight:bold;-fx-font-size:15px;");
+        Label modelLbl = new Label(t.getVehicleModel());
+        modelLbl.setStyle("-fx-text-fill:rgba(255,255,255,.75);-fx-font-size:12px;");
+        VBox hdr = new VBox(3, provLbl, modelLbl);
+        hdr.setStyle("-fx-background-color:" + hdrColor +
+                ";-fx-padding:14 16 14 16;-fx-background-radius:8 8 0 0;");
+
+        String sColor = switch (s.getStatus()) {
+            case "DELAYED"   -> "#E07020";
+            case "CANCELLED" -> "#c0392b";
+            default          -> "#27ae60";
+        };
+        HBox badges = new HBox(5,
+                badge(flight ? "FLIGHT" : "VEHICLE", "#4FB3B5"),
+                badge(s.getStatus().replace("_"," "), sColor),
+                badge(availText, availColor),
+                badge(s.getTravelClass() != null ? s.getTravelClass() : "N/A", "#7B68EE"));
+
+        Label routeLbl = new Label(destName(s.getDepartureDestinationId())
+                + "  ->  " + destName(s.getArrivalDestinationId()));
+        routeLbl.setStyle("-fx-text-fill:#444;-fx-font-size:12px;"); routeLbl.setWrapText(true);
+
+        Label timeLbl;
+        if (flight) {
+            String dep = s.getDepartureDatetime() != null
+                    ? s.getDepartureDatetime().format(DT_FMT) : "N/A";
+            String arr = s.getArrivalDatetime() != null
+                    ? s.getArrivalDatetime().format(DT_FMT) : "N/A";
+            timeLbl = new Label(dep + "  ->  " + arr);
+        } else {
+            String rs = s.getRentalStart() != null ? s.getRentalStart().format(DATE_FMT) : "N/A";
+            String re = s.getRentalEnd()   != null ? s.getRentalEnd()  .format(DATE_FMT) : "N/A";
+            timeLbl = new Label("Rental: " + rs + "  -  " + re);
+        }
+        timeLbl.setStyle("-fx-text-fill:#555;-fx-font-size:11px;"); timeLbl.setWrapText(true);
+
+        double price = t.getBasePrice() * s.getPriceMultiplier() * classMultiplier(s.getTravelClass());
+        Label priceLbl = new Label(String.format("from  %.2f EUR", price));
+        priceLbl.setStyle("-fx-text-fill:#1F294C;-fx-font-weight:bold;-fx-font-size:14px;");
+        Label ecoLbl = new Label(String.format("Eco: %.1f / 5", t.getSustainabilityRating()));
+        ecoLbl.setStyle("-fx-text-fill:#27ae60;-fx-font-size:11px;");
+
+        VBox body = new VBox(8, badges, routeLbl, timeLbl, priceLbl, ecoLbl);
+        body.setPadding(new Insets(12,16,12,16));
+
+        Button bookBtn = new Button(unavail ? "Unavailable" : "Book Now");
+        bookBtn.setStyle(unavail ? BTN_BOOKED : BTN_BOOK);
+        bookBtn.setMaxWidth(Double.MAX_VALUE); bookBtn.setDisable(unavail);
+        if (!unavail) bookBtn.setOnAction(e -> openBookingForm(t, s, null));
+
+        VBox card = new VBox(hdr, body, bookBtn);
+        card.setStyle("-fx-background-color:white;-fx-background-radius:8;" +
+                "-fx-effect:dropshadow(gaussian,rgba(0,0,0,.12),10,0,0,3);");
+        card.setPrefWidth(285); card.setMaxWidth(285);
+        return card;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       TRANSPORT TAB
+       ═══════════════════════════════════════════════════════ */
+
+    @FXML public void showTransportTab() {
+        setActiveTab(btnTransport);
+        openTransportTypePopup();
+    }
+
+    private void openTransportTypePopup() {
+        Stage popup = new Stage();
+        popup.initModality(Modality.APPLICATION_MODAL);
+        popup.initOwner(contentArea.getScene().getWindow());
+        popup.setTitle("Choose Transport Type");
+        popup.setResizable(false);
+
+        Label hdr = new Label("What are you looking for?");
+        hdr.setStyle("-fx-font-size:16px;-fx-font-weight:bold;-fx-text-fill:white;");
+        HBox hdrBar = new HBox(hdr);
+        hdrBar.setStyle("-fx-background-color:#1F294C;-fx-padding:18 24 18 24;");
+        hdrBar.setAlignment(Pos.CENTER_LEFT);
+
+        VBox fc = typeCard("Flight",        "Search & book scheduled\nflights worldwide", "#1F294C");
+        VBox vc = typeCard("Vehicle Rental","Rent a car or vehicle\nfor your trip",       "#2C5F6E");
+        fc.setOnMouseClicked(e -> { popup.close(); buildProviderList("FLIGHT");  });
+        vc.setOnMouseClicked(e -> { popup.close(); buildProviderList("VEHICLE"); });
+
+        HBox body = new HBox(24, fc, vc);
+        body.setAlignment(Pos.CENTER); body.setPadding(new Insets(30, 36, 30, 36));
+        body.setStyle("-fx-background-color:#F1EAE7;");
+        popup.setScene(new Scene(new VBox(hdrBar, body), 520, 260));
+        popup.showAndWait();
+    }
+
+    private VBox typeCard(String title, String sub, String color) {
+        Label tl = new Label(title);
+        tl.setStyle("-fx-text-fill:white;-fx-font-size:18px;-fx-font-weight:bold;");
+        Label sl = new Label(sub);
+        sl.setStyle("-fx-text-fill:rgba(255,255,255,.82);-fx-font-size:12px;");
+        sl.setWrapText(true); sl.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
+        VBox card = new VBox(10, tl, sl);
+        card.setAlignment(Pos.CENTER); card.setPrefSize(182, 130); card.setPadding(new Insets(18));
+        String base = "-fx-background-color:" + color + ";-fx-background-radius:12;-fx-cursor:hand;";
+        card.setStyle(base + "-fx-effect:dropshadow(gaussian,rgba(0,0,0,.20),12,0,0,4);");
+        card.setOnMouseEntered(e -> card.setStyle(base +
+                "-fx-scale-x:1.04;-fx-scale-y:1.04;" +
+                "-fx-effect:dropshadow(gaussian,rgba(0,0,0,.32),18,0,0,6);"));
+        card.setOnMouseExited(e  -> card.setStyle(base +
+                "-fx-effect:dropshadow(gaussian,rgba(0,0,0,.20),12,0,0,4);"));
+        return card;
+    }
+
+    private void buildProviderList(String type) {
+        List<Transport> typed = transportService.getAllTransports().stream()
+                .filter(t -> type.equals(t.getTransportType()) && t.isActive())
+                .collect(Collectors.toList());
+
+        Map<String, Long> counts = typed.stream()
+                .collect(Collectors.groupingBy(Transport::getProviderName, Collectors.counting()));
+
+        Label title   = sectionTitle((type.equals("FLIGHT") ? "Flights" : "Vehicles") + " — Choose a Provider");
+        Button backBtn = mkBtn("Back", BTN_DARK);
+        backBtn.setOnAction(e -> openTransportTypePopup());
+
+        HBox topBar = hbox(title, new Region(), backBtn);
+        HBox.setHgrow(topBar.getChildren().get(1), Priority.ALWAYS);
+
+        FlowPane fp = new FlowPane();
+        fp.setHgap(20); fp.setVgap(20); fp.setPadding(new Insets(12, 0, 12, 0));
+
+        String[] palette = {"#1F294C","#2C5F6E","#4FB3B5","#E07020","#7B68EE",
+                "#27ae60","#F06E32","#34495e","#8e44ad","#16a085"};
+        int[] idx = {0};
+
+        for (Map.Entry<String, Long> en : counts.entrySet()) {
+            String prov = en.getKey(); long cnt = en.getValue();
+            String col  = palette[idx[0]++ % palette.length];
+            Label nl = new Label(prov);
+            nl.setStyle("-fx-text-fill:white;-fx-font-size:14px;-fx-font-weight:bold;");
+            nl.setWrapText(true); nl.setMaxWidth(180);
+            Label cl = new Label(cnt + " transport" + (cnt > 1 ? "s" : ""));
+            cl.setStyle("-fx-text-fill:rgba(255,255,255,.82);-fx-font-size:12px;");
+            VBox pc = new VBox(10, nl, cl);
+            pc.setAlignment(Pos.CENTER); pc.setPrefSize(200, 110); pc.setPadding(new Insets(18));
+            String base = "-fx-background-color:" + col + ";-fx-background-radius:10;-fx-cursor:hand;";
+            pc.setStyle(base + "-fx-effect:dropshadow(gaussian,rgba(0,0,0,.16),10,0,0,3);");
+            pc.setOnMouseEntered(ev -> pc.setStyle(base +
+                    "-fx-scale-x:1.04;-fx-scale-y:1.04;" +
+                    "-fx-effect:dropshadow(gaussian,rgba(0,0,0,.28),16,0,0,5);"));
+            pc.setOnMouseExited(ev  -> pc.setStyle(base +
+                    "-fx-effect:dropshadow(gaussian,rgba(0,0,0,.16),10,0,0,3);"));
+            pc.setOnMouseClicked(ev -> buildTransportCards(type, prov));
+            fp.getChildren().add(pc);
+        }
+
+        if (counts.isEmpty()) fp.getChildren().add(new Label("No providers found.") {{
+            setStyle("-fx-font-size:14px;-fx-text-fill:#888;"); }});
+
+        ScrollPane sc = scrollPane(fp); VBox.setVgrow(sc, Priority.ALWAYS);
+        VBox layout = new VBox(16, topBar, sc); VBox.setVgrow(sc, Priority.ALWAYS);
+        contentArea.getChildren().setAll(layout);
+    }
+
+    private void buildTransportCards(String type, String provider) {
+        List<Transport> list = transportService.getAllTransports().stream()
+                .filter(t -> type.equals(t.getTransportType())
+                        && provider.equals(t.getProviderName()) && t.isActive())
+                .collect(Collectors.toList());
+
+        Label title    = sectionTitle(provider);
+        Button backBtn = mkBtn("Back to Providers", BTN_DARK);
+        backBtn.setOnAction(e -> buildProviderList(type));
+
+        HBox topBar = hbox(title, new Region(), backBtn);
+        HBox.setHgrow(topBar.getChildren().get(1), Priority.ALWAYS);
+
+        FlowPane fp = new FlowPane();
+        fp.setHgap(18); fp.setVgap(18); fp.setPadding(new Insets(8, 0, 8, 0));
+        list.forEach(t -> fp.getChildren().add(buildTransportCard(t)));
+
+        ScrollPane sc = scrollPane(fp); VBox.setVgrow(sc, Priority.ALWAYS);
+        VBox layout = new VBox(14, topBar, sc); VBox.setVgrow(sc, Priority.ALWAYS);
+        contentArea.getChildren().setAll(layout);
+    }
+
+    private VBox buildTransportCard(Transport t) {
+        boolean fl = "FLIGHT".equals(t.getTransportType());
+        String hc  = fl ? "#1F294C" : "#2C5F6E";
+
+        Label prov = new Label(t.getProviderName());
+        prov.setStyle("-fx-text-fill:white;-fx-font-weight:bold;-fx-font-size:15px;");
+        Label mdl  = new Label(t.getVehicleModel());
+        mdl.setStyle("-fx-text-fill:rgba(255,255,255,.75);-fx-font-size:12px;");
+        VBox hdr = new VBox(3, prov, mdl);
+        hdr.setStyle("-fx-background-color:" + hc +
+                ";-fx-padding:14 16 14 16;-fx-background-radius:8 8 0 0;");
+
+        HBox badges = new HBox(6,
+                badge(fl ? "FLIGHT" : "VEHICLE", "#4FB3B5"),
+                badge(String.format("Eco: %.1f", t.getSustainabilityRating()), "#27ae60"));
+
+        Label pr = new Label(String.format("from  %.2f EUR", t.getBasePrice()));
+        pr.setStyle("-fx-text-fill:#1F294C;-fx-font-weight:bold;-fx-font-size:14px;");
+        Label cp = new Label("Capacity: " + t.getCapacity() + "   |   " + t.getAvailableUnits() + " unit(s)");
+        cp.setStyle("-fx-text-fill:#555;-fx-font-size:11px;");
+        Label am = new Label(t.getAmenities() != null ? t.getAmenities() : "—");
+        am.setStyle("-fx-text-fill:#666;-fx-font-size:11px;"); am.setWrapText(true); am.setMaxWidth(240);
+
+        VBox body = new VBox(8, badges, pr, cp, am); body.setPadding(new Insets(12,16,12,16));
+
+        Button det = new Button("View Details");
+        det.setStyle(BTN_DETAIL); det.setMaxWidth(Double.MAX_VALUE);
+        det.setOnAction(e -> showTransportDetail(t));
+
+        Button bk = new Button("Book Direct");
+        bk.setStyle(BTN_BOOK); bk.setMaxWidth(Double.MAX_VALUE);
+        bk.setOnAction(e -> openBookingForm(t, null, null));
+
+        HBox btns = new HBox(det, bk);
+        HBox.setHgrow(det, Priority.ALWAYS); HBox.setHgrow(bk, Priority.ALWAYS);
+
+        VBox card = new VBox(hdr, body, btns);
+        card.setStyle("-fx-background-color:white;-fx-background-radius:8;" +
+                "-fx-effect:dropshadow(gaussian,rgba(0,0,0,.12),10,0,0,3);");
+        card.setPrefWidth(285); card.setMaxWidth(285);
+        return card;
+    }
+
+    /**
+     * Transport detail popup.
+     * FIX: booking from within this popup now works correctly because:
+     * 1) We close this popup first, then call openBookingForm
+     * 2) openBookingForm receives the ownerStage so the new popup
+     *    is properly owned by the main window (avoids nested-modal issues)
+     */
+    private void showTransportDetail(Transport t) {
+        Stage popup = new Stage();
+        popup.initModality(Modality.APPLICATION_MODAL);
+        popup.initOwner(contentArea.getScene().getWindow());
+        popup.setTitle(t.getProviderName() + " Details");
+        popup.setResizable(false);
+
+        boolean fl = "FLIGHT".equals(t.getTransportType());
+        String hc  = fl ? "#1F294C" : "#2C5F6E";
+
+        Map<Integer, Transport> tMap = new HashMap<>();
+        transportService.getAllTransports().forEach(tr -> tMap.put(tr.getTransportId(), tr));
+
+        Label pl = new Label(t.getProviderName());
+        pl.setStyle("-fx-text-fill:white;-fx-font-size:19px;-fx-font-weight:bold;");
+        Label ml = new Label(t.getVehicleModel());
+        ml.setStyle("-fx-text-fill:rgba(255,255,255,.8);-fx-font-size:13px;");
+        VBox hdrBox = new VBox(3, pl, ml);
+        hdrBox.setStyle("-fx-background-color:" + hc + ";-fx-padding:20 24 20 24;");
+
+        GridPane g = buildFormGrid(160, 280);
+        int r = 0;
+        g.addRow(r++, fl("Provider"),        dv(t.getProviderName()));
+        g.addRow(r++, fl("Model"),           dv(t.getVehicleModel()));
+        g.addRow(r++, fl("Type"),            dv(t.getTransportType()));
+        g.addRow(r++, fl("Base Price"),      dv(String.format("%.2f EUR", t.getBasePrice())));
+        g.addRow(r++, fl("Capacity"),        dv(String.valueOf(t.getCapacity())));
+        g.addRow(r++, fl("Available Units"), dv(String.valueOf(t.getAvailableUnits())));
+        g.addRow(r++, fl("Eco Rating"),      dv(String.format("%.1f / 5.0", t.getSustainabilityRating())));
+        g.addRow(r++, fl("Amenities"),       dv(t.getAmenities() != null ? t.getAmenities() : "None"));
+        g.addRow(r++, fl("Status"),          dv(t.isActive() ? "Active" : "Inactive"));
+
+        List<Schedule> scheds = scheduleService.getAllSchedules().stream()
+                .filter(s -> s.getTransportId() == t.getTransportId()
+                        && !"CANCELLED".equals(s.getStatus()))
+                .collect(Collectors.toList());
+
+        Label st = new Label("Available Schedules (" + scheds.size() + ")");
+        st.setStyle("-fx-font-weight:bold;-fx-text-fill:#1F294C;-fx-font-size:13px;-fx-padding:6 0 4 0;");
+
+        VBox sl = new VBox(6);
+        for (Schedule s : scheds) {
+            boolean unavail; String avlbl;
+            if (fl) {
+                int rem = remainingSeatsForFlight(s, tMap);
+                unavail = rem <= 0;
+                avlbl   = unavail ? "Full" : rem + " seats left";
+            } else {
+                unavail = isVehicleScheduleUnavailable(s.getScheduleId());
+                avlbl   = unavail ? "Booked" : "Available";
+            }
+
+            String info = fl
+                    ? "#" + s.getScheduleId() + "  "
+                    + destName(s.getDepartureDestinationId()) + " -> "
+                    + destName(s.getArrivalDestinationId()) + "\n"
+                    + (s.getDepartureDatetime()!=null ? s.getDepartureDatetime().format(DT_FMT) : "N/A")
+                    + " -> "
+                    + (s.getArrivalDatetime()!=null ? s.getArrivalDatetime().format(DT_FMT) : "N/A")
+                    + "  |  Class: " + s.getTravelClass() + "  |  " + avlbl
+                    : "#" + s.getScheduleId() + "  "
+                    + destName(s.getDepartureDestinationId())
+                    + "\nRental: "
+                    + (s.getRentalStart()!=null ? s.getRentalStart().format(DATE_FMT) : "N/A")
+                    + " - "
+                    + (s.getRentalEnd()!=null ? s.getRentalEnd().format(DATE_FMT) : "N/A")
+                    + "  |  " + avlbl;
+
+            Label il = new Label(info);
+            il.setStyle("-fx-text-fill:#333;-fx-font-size:11px;"); il.setWrapText(true);
+            HBox.setHgrow(il, Priority.ALWAYS);
+
+            Button bb = mkBtn("Book", unavail
+                    ? "-fx-background-color:#aaa;-fx-text-fill:white;-fx-padding:5 12 5 12;-fx-background-radius:5;"
+                    : BTN_TEAL.replace("9 22 9 22", "5 12 5 12") + " -fx-font-size:11px;");
+            bb.setDisable(unavail);
+            Schedule fs = s;
+            // FIX: close detail popup first, then open booking form owned by main window
+            bb.setOnAction(ev -> { popup.close(); openBookingForm(t, fs, null); });
+
+            HBox row = new HBox(10, il, bb); row.setAlignment(Pos.CENTER_LEFT);
+            row.setStyle("-fx-background-color:#F1EAE7;-fx-padding:8 12 8 12;-fx-background-radius:5;");
+            sl.getChildren().add(row);
+        }
+        if (scheds.isEmpty()) sl.getChildren().add(new Label("No active schedules available.") {{
+            setStyle("-fx-text-fill:#888;-fx-font-size:12px;"); }});
+
+        ScrollPane ss = new ScrollPane(sl);
+        ss.setFitToWidth(true); ss.setPrefHeight(170);
+        ss.setStyle("-fx-background-color:transparent;-fx-border-color:transparent;");
+
+        Button bd = mkBtn("Book Direct (No Schedule)", BTN_TEAL);
+        // FIX: close detail popup before opening booking form
+        bd.setOnAction(e -> { popup.close(); openBookingForm(t, null, null); });
+        Button cb = mkBtn("Close", BTN_DARK); cb.setOnAction(e -> popup.close());
+
+        ScrollPane gs = new ScrollPane(g);
+        gs.setFitToWidth(true); gs.setPrefHeight(230);
+        gs.setStyle("-fx-background-color:transparent;-fx-border-color:transparent;");
+
+        HBox br = hbox(bd, cb); br.setAlignment(Pos.CENTER_RIGHT); br.setPadding(new Insets(10,0,0,0));
+        VBox content = new VBox(14, gs, st, ss, br);
+        content.setPadding(new Insets(20)); content.setStyle("-fx-background-color:#F1EAE7;");
+        popup.setScene(new Scene(new VBox(hdrBox, content), 580, 640));
+        popup.showAndWait();
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       MY BOOKINGS TAB
+       ═══════════════════════════════════════════════════════ */
+
+    @FXML public void showMyBookingsTab() {
+        setActiveTab(btnMyBookings);
+        buildMyBookingsView();
+    }
+
+    private void buildMyBookingsView() {
+        List<Bookingtrans> bks = bookingService.getBookingsByUserId(currentUserId);
+        Map<Integer, Transport> tMap = new HashMap<>();
+        transportService.getAllTransports().forEach(t -> tMap.put(t.getTransportId(), t));
+
+        Label title   = sectionTitle("My Bookings");
+        Button refreshBtn = mkBtn("Refresh", BTN_DARK);
+        refreshBtn.setOnAction(e -> buildMyBookingsView());
+        HBox topBar = hbox(title, new Region(), refreshBtn);
+        HBox.setHgrow(topBar.getChildren().get(1), Priority.ALWAYS);
+
+        long total = bks.size();
+        long conf  = bks.stream().filter(b -> "CONFIRMED".equals(b.getBookingStatus())).count();
+        long pend  = bks.stream().filter(b -> "PENDING".equals(b.getBookingStatus())).count();
+        double spent = bks.stream().filter(b -> !"CANCELLED".equals(b.getBookingStatus()))
+                .mapToDouble(Bookingtrans::getTotalPrice).sum();
+
+        Label sum = new Label(String.format(
+                "Total: %d   |   Confirmed: %d   |   Pending: %d   |   Total Spent: %.2f EUR",
+                total, conf, pend, spent));
+        sum.setStyle("-fx-text-fill:#1F294C;-fx-font-weight:bold;-fx-background-color:white;" +
+                "-fx-padding:10 16 10 16;-fx-background-radius:6;-fx-font-size:12px;");
+
+        FlowPane fp = new FlowPane(); fp.setHgap(18); fp.setVgap(18);
+        fp.setPadding(new Insets(8,0,8,0));
+        if (bks.isEmpty()) {
+            fp.getChildren().add(new Label("No bookings yet. Start browsing!") {{
+                setStyle("-fx-font-size:14px;-fx-text-fill:#888;"); }});
+        } else {
+            bks.forEach(b -> fp.getChildren().add(buildBookingCard(b, tMap.get(b.getTransportId()))));
+        }
+
+        ScrollPane sc = scrollPane(fp); VBox.setVgrow(sc, Priority.ALWAYS);
+        VBox layout = new VBox(14, topBar, sum, sc); VBox.setVgrow(sc, Priority.ALWAYS);
+        contentArea.getChildren().setAll(layout);
+    }
+
+    /**
+     * FIX: Booking card now shows transport TYPE and PROVIDER for each booking.
+     */
+    private VBox buildBookingCard(Bookingtrans b, Transport t) {
+        String sc = switch (b.getBookingStatus()) {
+            case "CONFIRMED" -> "#27ae60"; case "CANCELLED" -> "#c0392b"; default -> "#E07020";
+        };
+
+        // FIX: show provider name + transport type in the header
+        String provText = t != null ? t.getProviderName() : "Transport #" + b.getTransportId();
+        String typeText = t != null ? t.getTransportType() : "UNKNOWN";
+
+        Label bid  = new Label("Booking #" + b.getBookingId());
+        bid.setStyle("-fx-text-fill:white;-fx-font-weight:bold;-fx-font-size:14px;");
+        Label provLbl = new Label(provText + " (" + typeText + ")");
+        provLbl.setStyle("-fx-text-fill:rgba(255,255,255,.90);-fx-font-size:12px;");
+        VBox hdr = new VBox(3, bid, provLbl);
+        hdr.setStyle("-fx-background-color:" + sc +
+                ";-fx-padding:12 16 12 16;-fx-background-radius:8 8 0 0;");
+
+        String pc = switch (b.getPaymentStatus()) {
+            case "PAID" -> "#27ae60"; case "REFUNDED" -> "#3498db"; default -> "#888";
+        };
+
+        // FIX: transport type badge visible on card body too
+        String typeBadgeColor = "FLIGHT".equals(typeText) ? "#1F294C" : "#2C5F6E";
+        HBox badges = new HBox(6,
+                badge(b.getBookingStatus(), sc),
+                badge(b.getPaymentStatus(), pc),
+                badge(typeText, typeBadgeColor));
+
+        Label dl  = new Label("Booked: " + (b.getBookingDate()!=null
+                ? b.getBookingDate().format(DT_FMT) : "N/A"));
+        dl.setStyle("-fx-text-fill:#555;-fx-font-size:11px;");
+
+        // FIX: show model if available
+        if (t != null) {
+            Label modelBadge = new Label("Model: " + t.getVehicleModel());
+            modelBadge.setStyle("-fx-text-fill:#666;-fx-font-size:11px;");
+        }
+
+        Label sl  = new Label(b.getTotalSeats() + " seat(s)  ("
+                + b.getAdultsCount() + " adults, " + b.getChildrenCount() + " children)");
+        sl.setStyle("-fx-text-fill:#555;-fx-font-size:11px;");
+
+        boolean direct = b.getScheduleId() == 0;
+        Label scl = new Label(direct ? "Direct booking (no schedule)" : "Schedule #" + b.getScheduleId());
+        scl.setStyle("-fx-text-fill:" + (direct?"#E07020":"#4FB3B5") + ";-fx-font-size:11px;");
+
+        Label mdl = new Label(t != null ? "Model: " + t.getVehicleModel() : "");
+        mdl.setStyle("-fx-text-fill:#666;-fx-font-size:11px;");
+
+        Label pl  = new Label(String.format("Total: %.2f EUR", b.getTotalPrice()));
+        pl.setStyle("-fx-text-fill:#1F294C;-fx-font-weight:bold;-fx-font-size:13px;");
+
+        Label ins = new Label(b.isInsuranceIncluded() ? "Insurance: Yes" : "Insurance: No");
+        ins.setStyle("-fx-text-fill:" + (b.isInsuranceIncluded()?"#27ae60":"#999") + ";-fx-font-size:11px;");
+
+        VBox body = new VBox(6, badges, dl, mdl, sl, scl, pl, ins);
+        body.setPadding(new Insets(12,16,12,16));
+
+        Button det = new Button("Details"); det.setStyle(BTN_DETAIL); det.setMaxWidth(Double.MAX_VALUE);
+        det.setOnAction(e -> viewBookingDetail(b));
+
+        boolean cancelled = "CANCELLED".equals(b.getBookingStatus());
+        Button act;
+        if (direct && !cancelled) {
+            act = new Button("Add Schedule");
+            act.setStyle("-fx-background-color:#4FB3B5;-fx-text-fill:white;-fx-font-weight:bold;" +
+                    "-fx-font-size:11px;-fx-padding:8 0 8 0;-fx-cursor:hand;-fx-background-radius:0 0 8 8;");
+            act.setMaxWidth(Double.MAX_VALUE);
+            act.setOnAction(e -> openScheduleSelectForBooking(b, t));
+        } else if ("PENDING".equals(b.getBookingStatus())) {
+            act = new Button("Cancel");
+            act.setStyle("-fx-background-color:#c0392b;-fx-text-fill:white;-fx-font-weight:bold;" +
+                    "-fx-font-size:11px;-fx-padding:8 0 8 0;-fx-cursor:hand;-fx-background-radius:0 0 8 8;");
+            act.setMaxWidth(Double.MAX_VALUE);
+            act.setOnAction(e -> {
+                if (confirm("Cancel booking #" + b.getBookingId() + "?")) {
+                    b.setBookingStatus("CANCELLED"); b.setCancellationReason("Cancelled by user");
+                    bookingService.updateBookingtrans(b);
+                    showSuccess("Booking #" + b.getBookingId() + " cancelled.");
+                    buildMyBookingsView();
+                }
+            });
+        } else {
+            act = new Button(cancelled ? "Cancelled" : "Confirmed");
+            act.setStyle("-fx-background-color:#ddd;-fx-text-fill:#888;-fx-font-size:11px;" +
+                    "-fx-padding:8 0 8 0;-fx-background-radius:0 0 8 8;");
+            act.setMaxWidth(Double.MAX_VALUE); act.setDisable(true);
+        }
+
+        HBox br = new HBox(det, act);
+        HBox.setHgrow(det, Priority.ALWAYS); HBox.setHgrow(act, Priority.ALWAYS);
+
+        VBox card = new VBox(hdr, body, br);
+        card.setStyle("-fx-background-color:white;-fx-background-radius:8;" +
+                "-fx-effect:dropshadow(gaussian,rgba(0,0,0,.12),10,0,0,3);");
+        card.setPrefWidth(285); card.setMaxWidth(285);
+        return card;
+    }
+
+    private void viewBookingDetail(Bookingtrans b) {
+        Stage popup = new Stage();
+        popup.initModality(Modality.APPLICATION_MODAL);
+        popup.initOwner(contentArea.getScene().getWindow());
+        popup.setTitle("Booking #" + b.getBookingId()); popup.setResizable(false);
+
+        Label h = new Label("Booking #" + b.getBookingId() + "  Details");
+        h.setStyle("-fx-font-size:15px;-fx-font-weight:bold;-fx-text-fill:white;");
+        HBox hb = new HBox(h); hb.setStyle("-fx-background-color:#1F294C;-fx-padding:16 22 16 22;");
+
+        Map<Integer, Transport> tMap = new HashMap<>();
+        transportService.getAllTransports().forEach(t -> tMap.put(t.getTransportId(), t));
+        Transport t = tMap.get(b.getTransportId());
+        String pname  = t != null ? t.getProviderName() : "Transport #" + b.getTransportId();
+        String ttype  = t != null ? t.getTransportType() : "N/A";
+        String tmodel = t != null ? t.getVehicleModel()  : "N/A";
+
+        GridPane g = buildFormGrid(160, 270); int r = 0;
+        g.addRow(r++, fl("Provider"),       dv(pname));
+        g.addRow(r++, fl("Transport Type"), dv(ttype));
+        g.addRow(r++, fl("Model"),          dv(tmodel));
+        g.addRow(r++, fl("Transport ID"),   dv("#" + b.getTransportId()));
+        g.addRow(r++, fl("Schedule"),       dv(b.getScheduleId()>0
+                ? "Schedule #" + b.getScheduleId() : "Direct (no schedule)"));
+        g.addRow(r++, fl("Booked On"),      dv(b.getBookingDate()!=null
+                ? b.getBookingDate().format(DT_FMT) : "N/A"));
+        g.addRow(r++, fl("Adults"),         dv(String.valueOf(b.getAdultsCount())));
+        g.addRow(r++, fl("Children"),       dv(String.valueOf(b.getChildrenCount())));
+        g.addRow(r++, fl("Total Seats"),    dv(String.valueOf(b.getTotalSeats())));
+        g.addRow(r++, fl("Total Price"),    dv(String.format("%.2f EUR", b.getTotalPrice())));
+        g.addRow(r++, fl("Booking Status"), dv(b.getBookingStatus()));
+        g.addRow(r++, fl("Payment"),        dv(b.getPaymentStatus()));
+        g.addRow(r++, fl("Insurance"),      dv(b.isInsuranceIncluded() ? "Yes (+25 EUR/seat)" : "No"));
+        if (b.getCancellationReason()!=null && !b.getCancellationReason().isEmpty())
+            g.addRow(r++, fl("Cancellation"), dv(b.getCancellationReason()));
+        if (b.getQrCode()!=null) g.addRow(r++, fl("QR Code"), dv(b.getQrCode()));
+
+        Button cb = mkBtn("Close", BTN_DARK); cb.setOnAction(e -> popup.close());
+        HBox br = new HBox(cb); br.setAlignment(Pos.CENTER_RIGHT); br.setPadding(new Insets(10,0,0,0));
+        VBox content = new VBox(14, g, br);
+        content.setPadding(new Insets(20)); content.setStyle("-fx-background-color:#F1EAE7;");
+        popup.setScene(new Scene(new VBox(hb, content), 480, 550));
+        popup.showAndWait();
+    }
+
+    private void openScheduleSelectForBooking(Bookingtrans b, Transport t) {
+        if (t == null) { showAlert("Transport details unavailable."); return; }
+        Stage popup = new Stage();
+        popup.initModality(Modality.APPLICATION_MODAL);
+        popup.initOwner(contentArea.getScene().getWindow());
+        popup.setTitle("Add Schedule to Booking #" + b.getBookingId()); popup.setResizable(false);
+
+        Label h = new Label("Select a Schedule — Booking #" + b.getBookingId());
+        h.setStyle("-fx-font-size:15px;-fx-font-weight:bold;-fx-text-fill:white;");
+        HBox hb = new HBox(h); hb.setStyle("-fx-background-color:#1F294C;-fx-padding:16 22 16 22;");
+
+        Map<Integer, Transport> tMap = new HashMap<>();
+        transportService.getAllTransports().forEach(tr -> tMap.put(tr.getTransportId(), tr));
+        boolean fl = "FLIGHT".equals(t.getTransportType());
+
+        List<Schedule> eligible = scheduleService.getAllSchedules().stream()
+                .filter(s -> s.getTransportId() == t.getTransportId()
+                        && !"CANCELLED".equals(s.getStatus()))
+                .filter(s -> fl ? remainingSeatsForFlight(s, tMap) >= b.getTotalSeats()
+                        : !isVehicleScheduleUnavailable(s.getScheduleId()))
+                .collect(Collectors.toList());
+
+        VBox list = new VBox(8);
+        if (eligible.isEmpty()) {
+            list.getChildren().add(new Label("No eligible schedules available.") {{
+                setStyle("-fx-font-size:13px;-fx-text-fill:#888;"); }});
+        } else {
+            for (Schedule s : eligible) {
+                String info = fl
+                        ? "#" + s.getScheduleId() + "  "
+                        + destName(s.getDepartureDestinationId()) + " -> "
+                        + destName(s.getArrivalDestinationId()) + "\n"
+                        + (s.getDepartureDatetime()!=null?s.getDepartureDatetime().format(DT_FMT):"N/A")
+                        + " -> "
+                        + (s.getArrivalDatetime()!=null?s.getArrivalDatetime().format(DT_FMT):"N/A")
+                        + "  |  " + s.getTravelClass()
+                        + "  |  " + remainingSeatsForFlight(s, tMap) + " seats left"
+                        : "#" + s.getScheduleId() + "  "
+                        + destName(s.getDepartureDestinationId())
+                        + "\nRental: "
+                        + (s.getRentalStart()!=null?s.getRentalStart().format(DATE_FMT):"N/A")
+                        + " - "
+                        + (s.getRentalEnd()!=null?s.getRentalEnd().format(DATE_FMT):"N/A");
+
+                Label il = new Label(info);
+                il.setStyle("-fx-text-fill:#333;-fx-font-size:12px;"); il.setWrapText(true);
+                HBox.setHgrow(il, Priority.ALWAYS);
+                Button sb = mkBtn("Select", BTN_TEAL);
+                Schedule fs = s;
+                sb.setOnAction(e -> {
+                    if (confirm("Link Schedule #" + fs.getScheduleId()
+                            + " to Booking #" + b.getBookingId() + "?")) {
+                        b.setScheduleId(fs.getScheduleId());
+                        bookingService.updateBookingtrans(b);
+                        popup.close();
+                        showSuccess("Schedule #" + fs.getScheduleId()
+                                + " linked to Booking #" + b.getBookingId() + "!");
+                        buildMyBookingsView();
+                    }
+                });
+                HBox row = new HBox(12, il, sb); row.setAlignment(Pos.CENTER_LEFT);
+                row.setPadding(new Insets(10,14,10,14));
+                row.setStyle("-fx-background-color:white;-fx-background-radius:6;" +
+                        "-fx-effect:dropshadow(gaussian,rgba(0,0,0,.07),4,0,0,1);");
+                list.getChildren().add(row);
+            }
+        }
+
+        ScrollPane sc = new ScrollPane(list); sc.setFitToWidth(true); sc.setPrefHeight(300);
+        sc.setStyle("-fx-background-color:transparent;-fx-border-color:transparent;");
+        Button cb = mkBtn("Cancel", BTN_DARK); cb.setOnAction(e -> popup.close());
+        HBox br = new HBox(cb); br.setAlignment(Pos.CENTER_RIGHT); br.setPadding(new Insets(10,0,0,0));
+        VBox content = new VBox(14, sc, br);
+        content.setPadding(new Insets(20)); content.setStyle("-fx-background-color:#F1EAE7;");
+        popup.setScene(new Scene(new VBox(hb, content), 560, 440));
+        popup.showAndWait();
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       BOOKING FORM
+       FIX: Added ownerStage parameter so the popup is always
+       properly owned, fixing the "void/static" issue that
+       occurred when called from within another modal popup.
+       ═══════════════════════════════════════════════════════ */
+
+    private double classMultiplier(String cls) {
+        return switch (cls == null ? "ECONOMY" : cls) {
+            case "PREMIUM"  -> 1.5; case "BUSINESS" -> 2.2; case "FIRST" -> 3.0; default -> 1.0;
         };
     }
 
-    private void openBookingForm(Transport transport, Schedule schedule) {
-        Stage popup = popupStage("Book Your Trip");
+    /**
+     * Opens the booking form.
+     * @param transport  The transport (may be null if coming from a schedule only)
+     * @param schedule   The schedule (null = direct/no-schedule booking)
+     * @param ownerStage Pass the calling stage here when calling from inside another popup,
+     *                   so JavaFX correctly stacks the modals. Pass null to use main window.
+     */
+    private void openBookingForm(Transport transport, Schedule schedule, Stage ownerStage) {
+        // Always resolve the transport object
+        Map<Integer, Transport> tMap = new HashMap<>();
+        transportService.getAllTransports().forEach(t -> tMap.put(t.getTransportId(), t));
 
-        /* Pre-fill known IDs */
-        int preTransportId = (transport != null) ? transport.getTransportId()
-                : (schedule != null)  ? schedule.getTransportId() : 0;
-        int preScheduleId  = (schedule != null)  ? schedule.getScheduleId() : 0;
-
-        /* Resolve base price once */
-        final double basePrice;
+        final Transport resolvedT;
         if (transport != null) {
-            basePrice = transport.getBasePrice();
+            resolvedT = transport;
         } else if (schedule != null) {
-            basePrice = transportService.getAllTransports().stream()
-                    .filter(t -> t.getTransportId() == schedule.getTransportId())
-                    .mapToDouble(Transport::getBasePrice)
-                    .findFirst().orElse(0);
+            resolvedT = tMap.get(schedule.getTransportId());
         } else {
-            basePrice = 0;
+            resolvedT = null;
         }
 
-        /* Schedule price multiplier (demand/delay factor set by admin) */
-        final double scheduleMultiplier = (schedule != null) ? schedule.getPriceMultiplier() : 1.0;
+        if (resolvedT == null) {
+            showAlert("Could not resolve transport details. Please try again.");
+            return;
+        }
 
-        /* Fields */
-        TextField transportIdField = new TextField(String.valueOf(preTransportId));
-        transportIdField.setEditable(false);
-        transportIdField.setStyle("-fx-background-color: #EEEEEE;");
+        int preTransId = resolvedT.getTransportId();
+        int preSchedId = schedule != null ? schedule.getScheduleId() : 0;
+        final double basePrice  = resolvedT.getBasePrice();
+        final double schedMult  = schedule != null ? schedule.getPriceMultiplier() : 1.0;
+        final boolean fl        = "FLIGHT".equals(resolvedT.getTransportType());
+        final String  pName     = resolvedT.getProviderName();
 
-        TextField scheduleIdField = new TextField(preScheduleId > 0 ? String.valueOf(preScheduleId) : "—");
-        scheduleIdField.setEditable(false);
-        scheduleIdField.setStyle("-fx-background-color: #EEEEEE;");
+        // FIX: proper owner so the popup is never orphaned / static
+        Stage popup = new Stage();
+        popup.initModality(Modality.APPLICATION_MODAL);
+        if (ownerStage != null && ownerStage.isShowing()) {
+            popup.initOwner(ownerStage);
+        } else {
+            popup.initOwner(contentArea.getScene().getWindow());
+        }
+        popup.setTitle("Book Your Trip"); popup.setResizable(false);
 
-        Spinner<Integer> adultsSpinner   = new Spinner<>(1, 20, 1);
-        Spinner<Integer> childrenSpinner = new Spinner<>(0, 20, 0);
-        adultsSpinner.setEditable(true);
-        childrenSpinner.setEditable(true);
+        Label hdrLbl = new Label("Book:  " + pName);
+        hdrLbl.setStyle("-fx-font-size:16px;-fx-font-weight:bold;-fx-text-fill:white;");
+        HBox hb = new HBox(hdrLbl);
+        hb.setStyle("-fx-background-color:#1F294C;-fx-padding:16 22 16 22;");
 
-        CheckBox insuranceCheck = new CheckBox("Add travel insurance (+€25/seat)");
-        insuranceCheck.setStyle("-fx-text-fill: #1F294C;");
+        // Schedule info banner
+        VBox banner = new VBox();
+        if (schedule != null) {
+            String info = fl
+                    ? "Flight:  " + destName(schedule.getDepartureDestinationId())
+                    + "  ->  " + destName(schedule.getArrivalDestinationId())
+                    + "\nDep: " + (schedule.getDepartureDatetime()!=null
+                    ? schedule.getDepartureDatetime().format(DT_FMT) : "N/A")
+                    + "   Arr: " + (schedule.getArrivalDatetime()!=null
+                    ? schedule.getArrivalDatetime().format(DT_FMT) : "N/A")
+                    + "   Status: " + schedule.getStatus()
+                    : "Vehicle Rental:  " + destName(schedule.getDepartureDestinationId())
+                    + "\nRental period: "
+                    + (schedule.getRentalStart()!=null ? schedule.getRentalStart().format(DATE_FMT) : "N/A")
+                    + "  to  "
+                    + (schedule.getRentalEnd()!=null ? schedule.getRentalEnd().format(DATE_FMT) : "N/A");
 
-        ComboBox<String> classBox = new ComboBox<>(
-                FXCollections.observableArrayList("ECONOMY", "PREMIUM", "BUSINESS", "FIRST"));
-        // Default to the schedule's class if available, otherwise ECONOMY
-        if (schedule != null && schedule.getTravelClass() != null)
-            classBox.setValue(schedule.getTravelClass());
-        else
-            classBox.setValue("ECONOMY");
+            Label bl = new Label(info);
+            bl.setStyle("-fx-text-fill:#1F294C;-fx-font-size:12px;-fx-background-color:#E3F6F7;" +
+                    "-fx-padding:10 14 10 14;-fx-background-radius:5;");
+            bl.setWrapText(true); banner.getChildren().add(bl);
+            banner.setPadding(new Insets(0,0,4,0));
+        }
 
-        /* Live price preview — updates whenever class, adults, children or insurance changes */
-        Label pricePreview = new Label();
-        pricePreview.setStyle("-fx-text-fill: #1F294C; -fx-font-weight: bold; -fx-font-size: 14px; " +
-                "-fx-background-color: #FFFFFF; -fx-padding: 6 12 6 12; -fx-background-radius: 5;");
+        // Transport type info row
+        Label typeInfoLbl = new Label("Type: " + resolvedT.getTransportType()
+                + "   |   Model: " + resolvedT.getVehicleModel()
+                + "   |   Base price: " + String.format("%.2f EUR", basePrice));
+        typeInfoLbl.setStyle("-fx-text-fill:#555;-fx-font-size:11px;-fx-padding:0 0 4 0;");
 
-        Runnable updatePrice = () -> {
-            int seats = adultsSpinner.getValue() + childrenSpinner.getValue();
-            double classMult    = classMultiplier(classBox.getValue());
-            double insurance    = insuranceCheck.isSelected() ? 25.0 * seats : 0;
-            double total        = (basePrice * scheduleMultiplier * classMult * seats) + insurance;
-            pricePreview.setText(String.format("Estimated Total: €%.2f  (%s × %.1fx class × %d seat%s%s)",
-                    total,
-                    String.format("€%.2f", basePrice * scheduleMultiplier),
-                    classMult,
-                    seats,
-                    seats > 1 ? "s" : "",
-                    insuranceCheck.isSelected() ? " + insurance" : ""));
+        // FIX: create all form controls fresh — no reuse
+        ComboBox<String> clsBox = new ComboBox<>(
+                FXCollections.observableArrayList("ECONOMY","PREMIUM","BUSINESS","FIRST"));
+        clsBox.setValue(schedule!=null && schedule.getTravelClass()!=null
+                ? schedule.getTravelClass() : "ECONOMY");
+        clsBox.setMaxWidth(Double.MAX_VALUE); clsBox.setStyle(FORM_FIELD);
+
+        Spinner<Integer> adSpin = new Spinner<>(1, 20, 1);
+        adSpin.setEditable(true); adSpin.setMaxWidth(Double.MAX_VALUE);
+
+        Spinner<Integer> chSpin = new Spinner<>(0, 20, 0);
+        chSpin.setEditable(true); chSpin.setMaxWidth(Double.MAX_VALUE);
+
+        CheckBox ins = new CheckBox("Add travel insurance  (+25 EUR per seat)");
+        ins.setStyle("-fx-text-fill:#1F294C;");
+
+        Label prev = new Label();
+        prev.setWrapText(true);
+        prev.setStyle("-fx-text-fill:#1F294C;-fx-font-weight:bold;-fx-font-size:13px;" +
+                "-fx-background-color:white;-fx-padding:10 14 10 14;-fx-background-radius:5;");
+
+        // FIX: price updater uses fresh references only — no stale closures
+        Runnable upd = () -> {
+            int    seats = adSpin.getValue() + chSpin.getValue();
+            double cm    = classMultiplier(clsBox.getValue());
+            double insV  = ins.isSelected() ? 25.0 * seats : 0;
+            double total = basePrice * schedMult * cm * seats + insV;
+            prev.setText(String.format(
+                    "Estimated Total:  %.2f EUR\n" +
+                            "  Base %.2f  x  %.1fx %s class  x  %d seat%s%s",
+                    total, basePrice * schedMult,
+                    cm, clsBox.getValue(),
+                    seats, seats > 1 ? "s" : "",
+                    ins.isSelected() ? "  + insurance" : ""));
         };
 
-        classBox.valueProperty().addListener((o, old, nv) -> updatePrice.run());
-        adultsSpinner.valueProperty().addListener((o, old, nv) -> updatePrice.run());
-        childrenSpinner.valueProperty().addListener((o, old, nv) -> updatePrice.run());
-        insuranceCheck.selectedProperty().addListener((o, old, nv) -> updatePrice.run());
-        updatePrice.run(); // set initial value
+        // attach listeners AFTER defining upd
+        clsBox.getSelectionModel().selectedItemProperty().addListener((o, a, n) -> upd.run());
+        adSpin.valueProperty().addListener((o, a, n) -> upd.run());
+        chSpin.valueProperty().addListener((o, a, n) -> upd.run());
+        ins.selectedProperty().addListener((o, a, n) -> upd.run());
+        upd.run();  // initial calculation
 
-        GridPane grid = formGrid();
-        int r = 0;
-        grid.addRow(r++, formLabel("Transport ID"),  transportIdField);
-        grid.addRow(r++, formLabel("Schedule ID"),   scheduleIdField);
-        grid.addRow(r++, formLabel("Travel Class"),  classBox);
-        grid.addRow(r++, formLabel("Adults"),        adultsSpinner);
-        grid.addRow(r++, formLabel("Children"),      childrenSpinner);
-        grid.addRow(r++, formLabel("Insurance"),     insuranceCheck);
-        grid.addRow(r++, formLabel("Price"),         pricePreview);
+        GridPane g = buildFormGrid(165, 270); int r = 0;
+        g.addRow(r++, fl("Travel Class"),    clsBox);
+        g.addRow(r++, fl("Adults"),          adSpin);
+        g.addRow(r++, fl("Children (0-11)"), chSpin);
+        g.addRow(r++, fl("Insurance"),       ins);
+        g.addRow(r++, fl("Price Estimate"),  prev);
 
-        Button confirmBtn = btn("✅  Confirm Booking", BTN_TEAL);
-        Button cancelBtn  = btn("✖  Cancel", BTN_DARK);
-        cancelBtn.setOnAction(e -> popup.close());
+        Button conf = mkBtn("Confirm Booking", BTN_TEAL);
+        Button canc = mkBtn("Cancel", BTN_DARK); canc.setOnAction(e -> popup.close());
 
-        confirmBtn.setOnAction(e -> {
+        conf.setOnAction(e -> {
             try {
-                int tId        = preTransportId;
-                int sId        = preScheduleId;
-                int adults     = adultsSpinner.getValue();
-                int children   = childrenSpinner.getValue();
-                int totalSeats = adults + children;
+                int adults   = adSpin.getValue();
+                int children = chSpin.getValue();
+                int seats    = adults + children;
 
-                if (tId <= 0) { showAlert("Invalid transport ID."); return; }
+                // Re-check availability at moment of confirm
+                if (schedule != null) {
+                    if (fl) {
+                        int rem = remainingSeatsForFlight(schedule, tMap);
+                        if (rem < seats) {
+                            showAlert("Not enough seats!\nRequested: " + seats
+                                    + "\nAvailable: " + rem);
+                            return;
+                        }
+                    } else {
+                        if (isVehicleScheduleUnavailable(schedule.getScheduleId())) {
+                            showAlert("This vehicle schedule is no longer available.\n" +
+                                    "It has already been booked.");
+                            return;
+                        }
+                    }
+                }
 
-                double classMult   = classMultiplier(classBox.getValue());
-                double insurance   = insuranceCheck.isSelected() ? 25.0 * totalSeats : 0;
-                double total       = (basePrice * scheduleMultiplier * classMult * totalSeats) + insurance;
+                double cm    = classMultiplier(clsBox.getValue());
+                double insV  = ins.isSelected() ? 25.0 * seats : 0;
+                double total = basePrice * schedMult * cm * seats + insV;
 
-                Bookingtrans booking = new Bookingtrans();
-                booking.setUserId(currentUserId);
-                booking.setTransportId(tId);
-                booking.setScheduleId(sId);
-                booking.setAdultsCount(adults);
-                booking.setChildrenCount(children);
-                booking.setTotalSeats(totalSeats);
-                booking.setBookingStatus("PENDING");
-                booking.setPaymentStatus("UNPAID");
-                booking.setInsuranceIncluded(insuranceCheck.isSelected());
-                booking.setBookingDate(LocalDateTime.now());
-                booking.setTotalPrice(total);
-
-                bookingService.addBookingtrans(booking);
+                Bookingtrans bk = new Bookingtrans();
+                bk.setUserId(currentUserId);
+                bk.setTransportId(preTransId);
+                bk.setScheduleId(preSchedId);
+                bk.setAdultsCount(adults);
+                bk.setChildrenCount(children);
+                bk.setTotalSeats(seats);
+                bk.setBookingStatus("PENDING");
+                bk.setPaymentStatus("UNPAID");
+                bk.setInsuranceIncluded(ins.isSelected());
+                bk.setBookingDate(LocalDateTime.now());
+                bk.setTotalPrice(total);
+                bookingService.addBookingtrans(bk);
                 popup.close();
-                showSuccess(String.format(
-                        "Booking confirmed!\nClass: %s\nTotal: €%.2f\nStatus: PENDING (awaiting admin confirmation)",
-                        classBox.getValue(), total));
-                showMyBookingsTab();
 
+                String successMsg =
+                        "Booking Submitted Successfully!\n\n" +
+                                "Provider:      " + pName + "\n" +
+                                "Type:          " + resolvedT.getTransportType() + "\n" +
+                                "Model:         " + resolvedT.getVehicleModel() + "\n" +
+                                "Schedule:      " + (preSchedId > 0 ? "#" + preSchedId : "Direct (no schedule)") + "\n" +
+                                "Class:         " + clsBox.getValue() + "\n" +
+                                "Seats:         " + seats + "  (" + adults + " adults, " + children + " children)\n" +
+                                "Insurance:     " + (ins.isSelected() ? "Yes (+25 EUR x " + seats + " seats)" : "No") + "\n" +
+                                "Total:         " + String.format("%.2f EUR", total) + "\n\n" +
+                                "Status:  PENDING  -  awaiting admin confirmation";
+
+                showSuccess(successMsg);
+                showMyBookingsTab();
             } catch (Exception ex) {
                 showAlert("Booking failed: " + ex.getMessage());
             }
         });
 
-        VBox root = popupRoot("Book Your Trip", grid, confirmBtn, cancelBtn);
-        popup.setScene(new Scene(root, 560, 460));
-        popup.showAndWait();
+        HBox br = new HBox(12, conf, canc);
+        br.setAlignment(Pos.CENTER_RIGHT); br.setPadding(new Insets(10,0,0,0));
+
+        VBox content = new VBox(12, banner, typeInfoLbl, g, br);
+        content.setPadding(new Insets(20)); content.setStyle("-fx-background-color:#F1EAE7;");
+        popup.setScene(new Scene(new VBox(hb, content), 510, 460));
+        popup.show();   // use show() instead of showAndWait() to avoid nested-modal blocking
     }
 
-    /* ══════════════════════════════════════════════════════
-       ── MY BOOKINGS TAB ──
-       ══════════════════════════════════════════════════════ */
+    /* ═══════════════════════════════════════════════════════
+       SHARED UI HELPERS
+       ═══════════════════════════════════════════════════════ */
 
-    @FXML
-    public void showMyBookingsTab() {
-        setActiveNav(btnMyBookings);
-        buildMyBookingsView();
-    }
-
-    @SuppressWarnings("unchecked")
-    private void buildMyBookingsView() {
-        TableView<Bookingtrans> table = new TableView<>();
-        styleTable(table);
-
-        TableColumn<Bookingtrans, Integer> idCol      = col("ID",          "bookingId",       55);
-        TableColumn<Bookingtrans, Integer> transCol   = col("Transport",   "transportId",     90);
-        TableColumn<Bookingtrans, Integer> schedCol   = col("Schedule",    "scheduleId",      80);
-        TableColumn<Bookingtrans, Integer> seatsCol   = col("Seats",       "totalSeats",      60);
-        TableColumn<Bookingtrans, Double>  priceCol   = col("Total (€)",   "totalPrice",      90);
-        TableColumn<Bookingtrans, String>  statusCol  = col("Status",      "bookingStatus",   110);
-        TableColumn<Bookingtrans, String>  payCol     = col("Payment",     "paymentStatus",   100);
-        TableColumn<Bookingtrans, Boolean> insCol     = col("Insurance",   "insuranceIncluded", 80);
-
-        /* Booking date column */
-        TableColumn<Bookingtrans, LocalDateTime> dateCol = new TableColumn<>("Booked On");
-        dateCol.setCellValueFactory(new PropertyValueFactory<>("bookingDate"));
-        dateCol.setCellFactory(tc -> new TableCell<>() {
-            @Override protected void updateItem(LocalDateTime item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null ? "" : item.format(DT_FMT));
-            }
-        });
-        dateCol.setPrefWidth(130);
-
-        /* Status colour */
-        statusCol.setCellFactory(tc -> new TableCell<>() {
-            @Override protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) { setText(null); setStyle(""); return; }
-                setText(item);
-                switch (item) {
-                    case "CONFIRMED"  -> setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold;");
-                    case "CANCELLED"  -> setStyle("-fx-text-fill: #c0392b; -fx-font-weight: bold;");
-                    default           -> setStyle("-fx-text-fill: #F06E32; -fx-font-weight: bold;");
-                }
-            }
-        });
-
-        table.getColumns().addAll(idCol, transCol, schedCol, dateCol,
-                seatsCol, priceCol, statusCol, payCol, insCol);
-
-        // Use getBookingsByUserId to avoid the INNER JOIN on schedule_id
-        // that getAllBookings() uses — this ensures transport-only bookings
-        // (schedule_id = 0 / NULL) are also included.
-        List<Bookingtrans> myBookings = bookingService.getBookingsByUserId(currentUserId);
-
-        table.setItems(FXCollections.observableArrayList(myBookings));
-
-        /* Buttons */
-        Button cancelBtn  = btn("❌  Cancel Booking",  BTN_RED);
-        Button detailBtn  = btn("🔍  View Details",    BTN_TEAL);
-        Button refreshBtn = btn("🔄  Refresh",         BTN_DARK);
-
-        cancelBtn.setOnAction(e -> {
-            Bookingtrans sel = table.getSelectionModel().getSelectedItem();
-            if (sel == null) { showAlert("Select a booking first."); return; }
-            if ("CANCELLED".equals(sel.getBookingStatus())) {
-                showAlert("This booking is already cancelled.");
-                return;
-            }
-            if ("CONFIRMED".equals(sel.getBookingStatus())) {
-                showAlert("Confirmed bookings cannot be self-cancelled.\nPlease contact support.");
-                return;
-            }
-            if (confirm("Cancel your booking #" + sel.getBookingId() + "?\nThis cannot be undone.")) {
-                sel.setBookingStatus("CANCELLED");
-                sel.setCancellationReason("Cancelled by user");
-                bookingService.updateBookingtrans(sel);
-                showSuccess("Booking #" + sel.getBookingId() + " cancelled.");
-                buildMyBookingsView();
-            }
-        });
-
-        detailBtn.setOnAction(e -> {
-            Bookingtrans sel = table.getSelectionModel().getSelectedItem();
-            if (sel != null) viewBookingDetail(sel);
-            else showAlert("Select a booking first.");
-        });
-
-        refreshBtn.setOnAction(e -> buildMyBookingsView());
-
-        HBox toolbar = toolbar(cancelBtn, detailBtn, refreshBtn);
-
-        /* Summary bar */
-        long total     = myBookings.size();
-        long pending   = myBookings.stream().filter(b -> "PENDING".equals(b.getBookingStatus())).count();
-        long confirmed = myBookings.stream().filter(b -> "CONFIRMED".equals(b.getBookingStatus())).count();
-        double spent   = myBookings.stream()
-                .filter(b -> !"CANCELLED".equals(b.getBookingStatus()))
-                .mapToDouble(Bookingtrans::getTotalPrice).sum();
-
-        Label summary = new Label(String.format(
-                "Total Bookings: %d   |   Confirmed: %d   |   Pending: %d   |   Total Spent: €%.2f",
-                total, confirmed, pending, spent));
-        summary.setStyle("-fx-text-fill: #1F294C; -fx-font-weight: bold; " +
-                "-fx-background-color: #FFFFFF; -fx-padding: 8 14 8 14; " +
-                "-fx-background-radius: 6; -fx-font-size: 12px;");
-
-        Label title = sectionTitle("📋   My Bookings");
-        VBox layout = new VBox(14, title, summary, toolbar, table);
-        VBox.setVgrow(table, Priority.ALWAYS);
-
-        contentArea.getChildren().setAll(layout);
-    }
-
-    /* ── Booking Detail Popup (read-only) ── */
-    private void viewBookingDetail(Bookingtrans b) {
-        Stage popup = popupStage("Booking Details – #" + b.getBookingId());
-
-        GridPane grid = formGrid();
-        int r = 0;
-        grid.addRow(r++, formLabel("Booking ID"),    new Label(String.valueOf(b.getBookingId())));
-        grid.addRow(r++, formLabel("Transport ID"),  new Label(String.valueOf(b.getTransportId())));
-        grid.addRow(r++, formLabel("Schedule ID"),   new Label(String.valueOf(b.getScheduleId())));
-        grid.addRow(r++, formLabel("Booked On"),     new Label(b.getBookingDate() == null ? "N/A" : b.getBookingDate().format(DT_FMT)));
-        grid.addRow(r++, formLabel("Adults"),        new Label(String.valueOf(b.getAdultsCount())));
-        grid.addRow(r++, formLabel("Children"),      new Label(String.valueOf(b.getChildrenCount())));
-        grid.addRow(r++, formLabel("Total Seats"),   new Label(String.valueOf(b.getTotalSeats())));
-        grid.addRow(r++, formLabel("Total Price"),   new Label(String.format("€ %.2f", b.getTotalPrice())));
-        grid.addRow(r++, formLabel("Status"),        new Label(b.getBookingStatus()));
-        grid.addRow(r++, formLabel("Payment"),       new Label(b.getPaymentStatus()));
-        grid.addRow(r++, formLabel("Insurance"),     new Label(b.isInsuranceIncluded() ? "Yes (+€25/seat)" : "No"));
-        grid.addRow(r++, formLabel("Cancel Reason"), new Label(b.getCancellationReason() == null ? "—" : b.getCancellationReason()));
-        if (b.getQrCode() != null)
-            grid.addRow(r++, formLabel("QR Code"),   new Label(b.getQrCode()));
-        if (b.getVoucherPath() != null)
-            grid.addRow(r++, formLabel("Voucher"),   new Label(b.getVoucherPath()));
-
-        Button closeBtn = btn("✖  Close", BTN_DARK);
-        closeBtn.setOnAction(e -> popup.close());
-
-        VBox root = popupRoot("Booking Details", grid, closeBtn);
-        popup.setScene(new Scene(root, 480, 520));
-        popup.showAndWait();
-    }
-
-    /* ══════════════════════════════════════════════════════
-       ── SHARED UI HELPERS ──
-       ══════════════════════════════════════════════════════ */
-
-    private <T> void styleTable(TableView<T> tv) {
-        tv.setStyle(
-                "-fx-background-color: #FFFFFF; -fx-background-radius: 8; " +
-                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 6, 0, 0, 2);"
-        );
-        tv.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-    }
-
-    private <T, V> TableColumn<T, V> col(String title, String prop, double width) {
-        TableColumn<T, V> c = new TableColumn<>(title);
-        c.setCellValueFactory(new PropertyValueFactory<>(prop));
-        c.setPrefWidth(width);
-        return c;
-    }
-
-    private Button btn(String text, String style) {
-        Button b = new Button(text);
-        b.setStyle(style);
-        return b;
-    }
-
-    private HBox toolbar(Button... buttons) {
-        HBox box = new HBox(10, buttons);
-        box.setAlignment(Pos.CENTER_LEFT);
-        return box;
-    }
-
-    private Label sectionTitle(String text) {
-        Label l = new Label(text);
-        l.setStyle("-fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #1F294C;");
-        return l;
-    }
-
-    private Stage popupStage(String title) {
-        Stage s = new Stage();
-        s.setTitle(title);
-        s.initModality(Modality.APPLICATION_MODAL);
-        s.setResizable(false);
-        return s;
-    }
-
-    private GridPane formGrid() {
-        GridPane g = new GridPane();
-        g.setHgap(12);
-        g.setVgap(10);
-        ColumnConstraints c1 = new ColumnConstraints(160);
-        ColumnConstraints c2 = new ColumnConstraints(280);
-        g.getColumnConstraints().addAll(c1, c2);
+    private GridPane buildFormGrid(int c1, int c2) {
+        GridPane g = new GridPane(); g.setHgap(12); g.setVgap(10);
+        g.getColumnConstraints().addAll(new ColumnConstraints(c1), new ColumnConstraints(c2));
         return g;
     }
 
-    private Label formLabel(String text) {
-        Label l = new Label(text + ":");
-        l.setStyle("-fx-font-weight: bold; -fx-text-fill: #1F294C;");
-        l.setAlignment(Pos.CENTER_RIGHT);
-        l.setMaxWidth(Double.MAX_VALUE);
+    private Label fl(String t) {
+        Label l = new Label(t + ":");
+        l.setStyle("-fx-font-weight:bold;-fx-text-fill:#1F294C;-fx-font-size:12px;");
+        l.setAlignment(Pos.CENTER_RIGHT); l.setMaxWidth(Double.MAX_VALUE); return l;
+    }
+
+    private Label dv(String t) {
+        Label l = new Label(t); l.setStyle("-fx-text-fill:#333;-fx-font-size:12px;");
+        l.setWrapText(true); return l;
+    }
+
+    private Label sectionTitle(String t) {
+        Label l = new Label(t);
+        l.setStyle("-fx-font-size:17px;-fx-font-weight:bold;-fx-text-fill:#1F294C;");
         return l;
     }
 
-    private VBox popupRoot(String headerText, GridPane grid, Button... actionBtns) {
-        Label header = new Label(headerText);
-        header.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; " +
-                "-fx-text-fill: white; -fx-padding: 0 0 0 5;");
+    private Label badge(String t, String bg) {
+        Label l = new Label(t);
+        l.setStyle("-fx-background-color:" + bg + ";-fx-text-fill:white;-fx-font-size:10px;" +
+                "-fx-font-weight:bold;-fx-padding:3 8 3 8;-fx-background-radius:10;");
+        return l;
+    }
 
-        HBox headerBar = new HBox(header);
-        headerBar.setStyle("-fx-background-color: #1F294C; -fx-padding: 14 18 14 18;");
-        headerBar.setAlignment(Pos.CENTER_LEFT);
+    private Label errLabel() {
+        Label l = new Label(); l.setWrapText(true); l.setMaxWidth(430);
+        l.setStyle("-fx-text-fill:#c0392b;-fx-font-size:11px;-fx-font-weight:bold;"); return l;
+    }
 
-        ScrollPane scroll = new ScrollPane(grid);
-        scroll.setFitToWidth(true);
-        scroll.setStyle("-fx-background-color: transparent; -fx-border-color: transparent;");
-        VBox.setVgrow(scroll, Priority.ALWAYS);
+    private Button mkBtn(String t, String s) { Button b = new Button(t); b.setStyle(s); return b; }
 
-        HBox btnRow = new HBox(10, actionBtns);
-        btnRow.setAlignment(Pos.CENTER_RIGHT);
-        btnRow.setPadding(new Insets(10, 0, 0, 0));
+    private HBox hbox(javafx.scene.Node... nodes) {
+        HBox box = new HBox(12, nodes); box.setAlignment(Pos.CENTER_LEFT); return box;
+    }
 
-        VBox content = new VBox(12, scroll, btnRow);
-        content.setPadding(new Insets(18));
-        content.setStyle("-fx-background-color: #F1EAE7;");
-        VBox.setVgrow(content, Priority.ALWAYS);
+    private ScrollPane scrollPane(javafx.scene.Node content) {
+        ScrollPane sc = new ScrollPane(content); sc.setFitToWidth(true);
+        sc.setStyle("-fx-background-color:transparent;-fx-border-color:transparent;"); return sc;
+    }
 
-        VBox root = new VBox(headerBar, content);
-        VBox.setVgrow(content, Priority.ALWAYS);
-        return root;
+    private ComboBox<String> destCombo(List<Long> ids, String prompt, Map<Long, String> dn) {
+        ComboBox<String> box = new ComboBox<>();
+        box.getItems().add(prompt);
+        ids.forEach(id -> box.getItems().add(destName(id)));
+        box.setValue(prompt); box.setMaxWidth(Double.MAX_VALUE); box.setStyle(FORM_FIELD);
+        return box;
+    }
+
+    private DatePicker dp(String prompt) {
+        DatePicker p = new DatePicker(); p.setPromptText(prompt);
+        p.setMaxWidth(Double.MAX_VALUE); p.setStyle(FORM_FIELD); return p;
+    }
+
+    private Long parseDestId(String val, Map<Long, String> dn) {
+        if (val == null || val.startsWith("Any")) return null;
+        for (Map.Entry<Long, String> e : dn.entrySet())
+            if (e.getValue().equals(val)) return e.getKey();
+        try { return Long.parseLong(val.replace("Destination #","").trim()); }
+        catch (NumberFormatException ex) { return null; }
     }
 
     private void showAlert(String msg) {
-        Alert a = new Alert(Alert.AlertType.WARNING, msg, ButtonType.OK);
-        a.setHeaderText(null);
-        a.showAndWait();
+        Alert a = new Alert(Alert.AlertType.WARNING);
+        a.setHeaderText(null); a.setContentText(msg);
+        a.getButtonTypes().setAll(ButtonType.OK); a.showAndWait();
     }
 
     private void showSuccess(String msg) {
-        Alert a = new Alert(Alert.AlertType.INFORMATION, msg, ButtonType.OK);
-        a.setHeaderText(null);
-        a.showAndWait();
+        Alert a = new Alert(Alert.AlertType.INFORMATION);
+        a.setHeaderText(null); a.setContentText(msg);
+        a.getButtonTypes().setAll(ButtonType.OK); a.showAndWait();
     }
 
     private boolean confirm(String msg) {
-        Alert a = new Alert(Alert.AlertType.CONFIRMATION, msg, ButtonType.YES, ButtonType.NO);
-        a.setHeaderText(null);
+        Alert a = new Alert(Alert.AlertType.CONFIRMATION);
+        a.setHeaderText(null); a.setContentText(msg);
+        a.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
         return a.showAndWait().orElse(ButtonType.NO) == ButtonType.YES;
     }
 }
