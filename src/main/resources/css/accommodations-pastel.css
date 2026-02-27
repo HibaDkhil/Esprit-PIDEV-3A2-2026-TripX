@@ -1,0 +1,127 @@
+/* Pastel luminous filter sidebar (Accommodations) */
+
+.accom-filter-sidebar {
+    -fx-padding: 18;
+    -fx-background-color: linear-gradient(to bottom, rgba(255,255,255,0.95), rgba(236,254,255,0.85), rgba(238,242,255,0.85));
+    -fx-border-color: rgba(59,130,246,0.18);
+    -fx-border-width: 0 1 0 0;
+    -fx-effect: dropshadow(gaussian, rgba(76,204,173,0.18), 18, 0, 2, 0);
+}
+
+.accom-filter-title {
+    -fx-font-size: 19px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #0a153a;
+}
+
+.accom-filter-search {
+    -fx-background-color: rgba(255,255,255,0.95);
+    -fx-background-radius: 14;
+    -fx-border-color: rgba(59,130,246,0.22);
+    -fx-border-radius: 14;
+    -fx-padding: 10 12;
+    -fx-font-size: 13px;
+    -fx-effect: dropshadow(gaussian, rgba(99,102,241,0.10), 10, 0, 0, 2);
+}
+
+.accom-filter-search:focused {
+    -fx-border-color: rgba(76,204,173,0.70);
+    -fx-effect: dropshadow(gaussian, rgba(76,204,173,0.22), 14, 0, 0, 3);
+}
+
+.accom-filter-card {
+    -fx-background-radius: 16;
+    -fx-padding: 12;
+    -fx-border-width: 1;
+    -fx-border-radius: 16;
+    -fx-effect: dropshadow(gaussian, rgba(2,6,23,0.06), 12, 0, 0, 3);
+}
+
+.accom-filter-card-teal {
+    -fx-background-color: linear-gradient(to bottom right, rgba(255,255,255,0.98), rgba(240,253,250,0.95));
+    -fx-border-color: rgba(20,184,166,0.22);
+}
+
+.accom-filter-card-indigo {
+    -fx-background-color: linear-gradient(to bottom right, rgba(255,255,255,0.98), rgba(239,246,255,0.95));
+    -fx-border-color: rgba(99,102,241,0.20);
+}
+
+.accom-filter-card-title {
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #0a153a;
+}
+
+.accom-filter-card-accent {
+    -fx-text-fill: #0EA5A4;
+    -fx-font-weight: 800;
+}
+
+/* Make default controls look modern/pastel inside the sidebar */
+.accom-filter-sidebar .combo-box,
+.accom-filter-sidebar .date-picker {
+    -fx-background-color: rgba(255,255,255,0.92);
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(59,130,246,0.18);
+    -fx-border-radius: 12;
+    -fx-padding: 4 6 4 6;
+}
+
+.accom-filter-sidebar .combo-box:focused,
+.accom-filter-sidebar .date-picker:focused {
+    -fx-border-color: rgba(76,204,173,0.70);
+    -fx-effect: dropshadow(gaussian, rgba(76,204,173,0.18), 12, 0, 0, 2);
+}
+
+.accom-filter-sidebar .combo-box .list-cell,
+.accom-filter-sidebar .date-picker .text-field {
+    -fx-background-color: transparent;
+    -fx-padding: 8 10;
+    -fx-font-size: 12.5px;
+}
+
+.accom-filter-sidebar .check-box {
+    -fx-text-fill: #243B6B;
+    -fx-font-size: 12.5px;
+}
+
+.accom-filter-sidebar .check-box .box {
+    -fx-background-color: rgba(255,255,255,0.95);
+    -fx-border-color: rgba(99,102,241,0.22);
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-border-width: 2;
+}
+
+.accom-filter-sidebar .check-box:selected .box {
+    -fx-background-color: linear-gradient(to bottom, #4cccad, #7be7d6);
+    -fx-border-color: rgba(76,204,173,0.9);
+}
+
+.accom-filter-sidebar .check-box:selected .mark {
+    -fx-background-color: white;
+}
+
+.accom-filter-slider {
+    -fx-padding: 10 0 4 0;
+}
+
+.accom-filter-sidebar .slider .track {
+    -fx-background-color: rgba(2,6,23,0.08);
+    -fx-background-radius: 8;
+    -fx-pref-height: 6px;
+}
+
+.accom-filter-sidebar .slider .thumb {
+    -fx-background-color: linear-gradient(to bottom, #6d83f2, #4cccad);
+    -fx-background-radius: 50%;
+    -fx-pref-width: 18px;
+    -fx-pref-height: 18px;
+    -fx-effect: dropshadow(gaussian, rgba(99,102,241,0.22), 10, 0, 0, 2);
+}
+
+.accom-filter-sidebar .slider:focused .thumb {
+    -fx-effect: dropshadow(gaussian, rgba(76,204,173,0.26), 12, 0, 0, 3);
+}
+

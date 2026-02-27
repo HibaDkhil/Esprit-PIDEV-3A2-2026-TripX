@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.StackPane?>
+
+<!--
+    SIMPLIFIED TRANSPORT FXML
+    No sidebar, no top bar - just the content area
+    The main dashboard provides the shell (sidebar, header, theme, language, etc.)
+-->
+<StackPane xmlns="http://javafx.com/javafx/17"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="tn.esprit.controllers.admin.TransportAdminDashboardController"
+           stylesheets="@/css/transport-dark.css">
+
+    <BorderPane>
+        <center>
+            <StackPane fx:id="contentArea"
+                       style="-fx-background-color: #F1EAE7;">
+                <padding>
+                    <Insets top="20" right="20" bottom="20" left="20"/>
+                </padding>
+                <!-- Content will be dynamically loaded by the controller's methods:
+                     - showTransportTab()
+                     - showScheduleTab()
+                     - showBookingTab() -->
+            </StackPane>
+        </center>
+    </BorderPane>
+</StackPane>

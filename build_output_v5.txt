@@ -1,0 +1,21 @@
+﻿[INFO] Scanning for projects...
+[INFO] 
+[INFO] --------------------------< tn.esprit:tripx >---------------------------
+[INFO] Building TRIPX 1.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ tripx ---
+[INFO] Copying 50 resources from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\java to target\classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ tripx ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 65 source files with javac [debug target 17] to target\classes
+[WARNING] system modules path not set in conjunction with -source 17
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  10.996 s
+[INFO] Finished at: 2026-02-25T16:35:28+01:00
+[INFO] ------------------------------------------------------------------------

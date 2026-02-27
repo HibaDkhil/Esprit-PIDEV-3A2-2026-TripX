@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tn.esprit.controllers.user.LoginController">
+   <children>
+      <!-- RIGHT SIDE (LOGIN) - will be behind -->
+      <AnchorPane layoutX="640.0" prefHeight="746.0" prefWidth="674.0" style="-fx-background-color: #EEEBE8;">
+         <children>
+            <VBox layoutX="126.0" layoutY="98.0" prefHeight="533.0" prefWidth="400.0" spacing="10.0" style="-fx-alignment: TOP_CENTER; -fx-padding: 30;">
+               <children>
+                  <Label style="-fx-font-size: 24px; -fx-font-family: Poppins; -fx-font-weight: bold; -fx-text-fill: #001737;" text="Travel Beyond Boundaries" textAlignment="CENTER" textFill="#001737">
+                     <VBox.margin>
+                        <Insets top="1.0" />
+                     </VBox.margin>
+                  </Label>
+                   <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="20.0">
+                      <children>
+                         <Button fx:id="googleBtn" mnemonicParsing="false" onAction="#handleGoogleLogin" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: #F5F5F5; -fx-background-radius: 50; -fx-border-color: #CCCCCC; -fx-border-radius: 50; -fx-border-width: 1; -fx-cursor: hand;" text="">
+                            <graphic>
+                               <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                  <image>
+                                     <Image url="@/images/google.png" />
+                                  </image>
+                               </ImageView>
+                            </graphic>
+                         </Button>
+                         <Button fx:id="facebookBtn" mnemonicParsing="false" onAction="#handleFacebookLogin" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: #F5F5F5; -fx-background-radius: 50; -fx-border-color: #CCCCCC; -fx-border-radius: 50; -fx-border-width: 1; -fx-cursor: hand;" text="">
+                            <graphic>
+                               <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                  <image>
+                                     <Image url="@/images/facebook.png" />
+                                  </image>
+                               </ImageView>
+                            </graphic>
+                         </Button>
+                         <Button fx:id="linkedinBtn" mnemonicParsing="false" onAction="#handleLinkedInLogin" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: #F5F5F5; -fx-background-radius: 50; -fx-border-color: #CCCCCC; -fx-border-radius: 50; -fx-border-width: 1; -fx-cursor: hand;" text="">
+                            <graphic>
+                               <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                  <image>
+                                     <Image url="@/images/linkedin.png" />
+                                  </image>
+                               </ImageView>
+                            </graphic>
+                         </Button>
+                      </children>
+                      <VBox.margin>
+                         <Insets top="20.0" />
+                      </VBox.margin>
+                   </HBox>
+                  <HBox alignment="CENTER_LEFT" prefHeight="40.0" spacing="10.0" style="-fx-border-color: #CCCCCC; -fx-border-width: 0 0 2 0; -fx-padding: 5;">
+                     <children>
+                        <TextField fx:id="emailField" prefHeight="28.0" prefWidth="316.0" promptText="Email" style="-fx-background-color: Transparent; -fx-border-width: 0; -fx-font-family: 'Poppins'; -fx-font-size: 14px; -fx-text-fill: #001737;" />
+                        <Label prefHeight="27.0" prefWidth="42.0" style="-fx-font-size: 18px;" text="📧" textFill="#6b6969" />
+                     </children>
+                  </HBox>
+
+                  <Label fx:id="loginEmailError" style="-fx-font-size:12; -fx-padding:0;" textFill="RED" />
+
+                  <!-- PASSWORD -->
+                  <HBox alignment="CENTER_LEFT" prefHeight="40.0" spacing="10.0" style="-fx-border-color: #CCCCCC; -fx-border-width: 0 0 2 0; -fx-padding: 5;">
+                     <children>
+                        <PasswordField fx:id="pwdField" prefHeight="28.0" prefWidth="316.0" promptText="Password" style="-fx-background-color: Transparent; -fx-border-width: 0; -fx-font-family: 'Poppins'; -fx-font-size: 14px; -fx-text-fill: #001737;" />
+                        <Button fx:id="togglePwdBtn" mnemonicParsing="false" prefHeight="32.0" prefWidth="65.0" style="-fx-background-color: transparent; -fx-cursor: hand; -fx-border-width: 0;" text="👁️" textFill="black">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Button>
+                     </children>
+                  </HBox>
+
+                  <Label fx:id="loginPasswordError" style="-fx-font-size:12; -fx-padding:0;" textFill="RED" />
+
+                  <Hyperlink fx:id="forgotPasswordLink" onAction="#handleForgotPassword" style="-fx-font-family: 'Poppins'; -fx-underline: true;" text="Forgot Your Password?" textFill="#434989">
+                     <font>
+                        <Font name="System Italic" size="12.0" />
+                     </font>
+                  </Hyperlink>
+                  <HBox prefHeight="100.0" prefWidth="200.0" spacing="30.0">
+                     <VBox.margin>
+                        <Insets top="20.0" />
+                     </VBox.margin>
+                     <children>
+                        <Button fx:id="createAccountBtn" mnemonicParsing="false" onAction="#handleCreateAccount" prefHeight="32.0" prefWidth="146.0" style="-fx-background-color: #001737; -fx-border-color: #001737; -fx-border-width: 1; -fx-border-radius: 15; -fx-background-radius: 25; -fx-text-fill: white; -fx-font-family: 'Poppins'; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand;" text="Create account">
+                           <HBox.margin>
+                              <Insets top="20.0" />
+                           </HBox.margin>
+                        </Button>
+                        <Button fx:id="loginBtn" mnemonicParsing="false" onAction="#handleLogin" prefHeight="32.0" prefWidth="150.0" style="-fx-background-color: white; -fx-border-color: #001737; -fx-border-width: 1; -fx-border-radius: 15; -fx-background-radius: 25; -fx-text-fill: #001737; -fx-font-family: 'Poppins'; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand;" text="Login">
+                           <HBox.margin>
+                              <Insets top="20.0" />
+                           </HBox.margin>
+                        </Button>
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+         </children>
+      </AnchorPane>
+
+      <!-- LEFT SIDE BACKGROUND (SIGNUP) - stays in place, behind image -->
+      <AnchorPane fx:id="signupContainer" prefHeight="720.0" prefWidth="640.0" style="-fx-background-color: #001737;">
+         <children>
+            <VBox layoutX="120.0" layoutY="60.0" prefHeight="600.0" prefWidth="400.0" spacing="10.0" style="-fx-alignment: TOP_CENTER; -fx-padding: 30;">
+               <children>
+                  <Label style="-fx-font-size: 24px; -fx-font-family: Poppins; -fx-font-weight: bold; -fx-text-fill: #EEEBE8;" text="Create Your Account" textAlignment="CENTER">
+                     <VBox.margin>
+                        <Insets top="1.0" />
+                     </VBox.margin>
+                  </Label>
+                  <HBox alignment="CENTER_LEFT" prefHeight="40.0" spacing="10.0" style="-fx-border-color: white; -fx-border-width: 0 0 2 0; -fx-padding: 5;">
+                     <children>
+                        <TextField fx:id="firstNameField" prefHeight="28.0" prefWidth="316.0" promptText="First Name" style="-fx-background-color: Transparent; -fx-border-width: 0; -fx-font-family: 'Poppins'; -fx-font-size: 14px; -fx-text-fill: #EEEBE8;" />
+                        <Label prefHeight="27.0" prefWidth="42.0" style="-fx-font-size: 18px;" text="👤" textFill="#f4eded" />
+                     </children>
+                     <VBox.margin>
+                        <Insets top="40.0" />
+                     </VBox.margin>
+                  </HBox>
+                  <!-- ERROR LABEL -->
+                  <Label fx:id="firstNameError" style="-fx-font-size: 12px;" textFill="RED" />
+
+                  <!-- Last Name -->
+                  <HBox alignment="CENTER_LEFT" prefHeight="40.0" spacing="10.0" style="-fx-border-color: white; -fx-border-width: 0 0 2 0; -fx-padding: 5;">
+                     <children>
+                        <TextField fx:id="lastNameField" prefHeight="28.0" prefWidth="316.0" promptText="Last Name" style="-fx-background-color: Transparent; -fx-border-width: 0; -fx-font-family: 'Poppins'; -fx-font-size: 14px; -fx-text-fill: #EEEBE8;" />
+                        <Label prefHeight="27.0" prefWidth="42.0" style="-fx-font-size: 18px;" text="👤" textFill="#f4eded" />
+                     </children>
+                  </HBox>
+                  <Label fx:id="lastNameError" style="-fx-font-size: 12px;" textFill="RED" />
+
+                  <!-- Email -->
+                  <HBox alignment="CENTER_LEFT" prefHeight="40.0" spacing="10.0" style="-fx-border-color: white; -fx-border-width: 0 0 2 0; -fx-padding: 5;">
+                     <children>
+                        <TextField fx:id="emailFieldSignup" prefHeight="28.0" prefWidth="316.0" promptText="Email" style="-fx-background-color: Transparent; -fx-border-width: 0; -fx-font-family: 'Poppins'; -fx-font-size: 14px; -fx-text-fill: #EEEBE8;" />
+                        <Label prefHeight="27.0" prefWidth="42.0" style="-fx-font-size: 18px;" text="📧" textFill="#f7efef" />
+                     </children>
+                  </HBox>
+                  <Label fx:id="emailError" style="-fx-font-size: 12px;" textFill="RED" />
+
+                  <!-- Password -->
+                  <HBox alignment="CENTER_LEFT" prefHeight="40.0" spacing="10.0" style="-fx-border-color: white; -fx-border-width: 0 0 2 0; -fx-padding: 5;">
+                     <children>
+                        <PasswordField fx:id="pwdFieldSignup" prefHeight="28.0" prefWidth="316.0" promptText="Password" style="-fx-background-color: Transparent; -fx-border-width: 0; -fx-font-family: 'Poppins'; -fx-font-size: 14px; -fx-text-fill: #EEEBE8;" />
+                         <Button fx:id="togglePwdSignupBtn" mnemonicParsing="false" prefHeight="32.0" prefWidth="65.0" style="-fx-background-color: transparent; -fx-cursor: hand; -fx-border-width: 0;" text="👁️" textFill="black">
+                            <font>
+                               <Font size="14.0" />
+                            </font>
+                         </Button>
+                     </children>
+                  </HBox>
+                  <Label fx:id="passwordError" style="-fx-font-size: 12px;" textFill="RED" />
+
+                  <!-- Confirm Password -->
+                  <HBox alignment="CENTER_LEFT" prefHeight="40.0" spacing="10.0" style="-fx-border-color: white; -fx-border-width: 0 0 2 0; -fx-padding: 5;">
+                     <children>
+                        <PasswordField fx:id="confirmPwdField" prefHeight="28.0" prefWidth="316.0" promptText="Confirm Password" style="-fx-background-color: Transparent; -fx-border-width: 0; -fx-font-family: 'Poppins'; -fx-font-size: 14px; -fx-text-fill: #EEEBE8;" />
+                        <Label prefHeight="27.0" prefWidth="42.0" style="-fx-font-size: 18px;" text="✅" textFill="#fff3f3">
+                           <font>
+                              <Font size="6.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+                  <Label fx:id="confirmPasswordError" style="-fx-font-size: 12px;" textFill="RED" />
+                  <HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+                     <VBox.margin>
+                        <Insets top="20.0" />
+                     </VBox.margin>
+                     <children>
+                        <Button fx:id="backToLoginBtn" mnemonicParsing="false" onAction="#handleBackToLogin" prefHeight="32.0" prefWidth="150.0" style="-fx-background-color: white; -fx-border-color: #3a3a3a; -fx-border-width: 1; -fx-border-radius: 15; -fx-background-radius: 25; -fx-text-fill: #001737; -fx-font-family: 'Poppins'; -fx-font-size: 13px; -fx-font-weight: bold; -fx-cursor: hand;" text="Back to Login">
+                           <HBox.margin>
+                              <Insets top="20.0" />
+                           </HBox.margin>
+                        </Button>
+                        <Button fx:id="signUpBtn" mnemonicParsing="false" onAction="#handleSignUp" prefHeight="32.0" prefWidth="256.0" style="-fx-background-color: #001737; -fx-border-color: EEEBE8; -fx-border-width: 1; -fx-border-radius: 15; -fx-background-radius: 25; -fx-text-fill: white; -fx-font-family: 'Poppins'; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand;" text="Sign Up">
+                           <HBox.margin>
+                              <Insets top="20.0" />
+                           </HBox.margin>
+                        </Button>
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+         </children>
+      </AnchorPane>
+
+      <!-- IMAGE (slides over signup form) -->
+      <AnchorPane fx:id="leftContainer" prefHeight="720.0" prefWidth="640.0" style="-fx-background-color: transparent;">
+         <children>
+            <ImageView fitHeight="755.0" fitWidth="656.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@/images/login-bg.jpg" />
+               </image>
+            </ImageView>
+         </children>
+      </AnchorPane>
+   </children>
+</AnchorPane>

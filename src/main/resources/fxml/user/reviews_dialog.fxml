@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="15" xmlns="http://javafx.com/javafx/8.0.171"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="tn.esprit.controllers.user.ReviewDialogController"
+      stylesheets="@../../css/destination.css"
+      styleClass="form-section"
+      prefWidth="500">
+
+    <padding>
+        <Insets top="20" right="20" left="20" bottom="20"/>
+    </padding>
+
+    <Label fx:id="titleLabel" text="Reviews" styleClass="section-label" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+
+    <!-- Star Rating -->
+    <VBox spacing="5">
+        <Label text="Your Rating:" styleClass="form-label"/>
+        <HBox fx:id="starsBox" spacing="8" alignment="CENTER_LEFT"/>
+    </VBox>
+
+    <!-- Comment -->
+    <VBox spacing="5">
+        <Label text="Your Comment:" styleClass="form-label"/>
+        <TextArea fx:id="commentArea" prefRowCount="3" wrapText="true" styleClass="form-textarea" promptText="Write your review here..."/>
+    </VBox>
+
+    <!-- Submit Button -->
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button fx:id="submitBtn" text="Submit Review" styleClass="form-button-save"/>
+    </HBox>
+
+    <!-- Existing Reviews -->
+    <Label text="All Reviews:" styleClass="form-label" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 10 0 0 0;"/>
+    <ScrollPane fx:id="reviewsScroll" fitToWidth="true" prefHeight="250" style="-fx-background-color: transparent; -fx-background: transparent;">
+        <VBox fx:id="reviewsContainer" spacing="10"/>
+    </ScrollPane>
+
+</VBox>
