@@ -1,0 +1,585 @@
+.app-root {
+    -fx-background-color: #F6F7FB;
+}
+
+/* Sidebar */
+.sidebar {
+    -fx-background-color: white;
+    -fx-padding: 22;
+    -fx-border-color: #EEF0F3;
+    -fx-border-width: 0 1 0 0;
+}
+
+.sidebar-brand {
+    -fx-font-size: 20px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #111827;
+}
+
+.profile-card {
+    -fx-background-color: white;
+    -fx-background-radius: 18;
+    -fx-padding: 18;
+    -fx-border-color: #EEF0F3;
+    -fx-border-radius: 18;
+}
+
+.avatar-ring {
+    -fx-background-radius: 999;
+    -fx-padding: 3;
+    -fx-background-color: #E5E7EB;
+}
+
+.profile-name {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #111827;
+}
+
+.profile-username {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6B7280;
+}
+
+.stat-number {
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #111827;
+}
+
+.stat-label {
+    -fx-font-size: 11px;
+    -fx-text-fill: #6B7280;
+}
+
+.menu-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #111827;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-padding: 10 12;
+    -fx-background-radius: 12;
+    -fx-alignment: CENTER_LEFT;
+    -fx-cursor: hand;
+}
+
+.menu-btn:hover {
+    -fx-background-color: #F3F4F6;
+}
+
+/* Center */
+.center-pane {
+    -fx-padding: 22 24;
+}
+
+.topbar {
+    -fx-padding: 2 0 4 0;
+}
+
+.search-input {
+    -fx-background-color: white;
+    -fx-background-radius: 14;
+    -fx-padding: 10 14;
+    -fx-border-color: #EEF0F3;
+    -fx-border-radius: 14;
+}
+
+.search-input:focused {
+    -fx-border-color: #8B5CF6;
+}
+
+.primary-btn {
+    -fx-background-color: #4F46E5;
+    -fx-text-fill: white;
+    -fx-font-weight: 700;
+    -fx-background-radius: 14;
+    -fx-padding: 10 16;
+    -fx-cursor: hand;
+}
+
+.primary-btn:hover {
+    -fx-background-color: #4338CA;
+}
+
+.ghost-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #111827;
+    -fx-font-weight: 700;
+    -fx-padding: 10 12;
+    -fx-background-radius: 14;
+    -fx-cursor: hand;
+}
+
+.ghost-btn:hover {
+    -fx-background-color: #EEF2FF;
+}
+
+.soft-btn {
+    -fx-background-color: #EEF2FF;
+    -fx-text-fill: #4338CA;
+    -fx-font-weight: 700;
+    -fx-background-radius: 14;
+    -fx-padding: 10 14;
+    -fx-cursor: hand;
+}
+
+.soft-btn:hover {
+    -fx-background-color: #E0E7FF;
+}
+
+.section-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #111827;
+}
+
+.link {
+    -fx-text-fill: #4F46E5;
+    -fx-font-weight: 700;
+}
+
+.link:hover {
+    -fx-text-fill: #4338CA;
+}
+
+/* Stories row (NO SCROLL) */
+.stories-row {
+    -fx-padding: 6 8 8 8;
+    -fx-min-height: 110;
+    -fx-pref-height: 110;
+    -fx-max-height: 110;
+}
+
+.stories-scroll {
+    -fx-background-color: transparent;
+}
+.stories-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Story bubble ring */
+.story-bubble {
+    -fx-min-width: 84;
+    -fx-min-height: 84;
+    -fx-max-width: 84;
+    -fx-max-height: 84;
+    -fx-background-radius: 999;
+    -fx-padding: 3;
+    -fx-background-color: linear-gradient(to bottom right, #F58529, #DD2A7B, #8134AF, #515BD4);
+    -fx-cursor: hand;
+}
+
+.story-image-wrapper {
+    -fx-background-color: white;
+    -fx-background-radius: 999;
+    -fx-padding: 3;
+}
+
+.story-image {
+    -fx-fit-width: 72;
+    -fx-fit-height: 72;
+}
+
+.story-bubble-username {
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #111827;
+    -fx-alignment: CENTER;
+}
+
+.story-time-pill {
+    -fx-background-color: rgba(0,0,0,0.65);
+    -fx-text-fill: white;
+    -fx-font-size: 10px;
+    -fx-font-weight: 800;
+    -fx-padding: 2 6;
+    -fx-background-radius: 999;
+}
+
+.story-mini-avatar {
+    -fx-min-width: 16;
+    -fx-min-height: 16;
+    -fx-background-radius: 999;
+    -fx-background-color: #E5E7EB;
+    -fx-border-color: white;
+    -fx-border-width: 2;
+    -fx-border-radius: 999;
+}
+
+.story-view-username {
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: 900;
+}
+
+.story-view-expiry {
+    -fx-text-fill: rgba(255,255,255,0.85);
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+}
+
+/* Chips */
+.chip {
+    -fx-background-color: white;
+    -fx-text-fill: #111827;
+    -fx-font-weight: 700;
+    -fx-background-radius: 999;
+    -fx-border-color: #EEF0F3;
+    -fx-border-radius: 999;
+    -fx-padding: 6 12;
+    -fx-cursor: hand;
+}
+
+.chip:selected {
+    -fx-background-color: #111827;
+    -fx-text-fill: white;
+    -fx-border-color: #111827;
+}
+
+/* Feed scroll/list */
+.feed-scroll {
+    -fx-background-color: transparent;
+}
+
+.feed-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.feed-list {
+    -fx-padding: 6 0 0 0;
+}
+
+.combo-box .list-cell {
+    -fx-padding: 4 8;
+}
+
+.post-card {
+    -fx-background-color: white;
+    -fx-background-radius: 18;
+    -fx-padding: 16 16 14 16;
+    -fx-border-color: #EEF0F3;
+    -fx-border-radius: 18;
+    -fx-effect: dropshadow(gaussian, rgba(17,24,39,0.08), 22, 0.12, 0, 6);
+}
+
+/* Right panel */
+.right-pane {
+    -fx-background-color: transparent;
+    -fx-padding: 22 18 22 18;
+    -fx-border-color: #EEF0F3;
+    -fx-border-width: 0 0 0 1;
+}
+
+.side-card {
+    -fx-background-color: white;
+    -fx-background-radius: 18;
+    -fx-padding: 14;
+    -fx-border-color: #EEF0F3;
+    -fx-border-radius: 18;
+}
+
+.side-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #111827;
+}
+
+.side-name {
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #111827;
+}
+
+.muted {
+    -fx-text-fill: #6B7280;
+    -fx-font-size: 12px;
+}
+
+.badge {
+    -fx-background-color: #EEF2FF;
+    -fx-text-fill: #4338CA;
+    -fx-font-weight: 800;
+    -fx-padding: 2 8;
+    -fx-background-radius: 999;
+}
+
+.count-pill {
+    -fx-background-color: #F3F4F6;
+    -fx-text-fill: #111827;
+    -fx-font-weight: 800;
+    -fx-font-size: 11px;
+    -fx-padding: 2 6;
+    -fx-background-radius: 999;
+    -fx-border-color: #E5E7EB;
+    -fx-border-radius: 999;
+}
+
+.mini-avatar {
+    -fx-min-width: 34;
+    -fx-min-height: 34;
+    -fx-background-radius: 999;
+    -fx-background-color: #E5E7EB;
+}
+
+.mini-primary {
+    -fx-background-color: #4F46E5;
+    -fx-text-fill: white;
+    -fx-font-weight: 800;
+    -fx-background-radius: 12;
+    -fx-padding: 6 10;
+    -fx-cursor: hand;
+}
+
+.mini-primary:hover {
+    -fx-background-color: #4338CA;
+}
+
+.mini-ghost {
+    -fx-background-color: transparent;
+    -fx-text-fill: #111827;
+    -fx-font-weight: 700;
+    -fx-background-radius: 12;
+    -fx-padding: 6 10;
+    -fx-cursor: hand;
+}
+
+.mini-ghost:hover {
+    -fx-background-color: #F3F4F6;
+}
+
+.mini-icon {
+    -fx-background-color: #EEF2FF;
+    -fx-text-fill: #4338CA;
+    -fx-font-weight: 900;
+    -fx-background-radius: 999;
+    -fx-padding: 6 10;
+    -fx-cursor: hand;
+}
+
+.mini-icon:hover {
+    -fx-background-color: #E0E7FF;
+}
+
+.count-pill {
+    -fx-background-color: #F3F4F6;
+    -fx-text-fill: #111827;
+    -fx-font-weight: 800;
+    -fx-font-size: 11px;
+    -fx-padding: 2 6;
+    -fx-background-radius: 999;
+    -fx-border-color: #E5E7EB;
+    -fx-border-radius: 999;
+}
+
+/* Modal */
+.modal-dimmer {
+    -fx-background-color: rgba(0,0,0,0.35);
+}
+
+.modal-card {
+    -fx-background-color: white;
+    -fx-background-radius: 18;
+    -fx-padding: 18;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 30, 0.2, 0, 10);
+}
+
+.modal-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #111827;
+}
+
+.modal-input, .modal-textarea {
+    -fx-background-color: white;
+    -fx-background-radius: 14;
+    -fx-padding: 10 14;
+    -fx-border-color: #EEF0F3;
+    -fx-border-radius: 14;
+}
+
+.modal-input:focused, .modal-textarea:focused {
+    -fx-border-color: #8B5CF6;
+}
+/* =========================
+   Travel Story (improved UI)
+   ========================= */
+
+.story-card {
+    -fx-padding: 14 14 12 14;
+}
+
+.story-cover {
+    -fx-background-radius: 16;
+    -fx-background-color: white;
+    -fx-min-height: 220;
+    -fx-max-height: 220;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-overflow: hidden;
+}
+
+.story-cover-img {
+    -fx-background-radius: 16;
+}
+
+.story-cover-placeholder {
+    -fx-text-fill: #111827;
+    -fx-font-weight: 900;
+    -fx-font-size: 18px;
+    -fx-padding: 18;
+    -fx-opacity: 0.9;
+}
+
+.story-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #111827;
+}
+
+.story-stars {
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #111827;
+    -fx-opacity: 0.95;
+}
+
+.story-meta {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6b7280;
+    -fx-font-weight: 700;
+}
+
+.story-summary {
+    -fx-font-size: 13px;
+    -fx-text-fill: #111827;
+    -fx-opacity: 0.92;
+}
+
+.pill {
+    -fx-padding: 4 10;
+    -fx-background-radius: 999;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+}
+
+.pill-blue {
+    -fx-background-color: #eff6ff;
+    -fx-text-fill: #1d4ed8;
+}
+
+.pill-gray {
+    -fx-background-color: #f3f4f6;
+    -fx-text-fill: #374151;
+}
+
+.story-tips > .title {
+    -fx-font-weight: 900;
+    -fx-text-fill: #111827;
+}
+
+.story-tips-text {
+    -fx-font-size: 12px;
+    -fx-text-fill: #111827;
+    -fx-opacity: 0.9;
+}
+/* Clickable rating stars */
+.rating-star {
+    -fx-font-size: 18px;
+    -fx-text-fill: #d1d5db; /* gray star */
+    -fx-cursor: hand;
+    -fx-font-weight: 900;
+}
+
+.rating-star:filled {
+    -fx-text-fill: #f59e0b; /* gold star */
+}
+/* ---------- Thumbnails in Create/Edit modal ---------- */
+.thumbs-scroll {
+    -fx-background-color: transparent;
+    -fx-border-color: #EEF0F3;
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
+}
+
+.thumbs-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.thumbs-wrap {
+    -fx-padding: 10;
+}
+
+/* thumbnail card container */
+.thumb-card {
+    -fx-background-color: white;
+    -fx-border-color: #EEF0F3;
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
+    -fx-padding: 6;
+}
+
+/* image itself */
+.thumb-img {
+    -fx-fit-width: 150;
+    -fx-fit-height: 105;
+}
+
+/* remove button */
+.thumb-remove {
+    -fx-background-color: rgba(17,24,39,0.75);
+    -fx-text-fill: white;
+    -fx-font-weight: 900;
+    -fx-background-radius: 999;
+    -fx-padding: 2 7;
+    -fx-cursor: hand;
+}
+
+/* ---------- Travel Story card gallery section ---------- */
+.story-photos-title {
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #111827;
+    -fx-padding: 6 0 0 0;
+}
+
+.story-gallery-scroll {
+    -fx-background-color: transparent;
+}
+
+.story-gallery-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.story-gallery-row {
+    -fx-padding: 8 0 0 0;
+}
+
+.story-gallery-thumb {
+    -fx-background-color: white;
+    -fx-border-color: #EEF0F3;
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
+    -fx-padding: 6;
+}
+
+.story-gallery-thumb-img {
+    -fx-fit-width: 170;
+    -fx-fit-height: 120;
+}
+
+.story-gallery-grid {
+    -fx-padding: 8 0 0 0;
+}
+
+.story-gallery-tile {
+    -fx-background-color: white;
+    -fx-border-color: #EEF0F3;
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
+    -fx-padding: 6;
+}
+
+.story-gallery-single {
+    -fx-fit-width: 520;
+    -fx-fit-height: 300;
+}
