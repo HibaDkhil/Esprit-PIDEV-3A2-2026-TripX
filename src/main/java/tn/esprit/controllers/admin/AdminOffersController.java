@@ -7,7 +7,6 @@ import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
-import tn.esprit.controllers.admin.OfferDialogController;
 import tn.esprit.entities.Offer;
 import tn.esprit.services.OfferService;
 import tn.esprit.services.PackService;
@@ -93,8 +92,8 @@ public class AdminOffersController {
         
         // Actions column
         colActions.setCellFactory(col -> new TableCell<>() {
-            private final Button editBtn = new Button("✏️ Edit");
-            private final Button deleteBtn = new Button("🗑️ Delete");
+            private final Button editBtn = new Button("✏ Edit");
+            private final Button deleteBtn = new Button("🗑 Delete");
             private final HBox box = new HBox(8, editBtn, deleteBtn);
             
             {

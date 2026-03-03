@@ -1,15 +1,18 @@
 package tn.esprit.services;
 
-import tn.esprit.entities.*;
+import tn.esprit.entities.Accommodation;
+import tn.esprit.entities.Activity;
+import tn.esprit.entities.Destination;
+import tn.esprit.entities.Transport;
 import tn.esprit.utils.MyDatabase;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-// ---- These 4 tables are prefilled and managed by teammates ----
-// ---- Admin just reads from them when creating a Pack       ----
-
+/**
+ * Service for read-only lookup tables (managed by other modules)
+ */
 public class LookupService {
 
     private Connection conx;
@@ -18,75 +21,155 @@ public class LookupService {
         conx = MyDatabase.getInstance().getConx();
     }
 
-    // ---- Destinations ----
+    // ============ DESTINATIONS ============
+    
     public List<Destination> getAllDestinations() throws SQLException {
-        List<Destination> list = new ArrayList<>();
-        ResultSet res = conx.createStatement().executeQuery("SELECT * FROM `destinations`");
-        while (res.next()) {
-            list.add(new Destination(res.getInt("id_destination"), res.getString("name")));
+        List<Destination> destinations = new ArrayList<>();
+        String query = "SELECT destination_id, name FROM destinations";  // Updated column name
+        
+        try (Statement st = conx.createStatement();
+             ResultSet rs = st.executeQuery(query)) {
+            
+            while (rs.next()) {
+                destinations.add(new Destination(
+                    rs.getLong("destination_id"),  // Updated from id_destination
+                    rs.getString("name")
+                ));
+            }
         }
-        return list;
+        
+        return destinations;
     }
 
-    public Destination getDestinationById(int id) throws SQLException {
-        PreparedStatement pstm = conx.prepareStatement("SELECT * FROM `destinations` WHERE `id_destination` = ?");
-        pstm.setInt(1, id);
-        ResultSet res = pstm.executeQuery();
-        if (res.next()) return new Destination(res.getInt("id_destination"), res.getString("name"));
+    public Destination getDestinationById(long id) throws SQLException {
+        String query = "SELECT destination_id, name FROM destinations WHERE destination_id = ?";
+        
+        try (PreparedStatement pst = conx.prepareStatement(query)) {
+            pst.setLong(1, id);
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    return new Destination(
+                        rs.getLong("destination_id"),
+                        rs.getString("name")
+                    );
+                }
+            }
+        }
+        
         return null;
     }
 
-    // ---- Activities ----
+    // ============ ACTIVITIES ============
+    
     public List<Activity> getAllActivities() throws SQLException {
-        List<Activity> list = new ArrayList<>();
-        ResultSet res = conx.createStatement().executeQuery("SELECT * FROM `activities`");
-        while (res.next()) {
-            list.add(new Activity(res.getInt("id_activity"), res.getString("name")));
+        List<Activity> activities = new ArrayList<>();
+        String query = "SELECT activity_id, name FROM activities";  // Updated column name
+        
+        try (Statement st = conx.createStatement();
+             ResultSet rs = st.executeQuery(query)) {
+            
+            while (rs.next()) {
+                activities.add(new Activity(
+                    rs.getLong("activity_id"),  // Updated from id_activity
+                    rs.getString("name")
+                ));
+            }
         }
-        return list;
+        
+        return activities;
     }
 
-    public Activity getActivityById(int id) throws SQLException {
-        PreparedStatement pstm = conx.prepareStatement("SELECT * FROM `activities` WHERE `id_activity` = ?");
-        pstm.setInt(1, id);
-        ResultSet res = pstm.executeQuery();
-        if (res.next()) return new Activity(res.getInt("id_activity"), res.getString("name"));
+    public Activity getActivityById(long id) throws SQLException {
+        String query = "SELECT activity_id, name FROM activities WHERE activity_id = ?";
+        
+        try (PreparedStatement pst = conx.prepareStatement(query)) {
+            pst.setLong(1, id);
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    return new Activity(
+                        rs.getLong("activity_id"),
+                        rs.getString("name")
+                    );
+                }
+            }
+        }
+        
         return null;
     }
 
-    // ---- Accommodations ----
+    // ============ ACCOMMODATIONS ============
+    
     public List<Accommodation> getAllAccommodations() throws SQLException {
-        List<Accommodation> list = new ArrayList<>();
-        ResultSet res = conx.createStatement().executeQuery("SELECT * FROM `accommodations`");
-        while (res.next()) {
-            list.add(new Accommodation(res.getInt("id_accommodation"), res.getString("name")));
+        List<Accommodation> accommodations = new ArrayList<>();
+        String query = "SELECT id, name FROM accommodation";  // Updated table and column names
+        
+        try (Statement st = conx.createStatement();
+             ResultSet rs = st.executeQuery(query)) {
+            
+            while (rs.next()) {
+                accommodations.add(new Accommodation(
+                    rs.getInt("id"),  // Updated from id_accommodation
+                    rs.getString("name")
+                ));
+            }
         }
-        return list;
+        
+        return accommodations;
     }
 
     public Accommodation getAccommodationById(int id) throws SQLException {
-        PreparedStatement pstm = conx.prepareStatement("SELECT * FROM `accommodations` WHERE `id_accommodation` = ?");
-        pstm.setInt(1, id);
-        ResultSet res = pstm.executeQuery();
-        if (res.next()) return new Accommodation(res.getInt("id_accommodation"), res.getString("name"));
+        String query = "SELECT id, name FROM accommodation WHERE id = ?";
+        
+        try (PreparedStatement pst = conx.prepareStatement(query)) {
+            pst.setInt(1, id);
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    return new Accommodation(
+                        rs.getInt("id"),
+                        rs.getString("name")
+                    );
+                }
+            }
+        }
+        
         return null;
     }
 
-    // ---- Transport ----
+    // ============ TRANSPORT ============
+    
     public List<Transport> getAllTransport() throws SQLException {
-        List<Transport> list = new ArrayList<>();
-        ResultSet res = conx.createStatement().executeQuery("SELECT * FROM `transport`");
-        while (res.next()) {
-            list.add(new Transport(res.getInt("id_transport"), res.getString("type")));
+        List<Transport> transports = new ArrayList<>();
+        String query = "SELECT transport_id, transport_type FROM transport";  // Updated column name
+        
+        try (Statement st = conx.createStatement();
+             ResultSet rs = st.executeQuery(query)) {
+            
+            while (rs.next()) {
+                transports.add(new Transport(
+                    rs.getInt("transport_id"),  // Updated from id_transport
+                    rs.getString("transport_type")
+                ));
+            }
         }
-        return list;
+        
+        return transports;
     }
 
     public Transport getTransportById(int id) throws SQLException {
-        PreparedStatement pstm = conx.prepareStatement("SELECT * FROM `transport` WHERE `id_transport` = ?");
-        pstm.setInt(1, id);
-        ResultSet res = pstm.executeQuery();
-        if (res.next()) return new Transport(res.getInt("id_transport"), res.getString("type"));
+        String query = "SELECT transport_id, transport_type FROM transport WHERE transport_id = ?";
+        
+        try (PreparedStatement pst = conx.prepareStatement(query)) {
+            pst.setInt(1, id);
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    return new Transport(
+                        rs.getInt("transport_id"),
+                        rs.getString("transport_type")
+                    );
+                }
+            }
+        }
+        
         return null;
     }
 }

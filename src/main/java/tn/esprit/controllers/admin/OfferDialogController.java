@@ -234,9 +234,9 @@ public class OfferDialogController {
             if (rbPack.isSelected()) {
                 packId = ((Pack) selected).getIdPack();
             } else if (rbDestination.isSelected()) {
-                destinationId = ((Destination) selected).getIdDestination();
+                destinationId = Math.toIntExact(((Destination) selected).getDestinationId());
             } else if (rbAccommodation.isSelected()) {
-                accommodationId = ((Accommodation) selected).getIdAccommodation();
+                accommodationId = ((Accommodation) selected).getId();
             }
 
             if (offerToEdit == null) {
@@ -247,7 +247,7 @@ public class OfferDialogController {
                     cmbDiscountType.getValue(),
                     discountValue,
                     packId,
-                    destinationId,
+                    destinationId != null ? destinationId.longValue() : null,
                     accommodationId,
                     dpStartDate.getValue(),
                     dpEndDate.getValue()
@@ -261,7 +261,7 @@ public class OfferDialogController {
                 offerToEdit.setDiscountType(cmbDiscountType.getValue());
                 offerToEdit.setDiscountValue(discountValue);
                 offerToEdit.setPackId(packId);
-                offerToEdit.setDestinationId(destinationId);
+                offerToEdit.setDestinationId(destinationId != null ? destinationId.longValue() : null);
                 offerToEdit.setAccommodationId(accommodationId);
                 offerToEdit.setStartDate(dpStartDate.getValue());
                 offerToEdit.setEndDate(dpEndDate.getValue());

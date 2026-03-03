@@ -47,6 +47,7 @@ public class AdminShellController {
     @FXML private Button btnManageOffers;
     @FXML private Button btnManageCategories;
     @FXML private Button btnLoyaltyPoints;
+    @FXML private Button btnBookedPacks;
 
     private boolean isSidebarCollapsed = false;
 
@@ -148,7 +149,7 @@ public class AdminShellController {
         wireMenuToggle(usersToggle, usersMenu, false);
         wireMenuToggle(accommodationsToggle, accommodationsMenu, false);
         wireMenuToggle(destinationsToggle, destinationsMenu, false);
-        wireMenuToggle(packsToggle, packsMenu, false);
+        wireMenuToggle(packsToggle, packsMenu, true);
     }
 
     private void wireMenuToggle(Button toggleButton, VBox menu, boolean visibleInitially) {
@@ -245,6 +246,9 @@ public class AdminShellController {
         }
         if (btnLoyaltyPoints != null) {
             btnLoyaltyPoints.setOnAction(e -> loadPage("/fxml/admin/AdminLoyalty.fxml"));
+        }
+        if (btnBookedPacks != null) {
+            btnBookedPacks.setOnAction(e -> loadPage("/fxml/admin/AdminPacksBookings.fxml"));
         }
     }
 

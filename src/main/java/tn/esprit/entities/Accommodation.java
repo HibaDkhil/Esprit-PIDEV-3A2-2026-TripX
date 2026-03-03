@@ -1,27 +1,40 @@
 package tn.esprit.entities;
 
 public class Accommodation {
-
-    private int idAccommodation;
+    
+    private int id;  // Changed from id_accommodation
     private String name;
+    // Note: Final DB has many more fields (type, city, stars, etc.)
+    // We only use what's needed for packs
 
-    public Accommodation(int idAccommodation, String name) {
-        this.idAccommodation = idAccommodation;
-        this.name            = name;
-    }
-
-    public Accommodation(String name) {
+    // Constructor with ID
+    public Accommodation(int id, String name) {
+        this.id = id;
         this.name = name;
     }
 
-    public int getIdAccommodation()             { return idAccommodation; }
-    public void setIdAccommodation(int id)      { this.idAccommodation = id; }
+    // Getters and Setters
+        public int getId() {
+        return id;
+    }
 
-    public String getName()                     { return name; }
-    public void setName(String name)            { this.name = name; }
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     @Override
     public String toString() {
-        return "Accommodation{id=" + idAccommodation + ", name='" + name + "'}";
+        return "Accommodation{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
     }
 }

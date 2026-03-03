@@ -27,8 +27,9 @@
             
             <!-- Navigation Buttons -->
             <Button fx:id="btnBrowsePacks" text="🗺️ Browse Packs" styleClass="nav-btn"/>
-            <Button fx:id="btnOffers" text="🎉 Offers" styleClass="nav-btn"/>
+            <Button fx:id="btnMyBookings" text="📋 My Bookings" styleClass="nav-btn"/>
             <Button fx:id="btnLoyalty" text="⭐ Loyalty" styleClass="nav-btn"/>
+            <Button fx:id="btnExchange" text="💱 Exchange" styleClass="nav-btn"/>
             
             <Separator orientation="VERTICAL" style="-fx-background-color: rgba(255,255,255,0.3);"/>
             

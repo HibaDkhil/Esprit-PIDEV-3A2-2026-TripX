@@ -38,10 +38,8 @@ public class LoginController {
             showError("Please enter username and password");
             return;
         }
-
-        // TODO: Replace with actual database check
-        // For now, hardcoded demo user
-        if (username.equals("user") && password.equals("123")) {
+        // static user login
+        if (username.equals("user") && password.equals("user")) {
             LOGGED_IN_USER_ID = 1;
             LOGGED_IN_USERNAME = username;
             openUserDashboard();

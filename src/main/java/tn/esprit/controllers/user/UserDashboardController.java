@@ -13,7 +13,7 @@ import java.io.IOException;
 public class UserDashboardController {
 
     @FXML private StackPane contentArea;
-    @FXML private Button btnBrowsePacks, btnOffers, btnLoyalty;
+    @FXML private Button btnBrowsePacks, btnLoyalty, btnExchange, btnMyBookings;
     @FXML private Label lblUsername;
     @FXML private MenuButton menuUser;
     @FXML private MenuItem menuProfile, menuSettings, menuLogout;
@@ -24,8 +24,9 @@ public class UserDashboardController {
 
         // Navigation buttons
         btnBrowsePacks.setOnAction(e -> loadPage("/fxml/user/UserBrowsePacks.fxml"));
-        btnOffers.setOnAction(e -> loadPage("/fxml/user/UserOffers.fxml"));
         btnLoyalty.setOnAction(e -> loadPage("/fxml/user/UserLoyalty.fxml"));
+        btnExchange.setOnAction(e -> loadPage("/fxml/user/UserExchange.fxml"));
+        btnMyBookings.setOnAction(e -> loadPage("/fxml/user/UserBookings.fxml"));
 
         // Menu items
         menuProfile.setOnAction(e -> showInfo("Profile - to be implemented"));

@@ -1,27 +1,40 @@
 package tn.esprit.entities;
 
 public class Destination {
-
-    private int idDestination;
+    
+    private long destinationId;  // Changed from int id_destination
     private String name;
+    // Note: Final DB has many more fields (country, continent, lat, long, etc.)
+    // We only use the fields needed for packs module
 
-    public Destination(int idDestination, String name) {
-        this.idDestination = idDestination;
-        this.name          = name;
-    }
-
-    public Destination(String name) {
+    // Constructor with ID (for reading from DB)
+    public Destination(long destinationId, String name) {
+        this.destinationId = destinationId;
         this.name = name;
     }
 
-    public int getIdDestination()           { return idDestination; }
-    public void setIdDestination(int id)    { this.idDestination = id; }
+    // Getters and Setters
+    public long getDestinationId() {
+        return destinationId;
+    }
 
-    public String getName()                 { return name; }
-    public void setName(String name)        { this.name = name; }
+    public void setDestinationId(long destinationId) {
+        this.destinationId = destinationId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     @Override
     public String toString() {
-        return "Destination{id=" + idDestination + ", name='" + name + "'}";
+        return "Destination{" +
+                "destinationId=" + destinationId +
+                ", name='" + name + '\'' +
+                '}';
     }
 }

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="tn.esprit.controllers.user.UserBookingsController"
+      stylesheets="@../../css/user-bookings.css"
+      spacing="24" style="-fx-background-color: #F5F7FA;">
+    
+    <padding>
+        <Insets top="24" right="24" bottom="24" left="24"/>
+    </padding>
+
+    <!-- Header -->
+    <HBox alignment="CENTER_LEFT" spacing="16">
+        <VBox spacing="8" HBox.hgrow="ALWAYS">
+            <Label text="My Bookings" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #1A202C;"/>
+            <Label text="View and manage your travel bookings" style="-fx-font-size: 14px; -fx-text-fill: #718096;"/>
+        </VBox>
+        
+        <Label fx:id="lblBookingCount" text="0 bookings" style="-fx-font-size: 14px; -fx-text-fill: #94A3B8;"/>
+    </HBox>
+
+    <!-- Filter Tabs -->
+    <HBox spacing="12" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 12;">
+        <ToggleButton fx:id="btnAllBookings" text="All" styleClass="filter-toggle" selected="true"/>
+        <ToggleButton fx:id="btnPending" text="⏳ Pending" styleClass="filter-toggle"/>
+        <ToggleButton fx:id="btnConfirmed" text="✅ Confirmed" styleClass="filter-toggle"/>
+        <ToggleButton fx:id="btnCompleted" text="🎉 Completed" styleClass="filter-toggle"/>
+        <ToggleButton fx:id="btnCancelled" text="❌ Cancelled" styleClass="filter-toggle"/>
+    </HBox>
+
+    <!-- Bookings List -->
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-border-color: transparent;">
+        <VBox fx:id="bookingsList" spacing="16" style="-fx-background-color: transparent;"/>
+    </ScrollPane>
+
+</VBox>

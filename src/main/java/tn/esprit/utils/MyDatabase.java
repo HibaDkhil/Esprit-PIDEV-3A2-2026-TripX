@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 public class MyDatabase {
 
-    private final String URL     = "jdbc:mysql://localhost:3306/tripx_db";
+    private final String URL     = "jdbc:mysql://localhost:3306/final_tripx_db";
     private final String USERNAME = "root";
     private final String PWD      = "";
 

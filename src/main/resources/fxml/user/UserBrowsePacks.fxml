@@ -37,6 +37,9 @@
         <ComboBox fx:id="destinationFilter" prefWidth="150"
                   style="-fx-background-color: #F5F7FA; -fx-background-radius: 8;"/>
         
+        <CheckBox fx:id="chkHasOffer" text="🎉 Has Offer" 
+                  style="-fx-font-weight: 600; -fx-text-fill: #E53E3E;"/>
+        
         <Label text="Max Price:" style="-fx-font-weight: 600; -fx-text-fill: #49769F;"/>
         <Slider fx:id="priceSlider" min="0" max="2000" value="2000" prefWidth="150" showTickLabels="false"/>
         <Label fx:id="lblMaxPrice" text="2000 TND" style="-fx-font-weight: 600; -fx-text-fill: #063154;"/>

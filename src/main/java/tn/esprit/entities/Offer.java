@@ -4,87 +4,144 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class Offer {
-
-    public enum DiscountType { PERCENTAGE, FIXED }
-
+    
+    public enum DiscountType {
+        PERCENTAGE, FIXED
+    }
+    
     private int idOffer;
     private String title;
     private String description;
     private DiscountType discountType;
     private BigDecimal discountValue;
-    private Integer packId;          // nullable
-    private Integer destinationId;   // nullable
-    private Integer accommodationId; // nullable
+    private Integer packId;
+    private Long destinationId;      // Long for bigint
+    private Integer accommodationId;
     private LocalDate startDate;
     private LocalDate endDate;
     private boolean isActive;
 
-    // ---- Constructor with id (reading from DB) ----
+    // Constructor for reading from DB (with ID) - THE CORRECT ONE
     public Offer(int idOffer, String title, String description, DiscountType discountType,
-                 BigDecimal discountValue, Integer packId, Integer destinationId,
+                 BigDecimal discountValue, Integer packId, Long destinationId,
                  Integer accommodationId, LocalDate startDate, LocalDate endDate, boolean isActive) {
-        this.idOffer         = idOffer;
-        this.title           = title;
-        this.description     = description;
-        this.discountType    = discountType;
-        this.discountValue   = discountValue;
-        this.packId          = packId;
-        this.destinationId   = destinationId;
+        this.idOffer = idOffer;
+        this.title = title;
+        this.description = description;
+        this.discountType = discountType;
+        this.discountValue = discountValue;
+        this.packId = packId;
+        this.destinationId = destinationId;  // Direct assignment, no conversion needed
         this.accommodationId = accommodationId;
-        this.startDate       = startDate;
-        this.endDate         = endDate;
-        this.isActive        = isActive;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.isActive = isActive;
     }
 
-    // ---- Constructor without id (inserting) ----
+    // Constructor for creating new offer (without ID)
     public Offer(String title, String description, DiscountType discountType,
-                 BigDecimal discountValue, Integer packId, Integer destinationId,
+                 BigDecimal discountValue, Integer packId, Long destinationId,
                  Integer accommodationId, LocalDate startDate, LocalDate endDate) {
-        this.title           = title;
-        this.description     = description;
-        this.discountType    = discountType;
-        this.discountValue   = discountValue;
-        this.packId          = packId;
-        this.destinationId   = destinationId;
+        this.title = title;
+        this.description = description;
+        this.discountType = discountType;
+        this.discountValue = discountValue;
+        this.packId = packId;
+        this.destinationId = destinationId;
         this.accommodationId = accommodationId;
-        this.startDate       = startDate;
-        this.endDate         = endDate;
-        this.isActive        = true;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.isActive = true;
     }
 
-    // ---- Getters & Setters ----
-    public int getIdOffer()                         { return idOffer; }
-    public void setIdOffer(int idOffer)             { this.idOffer = idOffer; }
+    // Getters and Setters
+    public int getIdOffer() {
+        return idOffer;
+    }
 
-    public String getTitle()                        { return title; }
-    public void setTitle(String title)              { this.title = title; }
+    public void setIdOffer(int idOffer) {
+        this.idOffer = idOffer;
+    }
 
-    public String getDescription()                  { return description; }
-    public void setDescription(String description)  { this.description = description; }
+    public String getTitle() {
+        return title;
+    }
 
-    public DiscountType getDiscountType()           { return discountType; }
-    public void setDiscountType(DiscountType t)     { this.discountType = t; }
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-    public BigDecimal getDiscountValue()            { return discountValue; }
-    public void setDiscountValue(BigDecimal v)      { this.discountValue = v; }
+    public String getDescription() {
+        return description;
+    }
 
-    public Integer getPackId()                      { return packId; }
-    public void setPackId(Integer packId)           { this.packId = packId; }
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-    public Integer getDestinationId()               { return destinationId; }
-    public void setDestinationId(Integer id)        { this.destinationId = id; }
+    public DiscountType getDiscountType() {
+        return discountType;
+    }
 
-    public Integer getAccommodationId()             { return accommodationId; }
-    public void setAccommodationId(Integer id)      { this.accommodationId = id; }
+    public void setDiscountType(DiscountType discountType) {
+        this.discountType = discountType;
+    }
 
-    public LocalDate getStartDate()                 { return startDate; }
-    public void setStartDate(LocalDate startDate)   { this.startDate = startDate; }
+    public BigDecimal getDiscountValue() {
+        return discountValue;
+    }
 
-    public LocalDate getEndDate()                   { return endDate; }
-    public void setEndDate(LocalDate endDate)       { this.endDate = endDate; }
+    public void setDiscountValue(BigDecimal discountValue) {
+        this.discountValue = discountValue;
+    }
 
-    public boolean isActive()                       { return isActive; }
-    public void setActive(boolean active)           { this.isActive = active; }
+    public Integer getPackId() {
+        return packId;
+    }
+
+    public void setPackId(Integer packId) {
+        this.packId = packId;
+    }
+
+    public Long getDestinationId() {
+        return destinationId;
+    }
+
+    public void setDestinationId(Long destinationId) {
+        this.destinationId = destinationId;
+    }
+
+    public Integer getAccommodationId() {
+        return accommodationId;
+    }
+
+    public void setAccommodationId(Integer accommodationId) {
+        this.accommodationId = accommodationId;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
 
     @Override
     public String toString() {
@@ -93,11 +150,6 @@ public class Offer {
                 ", title='" + title + '\'' +
                 ", discountType=" + discountType +
                 ", discountValue=" + discountValue +
-                ", packId=" + packId +
-                ", destinationId=" + destinationId +
-                ", accommodationId=" + accommodationId +
-                ", startDate=" + startDate +
-                ", endDate=" + endDate +
                 ", isActive=" + isActive +
                 '}';
     }

@@ -1,27 +1,39 @@
 package tn.esprit.entities;
 
 public class Transport {
-
-    private int idTransport;
+    
+    private int transportId;  // Changed from id_transport
     private String type;
+    // Note: Final DB has many more fields (company, capacity, etc.)
 
-    public Transport(int idTransport, String type) {
-        this.idTransport = idTransport;
-        this.type        = type;
-    }
-
-    public Transport(String type) {
+    // Constructor with ID
+    public Transport(int transportId, String type) {
+        this.transportId = transportId;
         this.type = type;
     }
 
-    public int getIdTransport()             { return idTransport; }
-    public void setIdTransport(int id)      { this.idTransport = id; }
+    // Getters and Setters
+        public int getTransportId() {
+        return transportId;
+    }
 
-    public String getType()                 { return type; }
-    public void setType(String type)        { this.type = type; }
+    public void setTransportId(int transportId) {
+        this.transportId = transportId;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 
     @Override
     public String toString() {
-        return "Transport{id=" + idTransport + ", type='" + type + "'}";
+        return "Transport{" +
+                "transportId=" + transportId +
+                ", type='" + type + '\'' +
+                '}';
     }
 }

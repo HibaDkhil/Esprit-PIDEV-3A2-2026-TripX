@@ -24,9 +24,9 @@ public class PackService implements ICRUD<Pack> {
         PreparedStatement pstm = conx.prepareStatement(req);
         pstm.setString(1, pack.getTitle());
         pstm.setString(2, pack.getDescription());
-        pstm.setInt(3, pack.getDestinationId());
+        pstm.setInt(3, Math.toIntExact(pack.getDestinationId()));
         pstm.setInt(4, pack.getAccommodationId());
-        pstm.setInt(5, pack.getActivityId());
+        pstm.setInt(5, Math.toIntExact(pack.getActivityId()));
         pstm.setInt(6, pack.getTransportId());
         pstm.setInt(7, pack.getCategoryId());
         pstm.setInt(8, pack.getDurationDays());
@@ -45,9 +45,9 @@ public class PackService implements ICRUD<Pack> {
         PreparedStatement pstm = conx.prepareStatement(req);
         pstm.setString(1, pack.getTitle());
         pstm.setString(2, pack.getDescription());
-        pstm.setInt(3, pack.getDestinationId());
+        pstm.setInt(3, Math.toIntExact(pack.getDestinationId()));
         pstm.setInt(4, pack.getAccommodationId());
-        pstm.setInt(5, pack.getActivityId());
+        pstm.setInt(5, Math.toIntExact(pack.getActivityId()));
         pstm.setInt(6, pack.getTransportId());
         pstm.setInt(7, pack.getCategoryId());
         pstm.setInt(8, pack.getDurationDays());

@@ -52,7 +52,7 @@ public class Main {
             Pack testPack = new Pack(
                     "Spain Adventure",
                     "A fun trip to Spain",
-                    1, 1, 1, 1, 1,
+                    1L, 1, 1L, 1, 1,
                     7,
                     new BigDecimal("599.99")
             );
@@ -67,35 +67,35 @@ public class Main {
         } catch (SQLException e) {
             System.out.println("PackService error: " + e.getMessage());
         }
-
-        // -----------------------------------------------
-        // TEST OfferService - Add then Read
-        // -----------------------------------------------
-        OfferService offerService = new OfferService();
-        try {
-            // Add a test offer on pack_id=1, 10% off
-            Offer testOffer = new Offer(
-                    "Summer Deal",
-                    "10% off on Spain Adventure",
-                    Offer.DiscountType.PERCENTAGE,
-                    new BigDecimal("10.00"),
-                    1,    // pack_id
-                    null, // destination_id (not used here)
-                    null, // accommodation_id (not used here)
-                    LocalDate.of(2026, 1, 1),
-                    LocalDate.of(2026, 12, 31)
-            );
-            offerService.add(testOffer);
-
-            System.out.println("\n=== All Offers ===");
-            offerService.afficherList().forEach(System.out::println);
-
-            System.out.println("\n=== Active Offers Today ===");
-            offerService.getActiveOffers().forEach(System.out::println);
-
-        } catch (SQLException e) {
-            System.out.println("OfferService error: " + e.getMessage());
-        }
+//
+//        // -----------------------------------------------
+//        // TEST OfferService - Add then Read
+//        // -----------------------------------------------
+//        OfferService offerService = new OfferService();
+//        try {
+//            // Add a test offer on pack_id=1, 10% off
+//            Offer testOffer = new Offer(
+//                    "Summer Deal",
+//                    "10% off on Spain Adventure",
+//                    Offer.DiscountType.PERCENTAGE,
+//                    new BigDecimal("10.00"),
+//                    1,    // pack_id
+//                    (Integer) null, // destination_id (not used here)
+//                    null, // accommodation_id (not used here)
+//                    LocalDate.of(2026, 1, 1),
+//                    LocalDate.of(2026, 12, 31)
+//            );
+//            offerService.add(testOffer);
+//
+//            System.out.println("\n=== All Offers ===");
+//            offerService.afficherList().forEach(System.out::println);
+//
+//            System.out.println("\n=== Active Offers Today ===");
+//            offerService.getActiveOffers().forEach(System.out::println);
+//
+//        } catch (SQLException e) {
+//            System.out.println("OfferService error: " + e.getMessage());
+//        }
 
         // -----------------------------------------------
         // TEST LoyaltyPointsService

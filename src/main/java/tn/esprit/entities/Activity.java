@@ -1,27 +1,39 @@
 package tn.esprit.entities;
 
 public class Activity {
-
-    private int idActivity;
+    
+    private long activityId;  // Changed from int id_activity
     private String name;
+    // Note: Final DB has many more fields (category, price, duration, etc.)
 
-    public Activity(int idActivity, String name) {
-        this.idActivity = idActivity;
-        this.name       = name;
-    }
-
-    public Activity(String name) {
+    // Constructor with ID
+    public Activity(long activityId, String name) {
+        this.activityId = activityId;
         this.name = name;
     }
 
-    public int getIdActivity()              { return idActivity; }
-    public void setIdActivity(int id)       { this.idActivity = id; }
+    // Getters and Setters
+    public long getActivityId() {
+        return activityId;
+    }
 
-    public String getName()                 { return name; }
-    public void setName(String name)        { this.name = name; }
+    public void setActivityId(long activityId) {
+        this.activityId = activityId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     @Override
     public String toString() {
-        return "Activity{id=" + idActivity + ", name='" + name + "'}";
+        return "Activity{" +
+                "activityId=" + activityId +
+                ", name='" + name + '\'' +
+                '}';
     }
 }

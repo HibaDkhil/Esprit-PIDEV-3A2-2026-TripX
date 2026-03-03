@@ -122,13 +122,16 @@ public class UserPackDetailsController {
             javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
                 getClass().getResource("/fxml/user/UserBrowsePacks.fxml")
             );
-            javafx.scene.layout.VBox page = loader.load();
+            javafx.scene.Parent page = loader.load();
             
-            // Replace current content
-            javafx.scene.layout.VBox currentView = (javafx.scene.layout.VBox) btnBack.getScene().getRoot();
-            javafx.scene.layout.StackPane parent = (javafx.scene.layout.StackPane) currentView.getParent();
-            parent.getChildren().clear();
-            parent.getChildren().add(page);
+            // Find the content area in UserDashboard and replace content
+            javafx.scene.Node current = btnBack.getScene().getRoot();
+            if (current instanceof javafx.scene.layout.BorderPane) {
+                javafx.scene.layout.BorderPane dashboard = (javafx.scene.layout.BorderPane) current;
+                javafx.scene.layout.StackPane contentArea = (javafx.scene.layout.StackPane) dashboard.getCenter();
+                contentArea.getChildren().clear();
+                contentArea.getChildren().add(page);
+            }
             
         } catch (Exception e) {
             showError("Failed to go back: " + e.getMessage());
@@ -137,7 +140,28 @@ public class UserPackDetailsController {
     }
 
     private void bookPack() {
-        showInfo("Booking functionality - to be implemented");
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                getClass().getResource("/fxml/user/dialogs/BookingDialog.fxml")
+            );
+            javafx.scene.control.ScrollPane dialogContent = loader.load();
+            UserPacksBookingDialogController controller = loader.getController();
+            controller.setPackData(currentPack);
+
+            javafx.stage.Stage dialogStage = new javafx.stage.Stage();
+            dialogStage.setTitle("Book " + currentPack.getTitle());
+            dialogStage.initModality(javafx.stage.Modality.WINDOW_MODAL);
+            dialogStage.setScene(new javafx.scene.Scene(dialogContent, 650, 700));
+            dialogStage.showAndWait();
+
+            if (controller.isBookingConfirmed()) {
+                // Refresh loyalty display (user earned points)
+                calculatePricing();
+            }
+        } catch (Exception e) {
+            showError("Failed to open booking dialog: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void showInfo(String message) {

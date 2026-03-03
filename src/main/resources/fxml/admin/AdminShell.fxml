@@ -122,6 +122,9 @@
                                 <Button fx:id="btnManageOffers" text="Manage Offers" styleClass="menu-item"/>
                                 <Button fx:id="btnManageCategories" text="Manage Categories" styleClass="menu-item"/>
                                 <Button fx:id="btnLoyaltyPoints" text="Loyalty Points" styleClass="menu-item"/>
+                                <Button fx:id="btnBookedPacks" text="Manage Bookings" styleClass="menu-item"/>
+
+
                             </VBox>
                         </VBox>
 

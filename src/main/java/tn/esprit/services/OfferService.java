@@ -30,8 +30,8 @@ public class OfferService implements ICRUD<Offer> {
         if (offer.getPackId() != null) pstm.setInt(5, offer.getPackId());
         else pstm.setNull(5, Types.INTEGER);
 
-        if (offer.getDestinationId() != null) pstm.setInt(6, offer.getDestinationId());
-        else pstm.setNull(6, Types.INTEGER);
+        if (offer.getDestinationId() != null) pstm.setLong(6, offer.getDestinationId());  // Fixed: Long
+        else pstm.setNull(6, Types.BIGINT);  // Fixed: BIGINT
 
         if (offer.getAccommodationId() != null) pstm.setInt(7, offer.getAccommodationId());
         else pstm.setNull(7, Types.INTEGER);
@@ -58,8 +58,8 @@ public class OfferService implements ICRUD<Offer> {
         if (offer.getPackId() != null) pstm.setInt(5, offer.getPackId());
         else pstm.setNull(5, Types.INTEGER);
 
-        if (offer.getDestinationId() != null) pstm.setInt(6, offer.getDestinationId());
-        else pstm.setNull(6, Types.INTEGER);
+        if (offer.getDestinationId() != null) pstm.setLong(6, offer.getDestinationId());  // Fixed: Long
+        else pstm.setNull(6, Types.BIGINT);  // Fixed: BIGINT
 
         if (offer.getAccommodationId() != null) pstm.setInt(7, offer.getAccommodationId());
         else pstm.setNull(7, Types.INTEGER);
@@ -109,11 +109,11 @@ public class OfferService implements ICRUD<Offer> {
     }
 
     // ---- Active offer for a specific destination ----
-    public Offer getActiveOfferByDestinationId(int destinationId) throws SQLException {
+    public Offer getActiveOfferByDestinationId(long destinationId) throws SQLException {  // Fixed: long parameter
         String req = "SELECT * FROM `offers` WHERE `destination_id` = ? AND `is_active` = TRUE "
                 + "AND CURDATE() BETWEEN `start_date` AND `end_date` LIMIT 1";
         PreparedStatement pstm = conx.prepareStatement(req);
-        pstm.setInt(1, destinationId);
+        pstm.setLong(1, destinationId);  // Fixed: setLong
         ResultSet res = pstm.executeQuery();
         if (res.next()) return mapRow(res);
         return null;
@@ -122,7 +122,7 @@ public class OfferService implements ICRUD<Offer> {
     private Offer mapRow(ResultSet res) throws SQLException {
         // Handle nullable FK columns
         Integer packId          = res.getObject("pack_id") != null ? res.getInt("pack_id") : null;
-        Integer destinationId   = res.getObject("destination_id") != null ? res.getInt("destination_id") : null;
+        Long destinationId      = res.getObject("destination_id") != null ? res.getLong("destination_id") : null;  // Fixed: Long
         Integer accommodationId = res.getObject("accommodation_id") != null ? res.getInt("accommodation_id") : null;
 
         return new Offer(
