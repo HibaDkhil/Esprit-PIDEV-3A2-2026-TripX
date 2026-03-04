@@ -702,11 +702,7 @@ public class AccommodationDetailsController {
 
     @FXML
     private void handleBlogNav(MouseEvent event) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Coming soon");
-        alert.setHeaderText(null);
-        alert.setContentText("Blog page coming soon!");
-        alert.showAndWait();
+        navigateTo("/fxml/user/blog.fxml");
     }
 
     @FXML
@@ -725,7 +721,11 @@ public class AccommodationDetailsController {
     }
 
     private void navigateTo(String fxmlPath) {
-        if (backToListButton == null || backToListButton.getScene() == null) return;
+        javafx.scene.Scene scene = null;
+        for (javafx.scene.Node n : new javafx.scene.Node[]{ backToListButton, titleLabel, detailsScrollPane }) {
+            if (n != null && n.getScene() != null) { scene = n.getScene(); break; }
+        }
+        if (scene == null) return;
         try {
             ensureCurrentUserLoaded();
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
@@ -747,16 +747,22 @@ public class AccommodationDetailsController {
                     profileController.setUser(currentUser);
                 } else if (targetController instanceof TransportUserInterfaceController transportController) {
                     transportController.setCurrentUser(currentUser);
+                } else if (targetController instanceof UserPacksOffersController packsOffersController) {
+                    packsOffersController.setCurrentUser(currentUser);
+                } else if (targetController instanceof BlogController blogController) {
+                    blogController.setUser(currentUser);
                 }
             }
 
-            Parent currentRoot = backToListButton.getScene().getRoot();
+            Parent currentRoot = scene.getRoot();
+            final javafx.scene.Scene sceneRef = scene;
+            final Parent rootRef = root;
             FadeTransition fadeOut = new FadeTransition(Duration.millis(140), currentRoot);
             fadeOut.setFromValue(1.0);
             fadeOut.setToValue(0.0);
             fadeOut.setOnFinished(ev -> {
-                backToListButton.getScene().setRoot(root);
-                FadeTransition fadeIn = new FadeTransition(Duration.millis(170), root);
+                sceneRef.setRoot(rootRef);
+                FadeTransition fadeIn = new FadeTransition(Duration.millis(170), rootRef);
                 fadeIn.setFromValue(0.0);
                 fadeIn.setToValue(1.0);
                 fadeIn.play();

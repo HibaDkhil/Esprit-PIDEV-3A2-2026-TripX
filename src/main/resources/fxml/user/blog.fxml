@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="tn.esprit.controllers.user.BlogController"
+      stylesheets="/css/style.css, /css/home.css, /css/transport-pastel.css, /css/blog.css"
+      style="-fx-background-color: #F8FAFC; -fx-font-family: 'Poppins', 'Inter', 'Segoe UI', 'Arial';"
+      spacing="0">
+
+    <!-- ========================= TOP NAV BAR (same as Home / Packs & Offers) ========================= -->
+    <HBox alignment="CENTER_LEFT" prefHeight="100.0" spacing="20.0" styleClass="top-bar">
+        <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" styleClass="top-logo">
+            <image>
+                <Image url="@../../images/logo.png" />
+            </image>
+        </ImageView>
+        <Region HBox.hgrow="ALWAYS" />
+        <HBox alignment="CENTER" spacing="25.0" styleClass="nav-links-container">
+            <Label onMouseClicked="#handleHomeNav" styleClass="nav-link" text="Home" />
+            <Label onMouseClicked="#handleDestinationsNav" styleClass="nav-link" text="Destinations" />
+            <Label onMouseClicked="#handleAccommodationsNav" styleClass="nav-link" text="Accommodations" />
+            <Label onMouseClicked="#handleActivitiesNav" styleClass="nav-link" text="Activities" />
+            <Label onMouseClicked="#handleTransportNav" styleClass="nav-link" text="Transport" />
+            <Label onMouseClicked="#handlePacksOffersNav" styleClass="nav-link" text="Packs &amp; Offers" />
+            <Label styleClass="nav-link" style="-fx-text-fill: #4FB3B5; -fx-underline: true; -fx-border-color: transparent transparent #4FB3B5 transparent; -fx-border-width: 0 0 2 0;" text="Blog" />
+        </HBox>
+        <Region HBox.hgrow="ALWAYS" />
+        <HBox alignment="CENTER" spacing="15.0">
+            <HBox alignment="CENTER" onMouseClicked="#handleProfileNav" spacing="10.0" styleClass="user-display-container" style="-fx-cursor: hand;">
+                <StackPane styleClass="home-avatar-circle" prefHeight="40" prefWidth="40" style="-fx-background-color: #4cccad; -fx-background-radius: 20; -fx-alignment: center;">
+                    <Label fx:id="navAvatarInitials" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;" text="" />
+                    <ImageView fx:id="navUserAvatarView" fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" visible="false" managed="false" />
+                </StackPane>
+                <Label fx:id="navUserNameLabel" styleClass="home-user-name" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" text="" />
+            </HBox>
+            <Button onAction="#handleMyBookingsNav" styleClass="profile-button" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 8 15;" text="My Bookings" />
+            <Button onAction="#handleLogout" styleClass="logout-button" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 8 15;" text="Logout" />
+        </HBox>
+    </HBox>
+
+    <!-- ========================= BLOG CONTENT (sidebar + center + right) ========================= -->
+    <HBox styleClass="app-root" spacing="0" VBox.vgrow="ALWAYS">
+        <!-- ========================= LEFT SIDEBAR ========================= -->
+        <!-- ✅ FIX: lock sidebar width so it never shrinks -->
+        <VBox fx:id="sidebar"
+              prefWidth="260" minWidth="260" maxWidth="260"
+              spacing="16"
+              styleClass="sidebar">
+            <Label text="Travelgram" styleClass="sidebar-brand"/>
+
+            <VBox spacing="10" alignment="CENTER" styleClass="profile-card">
+                <StackPane styleClass="avatar-ring">
+                    <Label fx:id="profileInitialsLabel" styleClass="profile-initials" text="?"/>
+                    <ImageView fx:id="profileImageView" fitWidth="84" fitHeight="84" preserveRatio="true" styleClass="avatar"/>
+                </StackPane>
+
+                <VBox alignment="CENTER" spacing="2">
+                    <Label fx:id="fullNameLabel" text="Full Name" styleClass="profile-name"/>
+                    <Label fx:id="usernameLabel" text="" styleClass="profile-username"/>
+                </VBox>
+
+                <HBox spacing="18" alignment="CENTER" styleClass="stats-row">
+                    <VBox alignment="CENTER">
+                        <Label fx:id="postsCountLabel" text="0" styleClass="stat-number"/>
+                        <Label text="Posts" styleClass="stat-label"/>
+                    </VBox>
+                    <VBox alignment="CENTER">
+                        <Label fx:id="followersCountLabel" text="0" styleClass="stat-number"/>
+                        <Label text="Followers" styleClass="stat-label"/>
+                    </VBox>
+                    <VBox alignment="CENTER">
+                        <Label fx:id="followingCountLabel" text="0" styleClass="stat-number"/>
+                        <Label text="Following" styleClass="stat-label"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <VBox spacing="8" styleClass="menu">
+                <Button text="🏠  Feed" onAction="#goFeed" styleClass="menu-btn"/>
+                <Button text="🔎  Explore" onAction="#goExplore" styleClass="menu-btn"/>
+                <Button text="📖  Stories" onAction="#goStories" styleClass="menu-btn"/>
+                <Button text="🔖  Saved Posts" onAction="#goSaved" styleClass="menu-btn"/>
+                <Button text="📊  My Activity" onAction="#goStats" styleClass="menu-btn"/>
+            </VBox>
+
+            <Pane VBox.vgrow="ALWAYS"/>
+        </VBox>
+
+        <!-- ========================= CENTER ========================= -->
+        <!-- ✅ FIX: allow center to shrink properly (prevents HBox layout weirdness) -->
+        <StackPane fx:id="centerRoot"
+                   HBox.hgrow="ALWAYS"
+                   minWidth="0"
+                   minHeight="0"
+                   styleClass="center-root">
+
+            <VBox fx:id="centerPane" spacing="16" styleClass="center-pane" minHeight="0">
+
+                <HBox spacing="12" alignment="CENTER_LEFT" styleClass="topbar">
+                    <TextField fx:id="searchField" promptText="Search posts or stories..." styleClass="search-input" HBox.hgrow="ALWAYS"/>
+                    <Button text="Search" onAction="#handleSearch" styleClass="ghost-btn"/>
+                    <Button text="+  Create new post" onAction="#handleShowCreatePost" styleClass="primary-btn"/>
+                    <Button text="+  Create new travel story" onAction="#handleShowCreateStory" styleClass="primary-btn"/>
+
+                </HBox>
+
+                <!-- Category / type filter chips -->
+                <HBox fx:id="filterChipsRow" spacing="8" alignment="CENTER_LEFT" styleClass="filter-chips-row">
+                    <Button fx:id="chipAll" text="All" styleClass="filter-chip" onAction="#filterFeedByChip"/>
+                    <Button fx:id="chipStory" text="Story" styleClass="filter-chip" onAction="#filterFeedByChip"/>
+                    <Button fx:id="chipReview" text="Review" styleClass="filter-chip" onAction="#filterFeedByChip"/>
+                    <Button fx:id="chipAdvice" text="Advice" styleClass="filter-chip" onAction="#filterFeedByChip"/>
+                    <Button fx:id="chipInquiry" text="Inquiry" styleClass="filter-chip" onAction="#filterFeedByChip"/>
+                    <Button fx:id="chipTravelStory" text="Travel Stories" styleClass="filter-chip" onAction="#filterFeedByChip"/>
+                </HBox>
+
+                <!-- Stories (Instagram bubbles row) -->
+                <VBox fx:id="storiesSection" spacing="10" styleClass="section">
+                    <HBox alignment="CENTER_LEFT">
+                        <Label text="Stories" styleClass="section-title"/>
+                        <Pane HBox.hgrow="ALWAYS"/>
+                        <Hyperlink text="Watch all" onAction="#handleWatchAllStories" styleClass="link"/>
+                    </HBox>
+
+                    <ScrollPane fx:id="storiesScroll"
+                                fitToHeight="true" hbarPolicy="AS_NEEDED" vbarPolicy="NEVER"
+                                styleClass="stories-scroll"
+                                prefHeight="150" minHeight="150" maxHeight="150"
+                                prefViewportHeight="130">
+                        <content>
+                            <HBox fx:id="storiesRow"
+                                  spacing="14"
+                                  alignment="CENTER_LEFT"
+                                  styleClass="stories-row"
+                                  prefHeight="110"
+                                  minHeight="110"
+                                  maxHeight="110"/>
+                        </content>
+                    </ScrollPane>
+                </VBox>
+
+                <StackPane fx:id="contentStack" VBox.vgrow="ALWAYS" styleClass="content-stack" minHeight="0">
+
+                    <ScrollPane fx:id="feedScroll" fitToWidth="true" prefHeight="0" minHeight="0" styleClass="feed-scroll">
+                        <content>
+                            <VBox fx:id="feedContainer" spacing="14" styleClass="feed-list"/>
+                        </content>
+                    </ScrollPane>
+
+                    <ScrollPane fx:id="myPostsScroll" fitToWidth="true" prefHeight="0" minHeight="0" styleClass="feed-scroll" visible="false" managed="false">
+                        <content>
+                            <VBox fx:id="myPostsContainer" spacing="14" styleClass="feed-list"/>
+                        </content>
+                    </ScrollPane>
+
+                    <ScrollPane fx:id="myStoriesScroll" fitToWidth="true" prefHeight="0" minHeight="0" styleClass="feed-scroll" visible="false" managed="false">
+                        <content>
+                            <VBox fx:id="myStoriesContainer" spacing="14" styleClass="feed-list"/>
+                        </content>
+                    </ScrollPane>
+
+                    <ScrollPane fx:id="savedScroll" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" prefHeight="0" minHeight="0" styleClass="feed-scroll saved-scroll" visible="false" managed="false">
+                        <content>
+                            <VBox fx:id="savedContainer" spacing="14" styleClass="feed-list"/>
+                        </content>
+                    </ScrollPane>
+
+                    <ScrollPane fx:id="statsScroll" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" prefHeight="0" minHeight="0" styleClass="feed-scroll stats-scroll" visible="false" managed="false">
+                        <content>
+                            <VBox fx:id="statsPageContainer" spacing="20" styleClass="stats-page"/>
+                        </content>
+                    </ScrollPane>
+                </StackPane>
+
+            </VBox>
+
+            <!-- ========================= MODALS ========================= -->
+            <Pane fx:id="modalDimmer" visible="false" managed="false" styleClass="modal-dimmer"/>
+
+            <!-- Create Post Modal -->
+            <VBox fx:id="createPostForm" visible="false" managed="false" spacing="8" maxWidth="580" maxHeight="420" prefHeight="400" styleClass="modal-card" StackPane.alignment="TOP_CENTER">
+                <StackPane.margin><Insets top="10"/></StackPane.margin>
+                <Label text="Create Post" styleClass="modal-title"/>
+                <TextField fx:id="postTitleField" promptText="Title" styleClass="modal-input"/>
+                <TextArea fx:id="postContentField" promptText="Content" prefRowCount="3" styleClass="modal-textarea"/>
+
+                <Label text="Photos" styleClass="section-title"/>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Button text="🖼  Choose Images" onAction="#handleChoosePostImage" styleClass="soft-btn"/>
+                    <Label fx:id="postImagesInfoLabel" text="No images selected" styleClass="muted"/>
+                    <Pane HBox.hgrow="ALWAYS"/>
+                </HBox>
+                <ScrollPane fitToWidth="true" prefViewportHeight="90" styleClass="thumbs-scroll">
+                    <content>
+                        <FlowPane fx:id="postImagesPreview" hgap="10" vgap="10" prefWrapLength="560" styleClass="thumbs-wrap"/>
+                    </content>
+                </ScrollPane>
+
+                <HBox spacing="10" alignment="CENTER_RIGHT">
+                    <Button text="Cancel" onAction="#handleCancelCreatePost" styleClass="ghost-btn"/>
+                    <Button text="Save Post" onAction="#handleCreatePost" styleClass="primary-btn"/>
+                </HBox>
+            </VBox>
+
+            <!-- ✅ Create Travel Story Modal (SUMMARY ONLY + MULTI PICS + STAR RATING) -->
+            <!-- ✅ FIXES inside this modal:
+                 - added missing fx:id="createStoryForm" (you had fx:id="")
+                 - removed duplicated Photos section + duplicated fx:ids (storyImagesInfoLabel/storyImagesPreview were repeated!)
+            -->
+            <!-- Create Travel Story: scroll + fixed footer so Save/Cancel always visible -->
+            <VBox fx:id="createStoryForm" visible="false" managed="false" spacing="0" maxWidth="680" maxHeight="520" prefHeight="500" styleClass="modal-card" StackPane.alignment="TOP_CENTER">
+                <StackPane.margin><Insets top="10"/></StackPane.margin>
+                <Label text="Create Travel Story" styleClass="modal-title"/>
+
+                <ScrollPane fitToWidth="true" prefViewportHeight="390" styleClass="modal-scroll" VBox.vgrow="ALWAYS">
+                    <content>
+                        <VBox spacing="8" styleClass="modal-scroll-content">
+                            <TextField fx:id="storyTitleField" promptText="Title" styleClass="modal-input"/>
+                            <HBox spacing="8" alignment="CENTER_LEFT">
+                                <ComboBox fx:id="storyCountryCombo" promptText="Destination (country)" HBox.hgrow="ALWAYS"/>
+                            </HBox>
+
+                            <HBox spacing="8" alignment="CENTER_LEFT">
+                                <Label text="Summary" styleClass="section-title"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Button fx:id="generateSummaryBtn" text="✨ Generate with AI" onAction="#handleGenerateStorySummary" styleClass="soft-btn"/>
+                            </HBox>
+                            <TextArea fx:id="storySummaryField" promptText="Summary (required) — use Generate with AI or write your own" prefRowCount="3" styleClass="modal-textarea"/>
+                            <TextArea fx:id="storyTipsField" promptText="Tips (optional)" prefRowCount="2" styleClass="modal-textarea"/>
+
+                            <Label text="Photos" styleClass="section-title"/>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button text="🖼  Choose Images" onAction="#handleChooseStoryImages" styleClass="soft-btn"/>
+                                <Label fx:id="storyImagesInfoLabel" text="No images selected" styleClass="muted"/>
+                                <Pane HBox.hgrow="ALWAYS"/>
+                            </HBox>
+                            <ScrollPane fitToWidth="true" prefViewportHeight="80" styleClass="thumbs-scroll">
+                                <content>
+                                    <FlowPane fx:id="storyImagesPreview" hgap="10" vgap="10" prefWrapLength="640" styleClass="thumbs-wrap"/>
+                                </content>
+                            </ScrollPane>
+
+                            <HBox spacing="12">
+                                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                    <Label text="Start date" styleClass="muted"/>
+                                    <DatePicker fx:id="storyStartDatePicker"/>
+                                </VBox>
+                                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                    <Label text="End date" styleClass="muted"/>
+                                    <DatePicker fx:id="storyEndDatePicker"/>
+                                </VBox>
+                            </HBox>
+
+                            <HBox spacing="12">
+                                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                    <Label text="Travel type" styleClass="muted"/>
+                                    <ChoiceBox fx:id="storyTravelTypeChoice"/>
+                                </VBox>
+                                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                    <Label text="Travel style" styleClass="muted"/>
+                                    <ChoiceBox fx:id="storyTravelStyleChoice"/>
+                                </VBox>
+                            </HBox>
+
+                            <HBox spacing="14" alignment="CENTER_LEFT">
+                                <Label text="Rating" styleClass="muted"/>
+                                <HBox fx:id="storyRatingStars" spacing="6" alignment="CENTER_LEFT"/>
+                                <CheckBox fx:id="storyWouldRecommendCheck" text="Would recommend" selected="true"/>
+                                <CheckBox fx:id="storyWouldGoAgainCheck" text="Would go again"/>
+                            </HBox>
+                        </VBox>
+                    </content>
+                </ScrollPane>
+
+                <HBox spacing="10" alignment="CENTER_RIGHT" styleClass="modal-footer">
+                    <Button text="Cancel" onAction="#handleCancelCreateStory" styleClass="ghost-btn"/>
+                    <Button text="Save Story" onAction="#handleCreateStory" styleClass="primary-btn"/>
+                </HBox>
+            </VBox>
+
+            <!-- Create Instagram Story Modal -->
+            <VBox fx:id="createInstaStoryForm" visible="false" managed="false" spacing="10" maxWidth="520" maxHeight="380" prefHeight="360" styleClass="modal-card" StackPane.alignment="TOP_CENTER">
+                <StackPane.margin><Insets top="10"/></StackPane.margin>
+                <Label text="Add Story" styleClass="modal-title"/>
+
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Button text="🖼  Choose Image" onAction="#handleChooseInstaStoryImage" styleClass="soft-btn"/>
+                    <Label fx:id="instaStoryImageNameLabel" text="No image selected" styleClass="muted"/>
+                    <Pane HBox.hgrow="ALWAYS"/>
+                </HBox>
+
+                <ImageView fx:id="instaStoryImagePreview" fitWidth="300" preserveRatio="true"/>
+                <TextField fx:id="instaStoryCaptionField" promptText="Caption (optional)" styleClass="modal-input"/>
+
+                <HBox spacing="10" alignment="CENTER_RIGHT">
+                    <Button text="Cancel" onAction="#handleCancelCreateInstaStory" styleClass="ghost-btn"/>
+                    <Button text="Post Story" onAction="#handleCreateInstaStory" styleClass="primary-btn"/>
+                </HBox>
+            </VBox>
+
+            <!-- Edit Post Modal (fixed height so Update always visible) -->
+            <VBox fx:id="editPostForm" visible="false" managed="false" spacing="8" maxWidth="580" maxHeight="420" prefHeight="400" styleClass="modal-card" StackPane.alignment="TOP_CENTER">
+                <StackPane.margin><Insets top="10"/></StackPane.margin>
+                <Label text="Edit Post" styleClass="modal-title"/>
+                <TextField fx:id="editPostTitleField" promptText="Title" styleClass="modal-input"/>
+                <TextArea fx:id="editPostContentField" promptText="Content" prefRowCount="3" styleClass="modal-textarea"/>
+
+                <Label text="Photos" styleClass="section-title"/>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Button text="🖼  Choose Images" onAction="#handleChoosePostImage" styleClass="soft-btn"/>
+                    <Label fx:id="editPostImagesInfoLabel" text="No images selected" styleClass="muted"/>
+                    <Pane HBox.hgrow="ALWAYS"/>
+                </HBox>
+                <ScrollPane fitToWidth="true" prefViewportHeight="90" styleClass="thumbs-scroll">
+                    <content>
+                        <FlowPane fx:id="editPostImagesPreview" hgap="10" vgap="10" prefWrapLength="560" styleClass="thumbs-wrap"/>
+                    </content>
+                </ScrollPane>
+
+                <HBox spacing="10" alignment="CENTER_RIGHT">
+                    <Button text="Cancel" onAction="#handleCancelEditPost" styleClass="ghost-btn"/>
+                    <Button text="Update Post" onAction="#handleUpdatePost" styleClass="primary-btn"/>
+                </HBox>
+            </VBox>
+
+            <!-- ✅ Edit Travel Story Modal: fixed height so Update/Cancel always visible -->
+            <VBox fx:id="editStoryForm" visible="false" managed="false" spacing="0" maxWidth="680" maxHeight="520" prefHeight="500" styleClass="modal-card" StackPane.alignment="TOP_CENTER">
+                <StackPane.margin><Insets top="10"/></StackPane.margin>
+                <Label text="Edit Travel Story" styleClass="modal-title"/>
+
+                <ScrollPane fitToWidth="true" prefViewportHeight="390" minViewportHeight="200" styleClass="modal-scroll" VBox.vgrow="ALWAYS">
+                    <content>
+                        <VBox spacing="8" styleClass="modal-scroll-content">
+                            <TextField fx:id="editStoryTitleField" promptText="Title" styleClass="modal-input"/>
+                            <HBox spacing="8" alignment="CENTER_LEFT">
+                                <ComboBox fx:id="editStoryCountryCombo" promptText="Destination (country)" HBox.hgrow="ALWAYS"/>
+                            </HBox>
+                            <TextField fx:id="editStoryDestinationField" promptText="Destination or location (optional)" styleClass="modal-input"/>
+
+                            <TextArea fx:id="editStorySummaryField" promptText="Summary (required)" prefRowCount="2" styleClass="modal-textarea"/>
+                            <TextArea fx:id="editStoryTipsField" promptText="Tips (optional)" prefRowCount="2" styleClass="modal-textarea"/>
+
+                            <Label text="Photos" styleClass="section-title"/>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button text="🖼  Choose Images" onAction="#handleChooseEditStoryImages" styleClass="soft-btn"/>
+                                <Label fx:id="editStoryImagesInfoLabel" text="No images selected" styleClass="muted"/>
+                                <Pane HBox.hgrow="ALWAYS"/>
+                            </HBox>
+                            <ScrollPane fitToWidth="true" prefViewportHeight="80" styleClass="thumbs-scroll">
+                                <content>
+                                    <FlowPane fx:id="editStoryImagesPreview" hgap="10" vgap="10" prefWrapLength="640" styleClass="thumbs-wrap"/>
+                                </content>
+                            </ScrollPane>
+
+                            <HBox spacing="12">
+                                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                    <Label text="Start date" styleClass="muted"/>
+                                    <DatePicker fx:id="editStoryStartDatePicker"/>
+                                </VBox>
+                                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                    <Label text="End date" styleClass="muted"/>
+                                    <DatePicker fx:id="editStoryEndDatePicker"/>
+                                </VBox>
+                            </HBox>
+
+                            <HBox spacing="12">
+                                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                    <Label text="Travel type" styleClass="muted"/>
+                                    <ChoiceBox fx:id="editStoryTravelTypeChoice"/>
+                                </VBox>
+                                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                    <Label text="Travel style" styleClass="muted"/>
+                                    <ChoiceBox fx:id="editStoryTravelStyleChoice"/>
+                                </VBox>
+                            </HBox>
+
+                            <HBox spacing="14" alignment="CENTER_LEFT">
+                                <Label text="Rating" styleClass="muted"/>
+                                <HBox fx:id="editStoryRatingStars" spacing="6" alignment="CENTER_LEFT"/>
+                                <CheckBox fx:id="editStoryWouldRecommendCheck" text="Would recommend"/>
+                                <CheckBox fx:id="editStoryWouldGoAgainCheck" text="Would go again"/>
+                            </HBox>
+                        </VBox>
+                    </content>
+                </ScrollPane>
+
+                <HBox spacing="10" alignment="CENTER_RIGHT" styleClass="modal-footer">
+                    <Button text="Cancel" onAction="#handleCancelEditStory" styleClass="ghost-btn"/>
+                    <Button text="Update Story" onAction="#handleUpdateStory" styleClass="primary-btn"/>
+                </HBox>
+            </VBox>
+
+            <StackPane.margin>
+                <Insets top="0" right="0" bottom="0" left="0"/>
+            </StackPane.margin>
+        </StackPane>
+
+        <!-- ========================= RIGHT PANEL ========================= -->
+        <!-- ✅ FIX: lock right pane width so it never shrinks -->
+        <VBox fx:id="rightPane"
+              prefWidth="260" minWidth="240" maxWidth="280"
+              spacing="14"
+              styleClass="right-pane">
+
+            <!-- Pending Reports badge (visible only to admins / moderators) -->
+            <VBox spacing="8" styleClass="side-card">
+                <HBox alignment="CENTER_LEFT" spacing="8">
+                    <Label text="Who to Follow" styleClass="side-title"/>
+                </HBox>
+                <VBox fx:id="suggestionsContainer" spacing="8"/>
+            </VBox>
+
+            <!-- Community Stats quick-glance -->
+            <VBox spacing="8" styleClass="side-card">
+                <Label text="Your Stats" styleClass="side-title"/>
+                <HBox spacing="16" alignment="CENTER">
+                    <VBox alignment="CENTER" spacing="2">
+                        <Label fx:id="statPostsLabel" text="0" styleClass="stat-number"/>
+                        <Label text="Posts" styleClass="stat-caption"/>
+                    </VBox>
+                    <VBox alignment="CENTER" spacing="2">
+                        <Label fx:id="statFollowersLabel" text="0" styleClass="stat-number"/>
+                        <Label text="Followers" styleClass="stat-caption"/>
+                    </VBox>
+                    <VBox alignment="CENTER" spacing="2">
+                        <Label fx:id="statFollowingLabel" text="0" styleClass="stat-number"/>
+                        <Label text="Following" styleClass="stat-caption"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <!-- Extended: Posts Created / Stories Created -->
+            <VBox spacing="8" styleClass="side-card">
+                <Label text="Created" styleClass="side-title"/>
+                <HBox spacing="12" alignment="CENTER">
+                    <VBox alignment="CENTER" spacing="2" styleClass="stat-card-pastel">
+                        <Label fx:id="statPostsCreatedLabel" text="0" styleClass="stat-big-number"/>
+                        <Label text="Posts" styleClass="stat-caption"/>
+                    </VBox>
+                    <VBox alignment="CENTER" spacing="2" styleClass="stat-card-pastel">
+                        <Label fx:id="statStoriesCreatedLabel" text="0" styleClass="stat-big-number"/>
+                        <Label text="Stories" styleClass="stat-caption"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <!-- Peak Posting Hours -->
+            <VBox fx:id="peakHoursCard" spacing="8" styleClass="side-card">
+                <Label text="Peak Posting Hours" styleClass="side-title"/>
+                <VBox fx:id="peakHoursChartContainer" minHeight="120" prefHeight="140"/>
+            </VBox>
+
+            <Pane VBox.vgrow="ALWAYS"/>
+
+            <VBox spacing="6" styleClass="side-card">
+                <Label text="TripX Community" styleClass="side-title"/>
+                <Label text="Connect, share, and explore together." styleClass="muted" wrapText="true"/>
+            </VBox>
+        </VBox>
+
+    </HBox>
+</VBox>

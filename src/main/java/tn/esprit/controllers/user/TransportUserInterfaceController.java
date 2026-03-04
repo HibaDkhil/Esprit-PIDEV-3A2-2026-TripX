@@ -276,7 +276,7 @@ public class TransportUserInterfaceController {
 
     @FXML
     private void handleBlogNav(MouseEvent event) {
-        showAlert("Blog page coming soon!");
+        navigateTo("/fxml/user/blog.fxml");
     }
 
     @FXML
@@ -330,6 +330,8 @@ public class TransportUserInterfaceController {
                     ((ProfileController) controller).setUser(currentUser);
                 } else if (controller instanceof UserPacksOffersController) {
                     ((UserPacksOffersController) controller).setCurrentUser(currentUser);
+                } else if (controller instanceof BlogController) {
+                    ((BlogController) controller).setUser(currentUser);
                 }
             }
 

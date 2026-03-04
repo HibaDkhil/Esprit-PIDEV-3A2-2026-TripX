@@ -43,10 +43,13 @@ public class ProfileController {
     @FXML private Button btnPersonalInfo;
     @FXML private Button btnPreferences;
     @FXML private Button btnSecurity;
-    @FXML private Button btnNotifications; // Renamed display to "Your Activity" in FXML
-    @FXML private Button btnFavorites;
-    @FXML private Button btnHistory;
+    @FXML private Button btnNotifications;
     @FXML private Button btnBookings;
+
+    // Sidebar user card
+    @FXML private Label sidebarAvatarInitials;
+    @FXML private Label sidebarUserName;
+    @FXML private Label sidebarUserEmail;
 
     // Personal Info Fields
     @FXML private TextField firstNameField;
@@ -125,8 +128,6 @@ public class ProfileController {
             securityView.setManaged(false);
         }
         if (btnPersonalInfo != null) setActiveButton(btnPersonalInfo);
-        if (btnFavorites != null) btnFavorites.setOnAction(e -> showToast("Favorites page is coming soon."));
-        if (btnHistory != null) btnHistory.setOnAction(e -> showToast("Recently viewed page is coming soon."));
         if (btnBookings != null) btnBookings.setOnAction(e -> openMyBookings());
 
         // Fallback for navigation paths that don't explicitly pass User object.
@@ -180,8 +181,22 @@ public class ProfileController {
             }
         }
 
+        // Update sidebar user card
+        updateSidebarUserCard();
+
         // Initialize avatar selection
         initializeAvatarSelection();
+    }
+
+    private void updateSidebarUserCard() {
+        if (currentUser == null) return;
+        String firstName = currentUser.getFirstName() != null ? currentUser.getFirstName() : "";
+        String lastName  = currentUser.getLastName()  != null ? currentUser.getLastName()  : "";
+        String initials  = (firstName.isEmpty() ? "U" : firstName.substring(0, 1).toUpperCase())
+                         + (lastName.isEmpty()  ? ""  : lastName.substring(0, 1).toUpperCase());
+        if (sidebarAvatarInitials != null) sidebarAvatarInitials.setText(initials);
+        if (sidebarUserName != null)       sidebarUserName.setText(firstName + " " + lastName);
+        if (sidebarUserEmail != null)      sidebarUserEmail.setText(currentUser.getEmail() != null ? currentUser.getEmail() : "");
     }
 
     private void loadUserPreferences() {
@@ -318,7 +333,7 @@ public class ProfileController {
     }
 
     private void setActiveButton(Button activeButton) {
-        Button[] railButtons = {btnPersonalInfo, btnPreferences, btnSecurity, btnNotifications, btnFavorites, btnHistory, btnBookings};
+        Button[] railButtons = {btnPersonalInfo, btnPreferences, btnSecurity, btnNotifications, btnBookings};
         for (Button btn : railButtons) {
             if (btn != null) {
                 btn.getStyleClass().removeAll("rail-item-active");

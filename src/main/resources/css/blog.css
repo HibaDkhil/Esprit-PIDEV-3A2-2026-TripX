@@ -1,0 +1,970 @@
+/* ========== MODERN PASTEL BLOG THEME ========== */
+.app-root {
+    -fx-background-color: linear-gradient(to bottom, #FDF2F8 0%, #FCE7F3 8%, #FBCFE8 20%, #F5F3FF 45%, #EDE9FE 70%, #E0E7FF 100%);
+}
+
+/* Sidebar - pastel */
+.sidebar {
+    -fx-background-color: linear-gradient(to bottom, #FFFFFF 0%, #FDF4FF 30%, #FAF5FF 100%);
+    -fx-padding: 20 16;
+    -fx-border-color: rgba(192, 132, 252, 0.25);
+    -fx-border-width: 0 1 0 0;
+    -fx-effect: dropshadow(gaussian, rgba(167, 139, 250, 0.12), 20, 0, -2, 0);
+}
+
+.sidebar-brand {
+    -fx-font-size: 22px;
+    -fx-font-weight: 900;
+    -fx-text-fill: linear-gradient(to right, #7C3AED, #DB2777);
+}
+
+.profile-card {
+    -fx-background-color: linear-gradient(135deg, #FFFFFF 0%, #FDF4FF 50%, #F5F3FF 100%);
+    -fx-background-radius: 22;
+    -fx-padding: 20;
+    -fx-border-color: rgba(196, 181, 253, 0.5);
+    -fx-border-radius: 22;
+    -fx-effect: dropshadow(gaussian, rgba(167, 139, 250, 0.15), 18, 0, 0, 6);
+}
+
+.avatar-ring {
+    -fx-background-radius: 999;
+    -fx-padding: 4;
+    -fx-background-color: linear-gradient(135deg, #A78BFA, #F472B6);
+}
+
+.profile-initials {
+    -fx-font-size: 28px;
+    -fx-font-weight: 900;
+    -fx-text-fill: white;
+}
+
+.profile-name {
+    -fx-font-size: 15px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #0f172a;
+}
+
+.profile-username {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748b;
+}
+
+.stat-number {
+    -fx-font-size: 15px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #0f172a;
+}
+
+.stat-label {
+    -fx-font-size: 11px;
+    -fx-text-fill: #64748b;
+}
+
+.stat-caption {
+    -fx-font-size: 11px;
+    -fx-text-fill: #64748b;
+}
+
+.menu-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #334155;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-padding: 12 14;
+    -fx-background-radius: 14;
+    -fx-alignment: CENTER_LEFT;
+    -fx-cursor: hand;
+}
+
+.menu-btn:hover {
+    -fx-background-color: linear-gradient(to right, rgba(109, 131, 242, 0.08), rgba(76, 204, 173, 0.06));
+    -fx-text-fill: #4F46E5;
+}
+
+/* Center */
+.center-pane {
+    -fx-padding: 24 28;
+}
+
+.topbar {
+    -fx-padding: 8 0 12 0;
+    -fx-spacing: 12;
+}
+
+/* Filter chips - pastel */
+.filter-chips-row {
+    -fx-padding: 6 0 10 0;
+    -fx-spacing: 8;
+}
+
+.filter-chip {
+    -fx-background-radius: 20;
+    -fx-padding: 8 16;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+    -fx-background-color: rgba(167, 139, 250, 0.2);
+    -fx-text-fill: #6D28D9;
+    -fx-font-weight: 600;
+}
+
+.filter-chip:hover {
+    -fx-background-color: rgba(167, 139, 250, 0.35);
+}
+
+.search-input {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    -fx-padding: 12 18;
+    -fx-border-color: rgba(109, 131, 242, 0.2);
+    -fx-border-radius: 16;
+    -fx-font-size: 13px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 6, 0, 0, 2);
+}
+
+.search-input:focused {
+    -fx-border-color: #6D83F2;
+    -fx-effect: dropshadow(gaussian, rgba(109,131,242,0.15), 8, 0, 0, 2);
+}
+
+.primary-btn {
+    -fx-background-color: linear-gradient(to right, #A78BFA, #F472B6);
+    -fx-text-fill: white;
+    -fx-font-weight: 700;
+    -fx-font-size: 13px;
+    -fx-background-radius: 20;
+    -fx-padding: 10 20;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(167, 139, 250, 0.4), 8, 0, 0, 2);
+}
+
+.primary-btn:hover {
+    -fx-background-color: linear-gradient(to right, #8B5CF6, #EC4899);
+    -fx-effect: dropshadow(gaussian, rgba(244, 114, 182, 0.45), 10, 0, 0, 3);
+}
+
+.ghost-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #0A153A;
+    -fx-font-weight: 700;
+    -fx-font-size: 13px;
+    -fx-padding: 10 16;
+    -fx-background-radius: 20;
+    -fx-cursor: hand;
+    -fx-border-color: rgba(109,131,242,0.3);
+    -fx-border-radius: 20;
+    -fx-border-width: 1;
+}
+
+.ghost-btn:hover {
+    -fx-background-color: rgba(109,131,242,0.08);
+    -fx-border-color: #6D83F2;
+}
+
+.soft-btn {
+    -fx-background-color: rgba(109,131,242,0.12);
+    -fx-text-fill: #4F46E5;
+    -fx-font-weight: 700;
+    -fx-font-size: 13px;
+    -fx-background-radius: 20;
+    -fx-padding: 10 16;
+    -fx-cursor: hand;
+    -fx-border-color: rgba(109,131,242,0.3);
+    -fx-border-radius: 20;
+    -fx-border-width: 1;
+}
+
+.soft-btn:hover {
+    -fx-background-color: rgba(109,131,242,0.2);
+    -fx-border-color: #6D83F2;
+}
+
+.section-title {
+    -fx-font-size: 17px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #0f172a;
+}
+
+.section {
+    -fx-padding: 4 0 8 0;
+}
+
+.link {
+    -fx-text-fill: #6D83F2;
+    -fx-font-weight: 700;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+}
+
+.link:hover {
+    -fx-text-fill: #4F46E5;
+}
+
+/* Stories row */
+.stories-row {
+    -fx-padding: 10 12 12 12;
+    -fx-min-height: 118;
+    -fx-pref-height: 118;
+    -fx-max-height: 118;
+    -fx-spacing: 16;
+}
+
+.stories-scroll {
+    -fx-background-color: transparent;
+}
+.stories-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.story-tile {
+    -fx-padding: 0 2;
+}
+
+/* Story bubble - colored gradient rings */
+.story-bubble {
+    -fx-min-width: 80;
+    -fx-min-height: 80;
+    -fx-max-width: 80;
+    -fx-max-height: 80;
+    -fx-background-radius: 999;
+    -fx-padding: 3;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 8, 0, 0, 2);
+}
+
+.story-bubble-color-0 { -fx-background-color: linear-gradient(to bottom right, #F58529, #DD2A7B, #8134AF); }
+.story-bubble-color-1 { -fx-background-color: linear-gradient(to bottom right, #515BD4, #8134AF, #DD2A7B); }
+.story-bubble-color-2 { -fx-background-color: linear-gradient(to bottom right, #F093FB, #F5576C); }
+.story-bubble-color-3 { -fx-background-color: linear-gradient(to bottom right, #4FACFE, #00F2FE); }
+.story-bubble-color-4 { -fx-background-color: linear-gradient(to bottom right, #43E97B, #38F9D7); }
+.story-bubble-color-5 { -fx-background-color: linear-gradient(to bottom right, #FA7091, #FEE140); }
+.story-bubble-color-6 { -fx-background-color: linear-gradient(to bottom right, #667EEA, #764BA2); }
+.story-bubble-color-7 { -fx-background-color: linear-gradient(to bottom right, #6D83F2, #4CCCAD); }
+
+.story-bubble-add {
+    -fx-background-color: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+    -fx-border-color: #94a3b8;
+    -fx-border-width: 2;
+    -fx-border-radius: 999;
+}
+
+.story-image-wrapper {
+    -fx-background-color: white;
+    -fx-background-radius: 999;
+    -fx-padding: 3;
+}
+
+.story-image-wrapper-add {
+    -fx-background-color: white;
+    -fx-background-radius: 999;
+    -fx-padding: 4;
+}
+
+.story-add-plus {
+    -fx-font-size: 28px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #6D83F2;
+}
+
+.story-image {
+    -fx-fit-width: 68;
+    -fx-fit-height: 68;
+}
+
+.story-bubble-username {
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #334155;
+    -fx-alignment: CENTER;
+}
+
+.story-time-pill {
+    -fx-background-color: rgba(0,0,0,0.6);
+    -fx-text-fill: white;
+    -fx-font-size: 9px;
+    -fx-font-weight: 800;
+    -fx-padding: 3 8;
+    -fx-background-radius: 999;
+}
+
+.story-mini-avatar {
+    -fx-min-width: 18;
+    -fx-min-height: 18;
+    -fx-background-radius: 999;
+    -fx-background-color: #E2E8F0;
+    -fx-border-color: white;
+    -fx-border-width: 2;
+    -fx-border-radius: 999;
+}
+
+.story-view-username {
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: 900;
+}
+
+.story-view-expiry {
+    -fx-text-fill: rgba(255,255,255,0.85);
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+}
+
+/* Chips */
+.chip {
+    -fx-background-color: white;
+    -fx-text-fill: #111827;
+    -fx-font-weight: 700;
+    -fx-background-radius: 999;
+    -fx-border-color: #EEF0F3;
+    -fx-border-radius: 999;
+    -fx-padding: 6 12;
+    -fx-cursor: hand;
+}
+
+.chip:selected {
+    -fx-background-color: #111827;
+    -fx-text-fill: white;
+    -fx-border-color: #111827;
+}
+
+/* Feed scroll/list - min-height 0 so content can scroll when taller than viewport */
+.feed-scroll {
+    -fx-background-color: transparent;
+    -fx-min-height: 0;
+}
+
+.feed-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.feed-list {
+    -fx-padding: 8 0 16 0;
+    -fx-spacing: 18;
+}
+
+.content-stack {
+    -fx-background-color: transparent;
+    -fx-min-height: 0;
+}
+
+.center-root {
+    -fx-background-color: transparent;
+}
+
+.combo-box .list-cell {
+    -fx-padding: 4 8;
+}
+
+.post-card {
+    -fx-background-color: linear-gradient(to bottom, #FFFFFF 0%, #FDF4FF 15%, #F5F3FF 100%);
+    -fx-background-radius: 24;
+    -fx-padding: 20 20 18 20;
+    -fx-border-color: rgba(196, 181, 253, 0.4);
+    -fx-border-radius: 24;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(167, 139, 250, 0.12), 20, 0, 0, 6);
+}
+
+.post-card:hover {
+    -fx-border-color: rgba(167, 139, 250, 0.6);
+    -fx-effect: dropshadow(gaussian, rgba(196, 181, 253, 0.25), 24, 0, 0, 8);
+}
+
+/* Right panel - pastel */
+.right-pane {
+    -fx-background-color: linear-gradient(to bottom, rgba(253,242,248,0.9) 0%, rgba(245,243,255,0.9) 100%);
+    -fx-padding: 20 16;
+    -fx-border-color: rgba(196, 181, 253, 0.3);
+    -fx-border-width: 0 0 0 1;
+}
+
+.side-card {
+    -fx-background-color: linear-gradient(135deg, #FFFFFF 0%, #FDF4FF 30%, #F5F3FF 100%);
+    -fx-background-radius: 22;
+    -fx-padding: 16;
+    -fx-border-color: rgba(196, 181, 253, 0.35);
+    -fx-border-radius: 22;
+    -fx-effect: dropshadow(gaussian, rgba(167, 139, 250, 0.1), 12, 0, 0, 4);
+}
+
+.stat-card-pastel {
+    -fx-background-color: rgba(253, 224, 71, 0.2);
+    -fx-background-radius: 16;
+    -fx-padding: 10 14;
+    -fx-border-color: rgba(250, 204, 21, 0.4);
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+}
+
+.stat-big-number {
+    -fx-font-size: 22px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #7C3AED;
+}
+
+.peak-hours-chart {
+    -fx-background-color: transparent;
+}
+.peak-hours-chart .chart-plot-background {
+    -fx-background-color: rgba(233, 213, 255, 0.2);
+    -fx-background-radius: 12;
+}
+.peak-hours-chart .bar-chart-bar,
+.peak-hours-chart .chart-bar,
+.peak-hours-chart .default-color0.chart-bar {
+    -fx-background-color: #C4B5FD;
+    -fx-background-radius: 4 4 0 0;
+    -fx-bar-fill: #A78BFA;
+}
+
+.side-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #111827;
+}
+
+.side-name {
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #111827;
+}
+
+.muted {
+    -fx-text-fill: #6B7280;
+    -fx-font-size: 12px;
+}
+
+.badge {
+    -fx-background-color: #EEF2FF;
+    -fx-text-fill: #4338CA;
+    -fx-font-weight: 800;
+    -fx-padding: 2 8;
+    -fx-background-radius: 999;
+}
+
+.count-pill {
+    -fx-background-color: linear-gradient(to right, rgba(109,131,242,0.12), rgba(76,204,173,0.12));
+    -fx-text-fill: #0A153A;
+    -fx-font-weight: 800;
+    -fx-font-size: 11px;
+    -fx-padding: 4 10;
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(109,131,242,0.25);
+    -fx-border-radius: 999;
+    -fx-border-width: 1;
+}
+
+.mini-avatar {
+    -fx-min-width: 34;
+    -fx-min-height: 34;
+    -fx-background-radius: 999;
+    -fx-background-color: #E5E7EB;
+}
+
+.mini-primary {
+    -fx-background-color: linear-gradient(to right, #6D83F2, #4CCCAD);
+    -fx-text-fill: white;
+    -fx-font-weight: 800;
+    -fx-font-size: 12px;
+    -fx-background-radius: 16;
+    -fx-padding: 6 14;
+    -fx-cursor: hand;
+}
+
+.mini-primary:hover {
+    -fx-background-color: linear-gradient(to right, #5a6fd8, #3db89a);
+}
+
+.mini-ghost {
+    -fx-background-color: transparent;
+    -fx-text-fill: #111827;
+    -fx-font-weight: 700;
+    -fx-background-radius: 12;
+    -fx-padding: 6 10;
+    -fx-cursor: hand;
+}
+
+.mini-ghost:hover {
+    -fx-background-color: #F3F4F6;
+}
+
+.mini-icon {
+    -fx-background-color: #EEF2FF;
+    -fx-text-fill: #4338CA;
+    -fx-font-weight: 900;
+    -fx-background-radius: 999;
+    -fx-padding: 6 10;
+    -fx-cursor: hand;
+}
+
+.mini-icon:hover {
+    -fx-background-color: #E0E7FF;
+}
+
+/* Action row buttons (Like, Comment, Share, Save) - match packs/offers */
+.action-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #0A153A;
+    -fx-font-weight: 700;
+    -fx-font-size: 12px;
+    -fx-padding: 8 14;
+    -fx-background-radius: 14;
+    -fx-cursor: hand;
+}
+
+.action-btn:hover {
+    -fx-background-color: rgba(109,131,242,0.1);
+    -fx-text-fill: #6D83F2;
+}
+
+/* Action row (Like, Comment, Share, Save) */
+.action-row {
+    -fx-padding: 12 0 0 0;
+    -fx-border-color: linear-gradient(to right, transparent, rgba(109,131,242,0.12), transparent);
+    -fx-border-width: 1 0 0 0;
+    -fx-spacing: 14;
+}
+
+.action-row-btn {
+    -fx-background-radius: 18;
+    -fx-padding: 6 12;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+    -fx-font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", "Segoe UI", system-ui, sans-serif;
+}
+
+.action-row-btn:hover {
+    -fx-background-color: rgba(109,131,242,0.08);
+    -fx-text-fill: #6D83F2;
+}
+
+.react-btn:hover {
+    -fx-text-fill: #6D83F2;
+}
+
+/* Context menu for reactions - modern, large emojis */
+.react-context-menu {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 16;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 16, 0, 0, 6);
+    -fx-padding: 8 4;
+    -fx-border-color: rgba(109,131,242,0.15);
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+}
+
+.react-context-menu .menu-item,
+.react-menu-item {
+    -fx-padding: 12 20;
+    -fx-background-radius: 12;
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+    -fx-cursor: hand;
+    -fx-font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", "Segoe UI", system-ui, sans-serif;
+}
+
+.react-context-menu .menu-item:hover,
+.react-context-menu .menu-item:focused {
+    -fx-background-color: linear-gradient(to right, rgba(109,131,242,0.12), rgba(76,204,173,0.08));
+}
+
+/* Comment section */
+.comment-toggle {
+    -fx-text-fill: #6D83F2;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-cursor: hand;
+}
+
+.comment-toggle:hover {
+    -fx-text-fill: #4F46E5;
+}
+
+.comment-send-btn {
+    -fx-background-color: linear-gradient(to right, #6D83F2, #4CCCAD);
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-padding: 8 18;
+    -fx-background-radius: 14;
+    -fx-cursor: hand;
+}
+
+.comment-send-btn:hover {
+    -fx-opacity: 0.95;
+}
+
+.comment-reply-btn {
+    -fx-background-color: #334155;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-padding: 6 14;
+    -fx-background-radius: 12;
+    -fx-cursor: hand;
+}
+
+.comment-reply-btn:hover {
+    -fx-background-color: #475569;
+}
+
+.comment-bubble {
+    -fx-background-color: linear-gradient(to bottom, #FDF2F8 0%, #FCE7F3 50%, #F5F3FF 100%);
+    -fx-background-radius: 16;
+    -fx-padding: 12 14;
+    -fx-border-color: rgba(244, 114, 182, 0.25);
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+}
+
+.comment-author {
+    -fx-font-weight: 800;
+    -fx-font-size: 13px;
+    -fx-text-fill: #0f172a;
+}
+
+.comment-body {
+    -fx-font-size: 13px;
+    -fx-text-fill: #334155;
+}
+
+/* Who to Follow / suggestion row */
+.suggestion-row {
+    -fx-padding: 8 10;
+    -fx-background-radius: 12;
+}
+
+.suggestion-row:hover {
+    -fx-background-color: rgba(248,250,252,0.9);
+    -fx-background-radius: 12;
+}
+
+.suggestion-name {
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+}
+
+.follow-btn {
+    -fx-background-color: linear-gradient(to right, #6D83F2, #4CCCAD);
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-padding: 6 16;
+    -fx-background-radius: 20;
+    -fx-cursor: hand;
+}
+
+.follow-btn:hover {
+    -fx-opacity: 0.92;
+}
+
+.follow-btn-active {
+    -fx-background-color: #e2e8f0;
+    -fx-text-fill: #64748b;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-padding: 6 14;
+    -fx-background-radius: 20;
+    -fx-cursor: hand;
+}
+
+.follow-btn-active:hover {
+    -fx-background-color: #f1f5f9;
+    -fx-text-fill: #475569;
+}
+
+/* Modal */
+.modal-dimmer {
+    -fx-background-color: rgba(0,0,0,0.35);
+}
+
+.modal-card {
+    -fx-background-color: white;
+    -fx-background-radius: 20;
+    -fx-padding: 18;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 30, 0.2, 0, 10);
+}
+
+.modal-scroll {
+    -fx-background-color: transparent;
+    -fx-background-radius: 12;
+}
+.modal-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.modal-scroll-content {
+    -fx-padding: 4 0 8 0;
+}
+
+.stats-page {
+    -fx-padding: 16 20 48 20;
+    -fx-background-color: transparent;
+}
+
+.stats-scroll,
+.saved-scroll {
+    -fx-fit-to-height: false;
+    -fx-min-height: 0;
+    -fx-background-color: transparent;
+}
+
+.saved-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.stats-cards-row {
+    -fx-padding: 8 0 16 0;
+}
+
+/* Pastel stat cards on My Activity */
+.stats-page .stat-card {
+    -fx-background-radius: 18;
+    -fx-padding: 18 20;
+    -fx-min-width: 110;
+}
+
+.modal-footer {
+    -fx-padding: 16 0 0 0;
+    -fx-border-color: rgba(0,0,0,0.08);
+    -fx-border-width: 1 0 0 0;
+}
+
+.modal-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #111827;
+}
+
+.modal-input, .modal-textarea {
+    -fx-background-color: white;
+    -fx-background-radius: 14;
+    -fx-padding: 10 14;
+    -fx-border-color: #EEF0F3;
+    -fx-border-radius: 14;
+}
+
+.modal-input:focused, .modal-textarea:focused {
+    -fx-border-color: #8B5CF6;
+}
+/* =========================
+   Travel Story (improved UI)
+   ========================= */
+
+.story-card {
+    -fx-padding: 14 14 12 14;
+}
+
+.story-cover {
+    -fx-background-radius: 16;
+    -fx-background-color: white;
+    -fx-min-height: 220;
+    -fx-max-height: 220;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-overflow: hidden;
+}
+
+.story-cover-img {
+    -fx-background-radius: 16;
+}
+
+.story-cover-placeholder {
+    -fx-text-fill: #111827;
+    -fx-font-weight: 900;
+    -fx-font-size: 18px;
+    -fx-padding: 18;
+    -fx-opacity: 0.9;
+}
+
+.story-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #111827;
+}
+
+.story-stars {
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #111827;
+    -fx-opacity: 0.95;
+}
+
+.story-meta {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6b7280;
+    -fx-font-weight: 700;
+}
+
+.story-summary {
+    -fx-font-size: 13px;
+    -fx-text-fill: #111827;
+    -fx-opacity: 0.92;
+}
+
+.pill {
+    -fx-padding: 4 10;
+    -fx-background-radius: 999;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+}
+
+.pill-blue {
+    -fx-background-color: #eff6ff;
+    -fx-text-fill: #1d4ed8;
+}
+
+.pill-gray {
+    -fx-background-color: #f3f4f6;
+    -fx-text-fill: #374151;
+}
+
+.story-tips > .title {
+    -fx-font-weight: 900;
+    -fx-text-fill: #111827;
+}
+
+.story-tips-text {
+    -fx-font-size: 12px;
+    -fx-text-fill: #111827;
+    -fx-opacity: 0.9;
+}
+/* Clickable rating stars */
+.rating-star {
+    -fx-font-size: 18px;
+    -fx-text-fill: #d1d5db; /* gray star */
+    -fx-cursor: hand;
+    -fx-font-weight: 900;
+}
+
+.rating-star:filled {
+    -fx-text-fill: #f59e0b; /* gold star */
+}
+/* ---------- Thumbnails in Create/Edit modal ---------- */
+.thumbs-scroll {
+    -fx-background-color: transparent;
+    -fx-border-color: #EEF0F3;
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
+}
+
+.thumbs-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.thumbs-wrap {
+    -fx-padding: 10;
+}
+
+/* thumbnail card container */
+.thumb-card {
+    -fx-background-color: white;
+    -fx-border-color: #EEF0F3;
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
+    -fx-padding: 6;
+}
+
+/* image itself */
+.thumb-img {
+    -fx-fit-width: 150;
+    -fx-fit-height: 105;
+}
+
+/* remove button */
+.thumb-remove {
+    -fx-background-color: rgba(17,24,39,0.75);
+    -fx-text-fill: white;
+    -fx-font-weight: 900;
+    -fx-background-radius: 999;
+    -fx-padding: 2 7;
+    -fx-cursor: hand;
+}
+
+/* ---------- Travel Story card gallery section ---------- */
+.story-photos-title {
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #111827;
+    -fx-padding: 6 0 0 0;
+}
+
+.story-gallery-scroll {
+    -fx-background-color: transparent;
+}
+
+.story-gallery-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.story-gallery-row {
+    -fx-padding: 8 0 0 0;
+}
+
+.story-gallery-thumb {
+    -fx-background-color: white;
+    -fx-border-color: #EEF0F3;
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
+    -fx-padding: 6;
+}
+
+.story-gallery-thumb-img {
+    -fx-fit-width: 170;
+    -fx-fit-height: 120;
+}
+
+.story-gallery-grid {
+    -fx-padding: 8 0 0 0;
+}
+
+.story-gallery-tile {
+    -fx-background-color: white;
+    -fx-border-color: #EEF0F3;
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
+    -fx-padding: 6;
+}
+
+.story-gallery-single {
+    -fx-fit-width: 520;
+    -fx-fit-height: 300;
+}
+/* ===== MODAL COMPACT OVERRIDES ===== */
+.modal-card {
+    -fx-padding: 12;
+}
+
+.modal-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #111827;
+    -fx-padding: 0 0 6 0;
+}
+
+.modal-input, .modal-textarea {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-padding: 7 10;
+    -fx-border-color: #EEF0F3;
+    -fx-border-radius: 10;
+}
+
+.modal-scroll-content {
+    -fx-padding: 2 0 4 0;
+    -fx-spacing: 8;
+}
+
+.modal-footer {
+    -fx-padding: 8 0 0 0;
+    -fx-border-color: rgba(0,0,0,0.08);
+    -fx-border-width: 1 0 0 0;
+}
+
+.section-title {
+    -fx-font-size: 13px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #0f172a;
+}

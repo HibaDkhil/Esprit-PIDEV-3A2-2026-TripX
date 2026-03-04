@@ -1,305 +1,518 @@
-/* =========================================
-   PROFILE PAGE STYLES
-   ========================================= */
+/* ═══════════════════════════════════════════════════════
+   PROFILE PAGE — Modern Pastel Theme
+   Palette: teal #4CCCAD · indigo #6D83F2 · navy #0A4174
+   ═══════════════════════════════════════════════════════ */
 
+/* ─── Root ─── */
 .profile-root {
-    -fx-background-color: #F3F4F6;
-    /* Light Grey Background */
+    -fx-background-color: #F5F7FA;
+    -fx-font-family: 'Poppins', 'Inter', 'Segoe UI', 'Arial';
 }
 
-/* Left Rail */
+/* ═══════════════════════════════════════════════════════
+   SIDEBAR / LEFT RAIL
+   ═══════════════════════════════════════════════════════ */
+
 .profile-rail {
     -fx-background-color: white;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.05), 10, 0, 0, 0);
+    -fx-effect: dropshadow(gaussian, rgba(99,102,241,0.10), 18, 0, 2, 0);
+    -fx-border-color: transparent rgba(226,232,240,0.8) transparent transparent;
+    -fx-border-width: 0 1 0 0;
 }
 
-.rail-header {
-    -fx-text-fill: #9CA3AF;
-    -fx-font-size: 12px;
+/* Logo text */
+.rail-logo-text {
+    -fx-font-size: 20px;
     -fx-font-weight: bold;
-    -fx-padding: 10 0 5 0;
+    -fx-text-fill: #0A4174;
 }
 
+/* ── User Profile Card (top of sidebar) ── */
+.sidebar-user-card {
+    -fx-background-color: linear-gradient(to bottom right, #EEF2FF, #E8FAF8);
+    -fx-background-radius: 16;
+    -fx-padding: 20 14 20 14;
+    -fx-border-color: rgba(109,131,242,0.18);
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+}
+
+.sidebar-avatar-circle {
+    -fx-background-color: linear-gradient(to bottom right, #4CCCAD, #6D83F2);
+    -fx-background-radius: 32;
+    -fx-min-width: 64;
+    -fx-min-height: 64;
+    -fx-max-width: 64;
+    -fx-max-height: 64;
+    -fx-effect: dropshadow(gaussian, rgba(76,204,173,0.35), 12, 0, 0, 3);
+}
+
+.sidebar-avatar-initials {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.sidebar-user-name {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0A4174;
+}
+
+.sidebar-user-email {
+    -fx-font-size: 12px;
+    -fx-text-fill: #94A3B8;
+}
+
+/* ── Back button ── */
+.rail-back-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #64748B;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+    -fx-alignment: center-left;
+    -fx-padding: 8 10;
+    -fx-background-radius: 8;
+    -fx-border-color: transparent;
+}
+
+.rail-back-btn:hover {
+    -fx-background-color: #F1F5F9;
+    -fx-text-fill: #4CCCAD;
+}
+
+/* ── Section label ── */
+.rail-section-label {
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #CBD5E1;
+    -fx-letter-spacing: 1.5px;
+}
+
+/* ── Nav Items ── */
 .rail-item {
     -fx-background-color: transparent;
     -fx-alignment: center-left;
-    -fx-text-fill: #4B5563;
-    -fx-font-size: 15px;
-    /* Slightly larger for better clarity */
-    -fx-padding: 12 25;
-    /* More horizontal padding for wider sidebar */
+    -fx-text-fill: #475569;
+    -fx-font-size: 14px;
+    -fx-padding: 12 16;
     -fx-cursor: hand;
-    -fx-background-radius: 8;
+    -fx-background-radius: 10;
+    -fx-border-color: transparent;
+    -fx-graphic-text-gap: 10;
 }
 
 .rail-item:hover {
-    -fx-background-color: #F3F4F6;
+    -fx-background-color: #F8FAFF;
+    -fx-text-fill: #6D83F2;
+    -fx-border-color: transparent transparent transparent #6D83F2;
+    -fx-border-width: 0 0 0 3;
+    -fx-background-radius: 0 10 10 0;
 }
 
 .rail-item-active {
-    -fx-background-color: #EBF5FF;
+    -fx-background-color: linear-gradient(to right, rgba(76,204,173,0.10), rgba(109,131,242,0.07));
     -fx-alignment: center-left;
-    -fx-text-fill: #2563EB;
-    /* Blue */
-    -fx-font-size: 15px;
+    -fx-text-fill: #0A4174;
+    -fx-font-size: 14px;
     -fx-font-weight: bold;
-    -fx-padding: 12 25;
-    -fx-background-radius: 8;
-}
-
-.rail-back-button {
-    -fx-background-color: transparent;
-    -fx-text-fill: #6B7280;
-    -fx-font-size: 12px;
+    -fx-padding: 12 16;
     -fx-cursor: hand;
+    -fx-background-radius: 0 10 10 0;
+    -fx-border-color: transparent transparent transparent #4CCCAD;
+    -fx-border-width: 0 0 0 3;
 }
 
-.rail-back-button:hover {
-    -fx-underline: true;
+/* ── Separator ── */
+.rail-separator {
+    -fx-background-color: #E2E8F0;
+    -fx-padding: 6 0;
 }
 
-/* Page Typography */
+/* ═══════════════════════════════════════════════════════
+   MAIN CONTENT AREA
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Page typography ── */
 .page-title {
-    -fx-font-size: 24px;
+    -fx-font-size: 26px;
     -fx-font-weight: bold;
-    -fx-text-fill: #111827;
+    -fx-text-fill: #0A4174;
 }
 
 .page-subtitle {
     -fx-font-size: 14px;
-    -fx-text-fill: #6B7280;
+    -fx-text-fill: #94A3B8;
 }
 
-/* Cards */
-.white-card {
+/* ── Content Cards ── */
+.content-card {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    -fx-effect: dropshadow(gaussian, rgba(99,102,241,0.09), 14, 0, 0, 4);
+    -fx-padding: 26;
+    -fx-border-color: rgba(226,232,240,0.6);
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+}
+
+.card-section-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0A4174;
+}
+
+.card-section-hint {
+    -fx-font-size: 13px;
+    -fx-text-fill: #94A3B8;
+}
+
+/* ── Danger Card ── */
+.danger-card {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    -fx-effect: dropshadow(gaussian, rgba(239,68,68,0.08), 14, 0, 0, 4);
+    -fx-padding: 26;
+    -fx-border-color: rgba(239,68,68,0.20);
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+}
+
+.danger-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #DC2626;
+}
+
+/* ── Preference Cards ── */
+.pref-card {
     -fx-background-color: white;
     -fx-background-radius: 12;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.05), 5, 0, 0, 2);
-    -fx-padding: 24;
+    -fx-effect: dropshadow(gaussian, rgba(99,102,241,0.07), 10, 0, 0, 3);
+    -fx-padding: 16 18;
+    -fx-border-color: rgba(226,232,240,0.8);
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-cursor: default;
 }
 
-.card-header {
-    -fx-font-size: 18px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #111827;
+.pref-card:hover {
+    -fx-border-color: rgba(76,204,173,0.4);
+    -fx-effect: dropshadow(gaussian, rgba(76,204,173,0.14), 12, 0, 0, 3);
 }
 
-.card-subtitle {
+.pref-icon {
+    -fx-font-size: 22px;
+    -fx-min-width: 38;
+}
+
+.pref-title {
     -fx-font-size: 14px;
-    -fx-text-fill: #6B7280;
-}
-
-/* Avatars */
-.avatar-circle-large {
-    -fx-background-color: #E5E7EB;
-    -fx-background-radius: 50%;
-    -fx-min-width: 64px;
-    -fx-min-height: 64px;
-    -fx-max-width: 64px;
-    -fx-max-height: 64px;
-    -fx-alignment: center;
-}
-
-.avatar-initial {
-    -fx-font-size: 24px;
     -fx-font-weight: bold;
-    -fx-text-fill: #374151;
+    -fx-text-fill: #1E293B;
 }
 
-.avatar-caption {
+.pref-value {
     -fx-font-size: 12px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #374151;
+    -fx-text-fill: #94A3B8;
+    -fx-padding: 2 0 0 0;
 }
 
-.avatar-circle-add {
-    -fx-background-color: white;
-    -fx-border-color: #E5E7EB;
-    -fx-border-radius: 50%;
-    -fx-border-style: dashed;
-    -fx-min-width: 48px;
-    -fx-min-height: 48px;
-    -fx-max-width: 48px;
-    -fx-max-height: 48px;
-    -fx-alignment: center;
-    -fx-cursor: hand;
-}
+/* ═══════════════════════════════════════════════════════
+   FORM INPUTS
+   ═══════════════════════════════════════════════════════ */
 
-.avatar-circle-option {
-    -fx-background-radius: 50%;
-    -fx-min-width: 48px;
-    -fx-min-height: 48px;
-    -fx-max-width: 48px;
-    -fx-max-height: 48px;
-    -fx-cursor: hand;
-    -fx-border-color: transparent;
-    -fx-border-width: 2;
-}
-
-.avatar-circle-option:hover {
-    -fx-border-color: #2563EB;
-}
-
-/* Form Inputs */
 .input-label {
-    -fx-font-size: 14px;
-    -fx-text-fill: #374151;
+    -fx-font-size: 13px;
     -fx-font-weight: bold;
+    -fx-text-fill: #374151;
 }
 
 .modern-input {
-    -fx-background-color: white;
-    -fx-border-color: #D1D5DB;
-    -fx-border-radius: 6;
-    -fx-padding: 10;
+    -fx-background-color: #F8FAFC;
+    -fx-border-color: #E2E8F0;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 11 14;
     -fx-font-size: 14px;
-    -fx-text-fill: #111827;
+    -fx-text-fill: #1E293B;
+    -fx-prompt-text-fill: #CBD5E1;
 }
 
 .modern-input:focused {
-    -fx-border-color: #2563EB;
-    -fx-effect: dropshadow(three-pass-box, rgba(37, 99, 235, 0.1), 5, 0, 0, 0);
+    -fx-background-color: white;
+    -fx-border-color: #4CCCAD;
+    -fx-effect: dropshadow(gaussian, rgba(76,204,173,0.20), 8, 0, 0, 2);
 }
 
 .subtitle-label {
-    -fx-text-fill: #6B7280;
+    -fx-text-fill: #94A3B8;
     -fx-font-size: 12px;
 }
 
 .value-label {
-    -fx-text-fill: #111827;
+    -fx-text-fill: #374151;
     -fx-font-size: 12px;
     -fx-font-weight: bold;
 }
 
-/* Buttons */
-.save-button {
-    -fx-background-color: #2563EB;
-    /* Blue */
+/* ═══════════════════════════════════════════════════════
+   BUTTONS
+   ═══════════════════════════════════════════════════════ */
+
+/* Primary gradient button */
+.primary-btn {
+    -fx-background-color: linear-gradient(to right, #6D83F2, #4CCCAD);
     -fx-text-fill: white;
-    -fx-background-radius: 6;
-    -fx-padding: 10 20;
+    -fx-background-radius: 22;
+    -fx-padding: 11 26;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(109,131,242,0.28), 10, 0, 0, 3);
+}
+
+.primary-btn:hover {
+    -fx-background-color: linear-gradient(to right, #5A70E8, #3BBFA0);
+    -fx-effect: dropshadow(gaussian, rgba(109,131,242,0.40), 14, 0, 0, 4);
+}
+
+.primary-btn:pressed {
+    -fx-background-color: linear-gradient(to right, #4A5ED0, #2DAE8C);
+    -fx-effect: none;
+}
+
+/* Teal outline button */
+.teal-btn {
+    -fx-background-color: transparent;
+    -fx-border-color: #4CCCAD;
+    -fx-border-radius: 22;
+    -fx-background-radius: 22;
+    -fx-text-fill: #0D9488;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 10 22;
+    -fx-cursor: hand;
+}
+
+.teal-btn:hover {
+    -fx-background-color: #E0F7F4;
+    -fx-border-color: #0D9488;
+}
+
+/* Ghost / outline edit button */
+.ghost-btn {
+    -fx-background-color: transparent;
+    -fx-border-color: #E2E8F0;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-text-fill: #475569;
+    -fx-font-size: 13px;
+    -fx-padding: 6 16;
+    -fx-cursor: hand;
+}
+
+.ghost-btn:hover {
+    -fx-background-color: #F8FAFF;
+    -fx-border-color: #6D83F2;
+    -fx-text-fill: #6D83F2;
+}
+
+/* Delete / danger button */
+.delete-button {
+    -fx-background-color: transparent;
+    -fx-border-color: #FCA5A5;
+    -fx-border-radius: 22;
+    -fx-background-radius: 22;
+    -fx-text-fill: #DC2626;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 10 22;
+    -fx-cursor: hand;
+}
+
+.delete-button:hover {
+    -fx-background-color: #FEE2E2;
+    -fx-border-color: #DC2626;
+}
+
+/* Legacy aliases (keep for backwards compat) */
+.save-button {
+    -fx-background-color: linear-gradient(to right, #6D83F2, #4CCCAD);
+    -fx-text-fill: white;
+    -fx-background-radius: 22;
+    -fx-padding: 11 26;
     -fx-font-weight: bold;
     -fx-font-size: 14px;
     -fx-cursor: hand;
 }
 
 .save-button:hover {
-    -fx-background-color: #1D4ED8;
-    /* Darker blue on hover */
-}
-
-/* When active (handled via code changing style class or opacity, but let's define an active class) */
-.save-button-active {
-    -fx-background-color: #2563EB;
-    -fx-text-fill: white;
-    -fx-cursor: hand;
-}
-
-.save-button-active:hover {
-    -fx-background-color: #1D4ED8;
-}
-
-/* Settings Cards (Reuse or adapt) */
-.settings-card {
-    -fx-background-color: white;
-    -fx-background-radius: 8;
-    -fx-border-color: #E5E7EB;
-    -fx-padding: 15;
-}
-
-.settings-card-icon {
-    -fx-font-size: 24px;
-}
-
-.settings-card-title {
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #111827;
-}
-
-.settings-card-subtitle {
-    -fx-font-size: 12px;
-    -fx-text-fill: #6B7280;
+    -fx-background-color: linear-gradient(to right, #5A70E8, #3BBFA0);
 }
 
 .secondary-button {
     -fx-background-color: transparent;
-    -fx-border-color: #D1D5DB;
-    -fx-border-radius: 6;
-    -fx-text-fill: #374151;
-    -fx-padding: 5 12;
+    -fx-border-color: #E2E8F0;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-text-fill: #475569;
+    -fx-font-size: 13px;
+    -fx-padding: 6 16;
     -fx-cursor: hand;
 }
 
 .secondary-button:hover {
-    -fx-background-color: #F3F4F6;
+    -fx-background-color: #F8FAFF;
+    -fx-border-color: #6D83F2;
+    -fx-text-fill: #6D83F2;
 }
-
-/* =========================================
-   VALIDATION STYLES
-   ========================================= */
-
-.error-label {
-    -fx-text-fill: #DC2626;
-    -fx-font-size: 12px;
-    -fx-padding: 2 0 0 0;
-}
-
-.input-error {
-    -fx-border-color: #DC2626 !important;
-    -fx-border-width: 2px !important;
-    -fx-border-radius: 6px;
-}
-
-/* =========================================
-   DANGER ZONE STYLES
-   ========================================= */
-
-.card-header-danger {
-    -fx-font-size: 18px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #DC2626;
-    /* Red */
-}
-
-.delete-button {
-    -fx-background-color: transparent;
-    -fx-border-color: #DC2626;
-    -fx-border-radius: 6;
-    -fx-text-fill: #DC2626;
-    -fx-padding: 10 20;
-    -fx-font-weight: bold;
-    -fx-font-size: 14px;
-    -fx-cursor: hand;
-}
-
-.delete-button:hover {
-    -fx-background-color: #FEF2F2;
-    -fx-border-color: #B91C1C;
-    -fx-text-fill: #B91C1C;
-}
-
-.input-valid {
-    -fx-border-color: #10B981 !important;
-    -fx-border-width: 2px !important;
-    -fx-border-radius: 6px;
-}
-
-/* =========================================
-   EMAIL REPUTATION BUTTON
-   ========================================= */
 
 .check-email-button {
-    -fx-background-color: #0891B2;
-    -fx-text-fill: white;
-    -fx-background-radius: 6;
-    -fx-padding: 10 20;
+    -fx-background-color: transparent;
+    -fx-border-color: #4CCCAD;
+    -fx-border-radius: 22;
+    -fx-background-radius: 22;
+    -fx-text-fill: #0D9488;
     -fx-font-weight: bold;
     -fx-font-size: 14px;
+    -fx-padding: 10 22;
     -fx-cursor: hand;
 }
 
 .check-email-button:hover {
-    -fx-background-color: #0E7490;
+    -fx-background-color: #E0F7F4;
+}
+
+/* ═══════════════════════════════════════════════════════
+   AVATAR STYLES
+   ═══════════════════════════════════════════════════════ */
+
+.avatar-circle-large {
+    -fx-background-color: linear-gradient(to bottom right, #4CCCAD, #6D83F2);
+    -fx-background-radius: 32;
+    -fx-min-width: 64;
+    -fx-min-height: 64;
+    -fx-max-width: 64;
+    -fx-max-height: 64;
+    -fx-alignment: center;
+}
+
+.avatar-initial {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.avatar-caption {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748B;
+}
+
+.avatar-circle-add {
+    -fx-background-color: #F8FAFC;
+    -fx-border-color: #CBD5E1;
+    -fx-border-radius: 50%;
+    -fx-border-style: dashed;
+    -fx-min-width: 48;
+    -fx-min-height: 48;
+    -fx-max-width: 48;
+    -fx-max-height: 48;
+    -fx-alignment: center;
+    -fx-cursor: hand;
+}
+
+.avatar-circle-option {
+    -fx-background-radius: 50%;
+    -fx-min-width: 48;
+    -fx-min-height: 48;
+    -fx-max-width: 48;
+    -fx-max-height: 48;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-border-width: 2;
+}
+
+.avatar-circle-option:hover {
+    -fx-border-color: #4CCCAD;
+    -fx-effect: dropshadow(gaussian, rgba(76,204,173,0.35), 8, 0, 0, 2);
+}
+
+/* ═══════════════════════════════════════════════════════
+   VALIDATION
+   ═══════════════════════════════════════════════════════ */
+
+.error-label {
+    -fx-text-fill: #DC2626;
+    -fx-font-size: 12px;
+    -fx-padding: 3 0 0 2;
+}
+
+.input-error {
+    -fx-border-color: #FCA5A5 !important;
+    -fx-border-width: 2 !important;
+    -fx-background-color: #FFF5F5 !important;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+}
+
+.input-valid {
+    -fx-border-color: #4CCCAD !important;
+    -fx-border-width: 2 !important;
+    -fx-border-radius: 10;
+}
+
+/* ═══════════════════════════════════════════════════════
+   LEGACY CLASS ALIASES (keep controller compatible)
+   ═══════════════════════════════════════════════════════ */
+
+.white-card {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    -fx-effect: dropshadow(gaussian, rgba(99,102,241,0.09), 14, 0, 0, 4);
+    -fx-padding: 26;
+}
+
+.card-header {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0A4174;
+}
+
+.card-subtitle {
+    -fx-font-size: 13px;
+    -fx-text-fill: #94A3B8;
+}
+
+.card-header-danger {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #DC2626;
+}
+
+.settings-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(99,102,241,0.07), 10, 0, 0, 3);
+    -fx-padding: 16 18;
+    -fx-border-color: rgba(226,232,240,0.8);
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+}
+
+.settings-card-icon { -fx-font-size: 22px; }
+.settings-card-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1E293B;
+}
+.settings-card-subtitle {
+    -fx-font-size: 12px;
+    -fx-text-fill: #94A3B8;
+}
+
+.logo-text-small {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0A4174;
 }

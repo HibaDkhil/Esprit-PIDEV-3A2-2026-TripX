@@ -670,7 +670,7 @@ public class HomeController {
     // Top-bar navigation: Blog
     @FXML
     private void handleNavBlog() {
-        showAlert("Blog page coming soon!");
+        navigateToBlog();
     }
 
     @FXML
@@ -1589,43 +1589,27 @@ public class HomeController {
     /**
      * Navigate to Blog page
      */
-    /*
-    @FXML
     private void navigateToBlog() {
         try {
-            String path = "/fxml/user/user_blog.fxml";
-            System.out.println("🔍 Loading blog from: " + path);
-
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(path));
-
-            if (loader.getLocation() == null) {
-                System.err.println("❌ ERROR: File not found at " + path);
-                showAlert("Blog page not found!");
-                return;
-            }
-
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/user/blog.fxml"));
             Parent root = loader.load();
-            System.out.println("✅ Successfully loaded blog");
 
-            // Get controller and set user if needed
-            Object ctrl = loader.getController();
-            // TODO: Set user in blog controller when implemented
+            tn.esprit.controllers.user.BlogController ctrl = loader.getController();
+            if (ctrl != null && currentUser != null) {
+                ctrl.setUser(currentUser);
+            }
 
             Stage stage = getStage();
             if (stage != null) {
-                stage.setScene(new Scene(root, w, h));
-                System.out.println("✅ Navigated to blog page");
-            } else {
-                System.err.println("❌ ERROR: Stage is null");
+                double w = stage.getWidth();
+                double h = stage.getHeight();
+                stage.setScene(new javafx.scene.Scene(root, w, h));
             }
-
         } catch (IOException e) {
-            System.err.println("❌ IOException: " + e.getMessage());
             e.printStackTrace();
             showAlert("Could not load blog: " + e.getMessage());
         }
     }
-    */
 
 
     @FXML
@@ -1661,7 +1645,7 @@ public class HomeController {
 
     @FXML
     private void handleBlogNav(MouseEvent mouseEvent) {
-        showAlert("Blog page coming soon!");
+        navigateToBlog();
     }
 
     @FXML

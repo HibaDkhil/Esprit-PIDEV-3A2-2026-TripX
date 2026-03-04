@@ -8,10 +8,12 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
+import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import tn.esprit.entities.User;
 import tn.esprit.utils.SessionManager;
@@ -73,7 +75,7 @@ public class UserPacksOffersController {
         if (avatarInitials == null || currentUser == null) return;
         String avatarId = currentUser.getAvatarId();
         if (avatarId != null && avatarId.contains(":")) {
-            String[] parts = avatarId.split(":");
+            String[] parts = avatarId.split(":", 2);
             if (parts.length == 2 && "emoji".equals(parts[0])) {
                 avatarInitials.setText(parts[1]);
                 if (userAvatarView != null) {
@@ -90,6 +92,30 @@ public class UserPacksOffersController {
                         avatarInitials.setManaged(false);
                     }
                 } catch (Exception ignored) {}
+            } else if (parts.length == 2 && userAvatarView != null) {
+                // DiceBear-style avatar (e.g. avataaars:seed) — same as Home/Transport
+                String style = parts[0];
+                String seed = parts[1];
+                String avatarUrl = "https://api.dicebear.com/9.x/" + style + "/png?seed=" + seed + "&size=40&backgroundColor=4cccad";
+                ImageView finalView = userAvatarView;
+                Label finalInitials = avatarInitials;
+                new Thread(() -> {
+                    try {
+                        Image img = new Image(avatarUrl, 40, 40, true, true, true);
+                        Platform.runLater(() -> {
+                            if (finalView != null && !img.isError()) {
+                                finalView.setImage(img);
+                                finalView.setClip(new Circle(20, 20, 20));
+                                finalView.setVisible(true);
+                                finalView.setManaged(true);
+                                if (finalInitials != null) {
+                                    finalInitials.setVisible(false);
+                                    finalInitials.setManaged(false);
+                                }
+                            }
+                        });
+                    } catch (Exception ignored) {}
+                }).start();
             }
         }
     }
@@ -172,7 +198,7 @@ public class UserPacksOffersController {
 
     @FXML
     private void handleBlogNav(MouseEvent event) {
-        showAlert("Blog page coming soon!");
+        navigateTo("/fxml/user/blog.fxml");
     }
 
     @FXML
@@ -219,6 +245,8 @@ public class UserPacksOffersController {
                 } else if (controller instanceof UserBookingsController c) {
                     c.setCurrentUser(currentUser);
                 } else if (controller instanceof ProfileController c) {
+                    c.setUser(currentUser);
+                } else if (controller instanceof BlogController c) {
                     c.setUser(currentUser);
                 }
             }

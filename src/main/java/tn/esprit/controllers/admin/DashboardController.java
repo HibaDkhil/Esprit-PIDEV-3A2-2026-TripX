@@ -27,6 +27,7 @@ public class DashboardController {
 
     // Sidebar components
     @FXML private VBox sidebar;
+    @FXML private TextField sidebarSearchField;
     @FXML private Button sidebarToggle;
     @FXML private Button sidebarOpenButton;
 
@@ -60,6 +61,7 @@ public class DashboardController {
 
     // Menu buttons (for navigation)
     @FXML private Button overviewBtn;
+    @FXML private Button statisticsBtn;
     @FXML private Button usersBtn;
     @FXML private Button destinationsBtn;
     @FXML private Button activitiesBtn;
@@ -82,7 +84,6 @@ public class DashboardController {
     @FXML private Button sidebarBookingBtn;
 
     // Header components
-    @FXML private Button headerSettingsBtn;
     @FXML private MenuButton profileMenuBtn;
     @FXML private Label userNameHeaderLabel;
     @FXML private Label avatarText;
@@ -227,6 +228,7 @@ public class DashboardController {
     public void initialize() {
         instance = this;
         setupSidebarToggle();
+        setupSidebarSearch();
         setupNavigation();
         setupHeaderActions();
         setupTheme();
@@ -234,6 +236,47 @@ public class DashboardController {
 
         // Load overview by default
         showOverview();
+    }
+
+    /** Real-time filter of sidebar modules by search text. */
+    private void setupSidebarSearch() {
+        if (sidebarSearchField == null) return;
+        javafx.beans.value.ChangeListener<String> listener = (obs, oldVal, newVal) -> filterSidebarBySearch(newVal == null ? "" : newVal.trim().toLowerCase());
+        sidebarSearchField.textProperty().addListener(listener);
+    }
+
+    private void filterSidebarBySearch(String query) {
+        java.util.List<Object[]> sections = java.util.List.of(
+                section(dashboardHeader, dashboardMenu, "Dashboard"),
+                section(usersHeader, usersMenu, "Users"),
+                section(accommodationsHeader, accommodationsMenu, "Accommodations"),
+                section(destinationsHeader, destinationsMenu, "Destinations"),
+                section(transportHeader, transportMenu, "Transport"),
+                section(packsHeader, packsMenu, "Packs & Offers"),
+                section(blogHeader, blogMenu, "Blog")
+        );
+        for (Object[] s : sections) {
+            javafx.scene.Node sectionNode = (javafx.scene.Node) s[0];
+            String searchText = (String) s[1];
+            boolean show = query.isEmpty() || searchText.toLowerCase().contains(query);
+            if (sectionNode != null) {
+                sectionNode.setVisible(show);
+                sectionNode.setManaged(show);
+            }
+        }
+    }
+
+    /** Returns [sectionParentNode, searchableText] for a menu section (title + all item labels). */
+    private Object[] section(HBox header, VBox menu, String title) {
+        if (header == null) return new Object[]{ null, "" };
+        javafx.scene.Node parent = header.getParent();
+        StringBuilder sb = new StringBuilder(title);
+        if (menu != null) {
+            for (javafx.scene.Node c : menu.getChildren()) {
+                if (c instanceof Button b) sb.append(" ").append(b.getText());
+            }
+        }
+        return new Object[]{ parent, sb.toString() };
     }
 
     private void setupSidebarToggle() {
@@ -318,6 +361,7 @@ public class DashboardController {
 
     private void setupNavigation() {
         overviewBtn.setOnAction(e -> showOverview());
+        if (statisticsBtn != null) statisticsBtn.setOnAction(e -> showStatistics());
         usersBtn.setOnAction(e -> showUsers());
         destinationsBtn.setOnAction(e -> showDestinations());
         if (activitiesBtn != null) activitiesBtn.setOnAction(e -> showActivities());
@@ -341,11 +385,6 @@ public class DashboardController {
     }
 
     private void setupHeaderActions() {
-        // Settings button click (opens Settings with My Claims tab - index 0)
-        if (headerSettingsBtn != null) {
-            headerSettingsBtn.setOnAction(e -> showSettings(0));
-        }
-
         // Profile section click (directly opens profile)
         if (profileHeaderSection != null) {
             profileHeaderSection.setCursor(javafx.scene.Cursor.HAND);
@@ -372,7 +411,7 @@ public class DashboardController {
     }
 
     private void resetAllMenuItems() {
-        Button[] allButtons = {overviewBtn, usersBtn, destinationsBtn, activitiesBtn,
+        Button[] allButtons = {overviewBtn, statisticsBtn, usersBtn, destinationsBtn, activitiesBtn,
                 accommodationsBtn, accommodationBookingsBtn, manageTransportBtn,
                 manageSchedulesBtn, manageBookingsBtn, btnManagePacks, btnManageOffers,
                 btnManageCategories, btnLoyaltyPoints, btnBookedPacks, blogBtn, sidebarBookingBtn};
@@ -385,6 +424,9 @@ public class DashboardController {
         if (button == overviewBtn) {
             breadcrumb1.setText("Dashboard");
             breadcrumb2.setText("Overview");
+        } else if (button == statisticsBtn) {
+            breadcrumb1.setText("Dashboard");
+            breadcrumb2.setText("Statistics");
         } else if (button == usersBtn) {
             breadcrumb1.setText("Users");
             breadcrumb2.setText("User Management");
@@ -439,9 +481,24 @@ public class DashboardController {
             mainContent.getChildren().add(overviewView);
         } catch (IOException e) {
             e.printStackTrace();
-            // Fallback to empty content
             mainContent.getChildren().clear();
             Label label = new Label("Overview Module");
+            label.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
+            mainContent.getChildren().add(label);
+        }
+    }
+
+    private void showStatistics() {
+        setActiveButton(statisticsBtn);
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/admin/statistics.fxml"));
+            Node statisticsView = loader.load();
+            mainContent.getChildren().clear();
+            mainContent.getChildren().add(statisticsView);
+        } catch (IOException e) {
+            e.printStackTrace();
+            mainContent.getChildren().clear();
+            Label label = new Label("Statistics Module");
             label.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
             mainContent.getChildren().add(label);
         }
@@ -760,23 +817,21 @@ public class DashboardController {
     private void showBlog() {
         if (!hasAccess("blog")) { showAccessDenied("Blog"); return; }
         setActiveButton(blogBtn);
-
-        /* INTEGRATION: Future Blog Module
+        breadcrumb1.setText("Blog");
+        breadcrumb2.setText("Blog & Community");
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/admin/blog_management.fxml"));
             Node view = loader.load();
+
+            BlogManagementController ctrl = loader.getController();
+            if (currentUser != null) ctrl.setUserData(currentUser, role);
+
             mainContent.getChildren().clear();
             mainContent.getChildren().add(view);
         } catch (IOException e) {
             e.printStackTrace();
             showError("Error loading Blog Management: " + e.getMessage());
         }
-        */
-
-        mainContent.getChildren().clear();
-        Label label = new Label("Blog & Community Module");
-        label.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-font-family: 'Poppins';");
-        mainContent.getChildren().add(label);
     }
 
     // NEW METHOD: Show Profile
@@ -830,32 +885,6 @@ public class DashboardController {
         } catch (IOException e) {
             e.printStackTrace();
             showError("Error loading profile: " + e.getMessage());
-        }
-    }
-
-    private void showSettings(int selectedTab) {
-        try {
-            // Clear active button from sidebar (settings not in sidebar)
-            resetAllMenuItems();
-
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/admin/settings.fxml"));
-            Node settingsView = loader.load();
-
-            SettingsController controller = loader.getController();
-            if (currentUser != null) {
-                controller.setUserData(currentUser, role, selectedTab); // 3 arguments
-            }
-
-            // Update breadcrumb - CHANGED: removed "My Profile" option
-            breadcrumb1.setText("Settings");
-            breadcrumb2.setText("My Claims");
-
-            mainContent.getChildren().clear();
-            mainContent.getChildren().add(settingsView);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            showError("Error loading settings");
         }
     }
 
@@ -931,11 +960,6 @@ public class DashboardController {
     @FXML
     private void handleMenuProfile() {
         showProfile(null);
-    }
-
-    @FXML
-    private void handleMenuSettings() {
-        showSettings(0);
     }
 
     @FXML

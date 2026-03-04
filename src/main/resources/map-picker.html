@@ -54,7 +54,11 @@
     function pickLocation(latlng) {
       const pickedLat = Number(latlng.lat.toFixed(6));
       const pickedLng = Number(latlng.lng.toFixed(6));
-      marker.setLatLng([pickedLat, pickedLng]);
+      if (!marker && map) {
+        marker = L.marker([pickedLat, pickedLng]).addTo(map);
+      } else if (marker) {
+        marker.setLatLng([pickedLat, pickedLng]);
+      }
 
       if (window.javaBridge && typeof window.javaBridge.onMapClicked === "function") {
         window.javaBridge.onMapClicked(String(pickedLat), String(pickedLng));

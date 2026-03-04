@@ -57,8 +57,6 @@
             <VBox fx:id="detailsContentBox" spacing="16" styleClass="details-content-wrap">
                 <HBox alignment="CENTER_LEFT" spacing="10">
                     <Button fx:id="backToListButton" text="← Back to accommodations list" styleClass="details-back-btn"/>
-                    <Region HBox.hgrow="ALWAYS"/>
-                    <Button text="Check availability" styleClass="details-primary-cta"/>
                 </HBox>
 
                 <VBox spacing="8" styleClass="details-title-block">

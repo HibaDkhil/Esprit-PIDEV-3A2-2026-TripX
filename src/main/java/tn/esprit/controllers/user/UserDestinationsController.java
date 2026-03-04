@@ -182,7 +182,16 @@ public class UserDestinationsController implements Initializable {
 
     @FXML
     private void handleBlogNav(javafx.scene.input.MouseEvent event) {
-        showError("Blog page coming soon!");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/user/blog.fxml"));
+            Parent root = loader.load();
+            BlogController controller = loader.getController();
+            if (controller != null) controller.setUser(currentUser);
+            themeBtn.getScene().setRoot(root);
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Could not load Blog.");
+        }
     }
 
     @FXML

@@ -17,22 +17,31 @@ public class Config {
     }
 
     private static void loadEnvFile() {
+        Path path = Paths.get(".env");
+        if (!Files.exists(path)) {
+            Path inUserDir = Paths.get(System.getProperty("user.dir", "."), ".env");
+            if (Files.exists(inUserDir)) path = inUserDir;
+        }
+        if (!Files.exists(path)) {
+            System.out.println("⚠️ No .env found in current dir or " + System.getProperty("user.dir", ".") + ". Using system env.");
+            return;
+        }
         try {
-            Path path = Paths.get(".env");
-            if (Files.exists(path)) {
-                List<String> lines = Files.readAllLines(path);
-                for (String line : lines) {
-                    line = line.trim();
-                    if (line.isEmpty() || line.startsWith("#")) continue;
+            List<String> lines = Files.readAllLines(path);
+            for (String line : lines) {
+                line = line.trim();
+                if (line.isEmpty() || line.startsWith("#")) continue;
 
                     String[] parts = line.split("=", 2);
                     if (parts.length == 2) {
-                        envVars.put(parts[0].trim(), parts[1].trim());
-                        System.out.println("✅ Loaded: " + parts[0].trim());
-                    }
+                        String keyPart = parts[0].trim().replace("\uFEFF", "");
+                        String value = parts[1].trim().replace("\uFEFF", "");
+                        if (value.length() >= 2 && ((value.startsWith("\"") && value.endsWith("\"")) || (value.startsWith("'") && value.endsWith("'"))))
+                            value = value.substring(1, value.length() - 1);
+                        value = value.replace("\r", "").replace("\n", "").trim();
+                        envVars.put(keyPart, value);
+                    System.out.println("✅ Loaded: " + keyPart);
                 }
-            } else {
-                System.out.println("⚠️ No .env file found. Using system environment variables.");
             }
         } catch (IOException e) {
             System.err.println("Error loading .env file: " + e.getMessage());
@@ -61,6 +70,11 @@ public class Config {
         value = System.getProperty(key);
         if (value != null && !value.isEmpty()) return value;
         return "";
+    }
+
+    /** Returns value from .env, then system env, then system property; empty string if not found. */
+    public static String getEnv(String key) {
+        return getOptional(key);
     }
 
     // Convenience methods

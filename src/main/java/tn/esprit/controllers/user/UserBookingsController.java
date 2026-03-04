@@ -13,7 +13,9 @@ import tn.esprit.entities.*;
 import tn.esprit.services.*;
 import tn.esprit.utils.SessionManager;
 
+import java.awt.Desktop;
 import java.io.IOException;
+import java.net.URI;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -45,6 +47,7 @@ public class UserBookingsController {
     private final PackBookingService packService = new PackBookingService();
     private final RoomService roomService = new RoomService();
     private final LookupService lookupService = new LookupService();
+    private final StripePaymentService stripePaymentService = new StripePaymentService();
 
     private User currentUser;
 
@@ -76,6 +79,9 @@ public class UserBookingsController {
             "-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #063154;";
     private static final String PRICE_STYLE =
             "-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #0A4174;";
+    private static final String BTN_PAY =
+            "-fx-background-color: linear-gradient(to right, #1565C0, #42A5F5); -fx-text-fill: white; " +
+            "-fx-font-weight: bold; -fx-font-size: 12px; -fx-background-radius: 8; -fx-padding: 8 14; -fx-cursor: hand;";
 
     // ───────────────────────────────────────────────────────────────────────────
 
@@ -203,7 +209,10 @@ public class UserBookingsController {
         Label price = new Label(String.format("%.2f TND", b.getTotalPrice()));
         price.setStyle(PRICE_STYLE);
 
-        return card(header, body, price);
+        Button payBtn = new Button("Proceed payment");
+        payBtn.setStyle(BTN_PAY);
+        payBtn.setOnAction(e -> handleProceedPaymentAccommodation(b));
+        return cardWithExtra(header, body, price, payBtn);
     }
 
     private VBox buildDestCard(Booking b) {
@@ -211,12 +220,56 @@ public class UserBookingsController {
         VBox body = bodyBox(
             row("Ref",    b.getBookingReference()),
             row("Date",   b.getStartAt() != null ? b.getStartAt().toString().substring(0, 10) : "—"),
+            row("Payment", b.getPaymentStatus() != null ? b.getPaymentStatus().toString() : "UNPAID"),
             row("Total",  String.format("$%.2f %s", b.getTotalAmount(), b.getCurrency()))
         );
         Label price = new Label(String.format("$%.2f", b.getTotalAmount()));
         price.setStyle(PRICE_STYLE);
 
+        if (b.getPaymentStatus() == Booking.PaymentStatus.UNPAID) {
+            Button payBtn = new Button("Proceed payment");
+            payBtn.setStyle(BTN_PAY);
+            payBtn.setOnAction(e -> handleProceedPayment(b));
+            return cardWithExtra(header, body, price, payBtn);
+        }
         return card(header, body, price);
+    }
+
+    private void handleProceedPayment(Booking booking) {
+        if (booking == null) return;
+        openPaymentUrl(stripePaymentService.createCheckoutSession(booking));
+    }
+
+    private void openPaymentUrl(String checkoutUrl) {
+        if (checkoutUrl == null || checkoutUrl.isBlank()) {
+            showAlert("Could not start payment. Please check your connection and try again.");
+            return;
+        }
+        try {
+            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                Desktop.getDesktop().browse(URI.create(checkoutUrl));
+                showAlert("Redirecting to secure payment... Complete the payment in your browser, then refresh this page.");
+            } else {
+                showAlert("Payment URL: " + checkoutUrl + "\nOpen this link in your browser.");
+            }
+        } catch (IOException ex) {
+            showAlert("Could not open browser: " + ex.getMessage() + "\nOpen this link manually:\n" + checkoutUrl);
+        }
+    }
+
+    private void handleProceedPaymentAccommodation(AccommodationBooking b) {
+        if (b == null) return;
+        openPaymentUrl(stripePaymentService.createCheckoutSession(b));
+    }
+
+    private void handleProceedPaymentTransport(Bookingtrans b) {
+        if (b == null) return;
+        openPaymentUrl(stripePaymentService.createCheckoutSession(b));
+    }
+
+    private void handleProceedPaymentPack(PacksBooking b) {
+        if (b == null) return;
+        openPaymentUrl(stripePaymentService.createCheckoutSession(b));
     }
 
     private VBox buildTransCard(Bookingtrans b) {
@@ -236,6 +289,12 @@ public class UserBookingsController {
         Label price = new Label(String.format("%.2f TND", b.getTotalPrice()));
         price.setStyle(PRICE_STYLE);
 
+        if ("UNPAID".equalsIgnoreCase(b.getPaymentStatus())) {
+            Button payBtn = new Button("Proceed payment");
+            payBtn.setStyle(BTN_PAY);
+            payBtn.setOnAction(e -> handleProceedPaymentTransport(b));
+            return cardWithExtra(header, body, price, payBtn);
+        }
         return card(header, body, price);
     }
 
@@ -256,7 +315,10 @@ public class UserBookingsController {
         Label price = new Label(String.format("%.2f TND", b.getFinalPrice().doubleValue()));
         price.setStyle(PRICE_STYLE);
 
-        return card(header, body, price);
+        Button payBtn = new Button("Proceed payment");
+        payBtn.setStyle(BTN_PAY);
+        payBtn.setOnAction(e -> handleProceedPaymentPack(b));
+        return cardWithExtra(header, body, price, payBtn);
     }
 
     // ── UI helpers ─────────────────────────────────────────────────────────────
@@ -300,12 +362,19 @@ public class UserBookingsController {
     }
 
     private VBox card(VBox header, VBox body, Label price) {
+        return cardWithExtra(header, body, price);
+    }
+
+    private VBox cardWithExtra(VBox header, VBox body, Label price, javafx.scene.Node... footerExtra) {
         Label badge = new Label("✅  CONFIRMED");
         badge.setStyle(BADGE_CONFIRMED);
 
-        HBox footer = new HBox(badge, new Region(), price);
+        HBox footer = new HBox(8, badge, new Region(), price);
         HBox.setHgrow(footer.getChildren().get(1), Priority.ALWAYS);
         footer.setAlignment(Pos.CENTER_LEFT);
+        if (footerExtra != null && footerExtra.length > 0) {
+            footer.getChildren().addAll(footerExtra);
+        }
 
         VBox card = new VBox(0, header.getChildren().get(0), body, footer);
         card.setSpacing(12);
@@ -321,7 +390,7 @@ public class UserBookingsController {
     @FXML private void handleActivitiesNav(MouseEvent e)    { navigateTo("/fxml/user/user_activities.fxml"); }
     @FXML private void handleTransportNav(MouseEvent e)     { navigateTo("/fxml/user/TransportUserInterface.fxml"); }
     @FXML private void handlePacksOffersNav(MouseEvent e)   { navigateTo("/fxml/user/UserPacksOffersView.fxml"); }
-    @FXML private void handleBlogNav(MouseEvent e)          { showAlert("Blog page coming soon!"); }
+    @FXML private void handleBlogNav(MouseEvent e)          { navigateTo("/fxml/user/blog.fxml"); }
     @FXML private void handleProfile(MouseEvent e)          { navigateTo("/fxml/user/profile.fxml"); }
 
     @FXML
@@ -351,6 +420,8 @@ public class UserBookingsController {
                 else if (ctrl instanceof TransportUserInterfaceController c) c.setCurrentUser(currentUser);
                 else if (ctrl instanceof UserPacksOffersController c)    c.setCurrentUser(currentUser);
                 else if (ctrl instanceof ProfileController c)            c.setUser(currentUser);
+                else if (ctrl instanceof UserBookingsController c)       c.setCurrentUser(currentUser);
+                else if (ctrl instanceof BlogController c)               c.setUser(currentUser);
             }
             Stage stage = (Stage) lblTotalCount.getScene().getWindow();
             stage.setScene(new Scene(root, stage.getWidth(), stage.getHeight()));

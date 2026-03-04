@@ -14,6 +14,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -760,7 +761,7 @@ public class AccommodationsController {
 
     @FXML
     private void handleBlogNav(MouseEvent event) {
-        showWarning("Coming soon", "Blog module navigation is not available yet.");
+        navigate("/fxml/user/blog.fxml");
     }
 
     @FXML
@@ -780,7 +781,7 @@ public class AccommodationsController {
 
     @FXML
     private void handleBlogNav(ActionEvent event) {
-        showWarning("Coming soon", "Blog module navigation is not available yet.");
+        navigate("/fxml/user/blog.fxml");
     }
 
     @FXML
@@ -796,7 +797,11 @@ public class AccommodationsController {
     }
 
     private void navigate(String fxmlPath) {
-        if (searchField == null || searchField.getScene() == null) return;
+        Scene scene = null;
+        for (Node n : new Node[]{ searchField, avatarInitials, userNameLabel, accommodationsGrid }) {
+            if (n != null && n.getScene() != null) { scene = n.getScene(); break; }
+        }
+        if (scene == null) return;
         try {
             ensureCurrentUserLoaded();
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
@@ -820,16 +825,20 @@ public class AccommodationsController {
                     transportController.setCurrentUser(currentUser);
                 } else if (targetController instanceof UserPacksOffersController packsOffersController) {
                     packsOffersController.setCurrentUser(currentUser);
+                } else if (targetController instanceof BlogController blogController) {
+                    blogController.setUser(currentUser);
                 }
             }
 
-            Parent currentRoot = searchField.getScene().getRoot();
-            javafx.animation.FadeTransition fadeOut = new javafx.animation.FadeTransition(Duration.millis(140), currentRoot);
+            Parent currentRoot = scene.getRoot();
+            final Scene sceneRef = scene;
+            final Parent rootRef = root;
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(140), currentRoot);
             fadeOut.setFromValue(1.0);
             fadeOut.setToValue(0.0);
             fadeOut.setOnFinished(ev -> {
-                searchField.getScene().setRoot(root);
-                javafx.animation.FadeTransition fadeIn = new javafx.animation.FadeTransition(Duration.millis(170), root);
+                sceneRef.setRoot(rootRef);
+                FadeTransition fadeIn = new FadeTransition(Duration.millis(170), rootRef);
                 fadeIn.setFromValue(0.0);
                 fadeIn.setToValue(1.0);
                 fadeIn.play();

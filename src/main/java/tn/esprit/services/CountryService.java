@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import tn.esprit.entities.Country;
 import tn.esprit.utils.ApiConfig;
 
 import java.io.BufferedReader;
@@ -12,7 +13,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,6 +29,29 @@ public class CountryService {
     private static final Map<String, CountryData> cache = new HashMap<>();
     private static final Map<String, Long> failureCache = new HashMap<>();
     private static final long RETRY_AFTER_MS = 300000; // 5 minutes
+
+    /** Static list for dropdowns (e.g. travel story destination). */
+    private static final List<Country> ALL_COUNTRIES = new ArrayList<>(Arrays.asList(
+            new Country("Tunisia", "TN"), new Country("France", "FR"), new Country("Italy", "IT"),
+            new Country("Spain", "ES"), new Country("Germany", "DE"), new Country("United Kingdom", "GB"),
+            new Country("United States", "US"), new Country("Japan", "JP"), new Country("Thailand", "TH"),
+            new Country("Indonesia", "ID"), new Country("Morocco", "MA"), new Country("Egypt", "EG"),
+            new Country("Turkey", "TR"), new Country("Greece", "GR"), new Country("Portugal", "PT"),
+            new Country("Netherlands", "NL"), new Country("Belgium", "BE"), new Country("Switzerland", "CH"),
+            new Country("Austria", "AT"), new Country("Canada", "CA"), new Country("Australia", "AU"),
+            new Country("India", "IN"), new Country("Malaysia", "MY"), new Country("Vietnam", "VN"),
+            new Country("South Korea", "KR"), new Country("China", "CN"), new Country("Brazil", "BR"),
+            new Country("Mexico", "MX"), new Country("Argentina", "AR"), new Country("South Africa", "ZA"),
+            new Country("United Arab Emirates", "AE"), new Country("Saudi Arabia", "SA"), new Country("Lebanon", "LB"),
+            new Country("Jordan", "JO"), new Country("Algeria", "DZ"), new Country("Libya", "LY")
+    ));
+
+    /**
+     * Returns a list of countries for dropdowns (e.g. destination in blog/travel story).
+     */
+    public List<Country> getAll() {
+        return new ArrayList<>(ALL_COUNTRIES);
+    }
 
     /**
      * Country data container.
