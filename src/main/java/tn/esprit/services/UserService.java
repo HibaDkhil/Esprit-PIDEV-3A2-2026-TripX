@@ -3,13 +3,18 @@ package tn.esprit.services;
 import tn.esprit.entities.User;
 import tn.esprit.utils.MyDB;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
+import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * UserService — JDBC service for the `user` table.
+ * Schema is shared with Symfony; field names match exactly.
+ *
+ * Status values (match Symfony): pending_verification, active, suspended, banned
+ * Role values  (match Symfony):  user, admin, adminDestination, adminAccomodation,
+ *                                adminOffers, adminBlog, adminTransport
+ */
 public class UserService {
 
     private Connection conx;
@@ -25,167 +30,128 @@ public class UserService {
         return conx != null;
     }
 
-    // Create new user (SIGNUP)
+    // ── Helpers ──────────────────────────────────────────────────────────────
+
+    /**
+     * Maps a ResultSet row to a fully-populated User object.
+     * Reads every column that exists in the shared DB table.
+     */
+    private User mapRow(ResultSet rs) throws SQLException {
+        User u = new User(
+                rs.getInt("user_id"),
+                rs.getString("first_name"),
+                rs.getString("last_name"),
+                rs.getString("email"),
+                rs.getString("password"),
+                rs.getString("gender"),
+                rs.getString("birth_year"),
+                rs.getTimestamp("created_at")
+        );
+
+        // Nullable / optional columns — wrapped individually so a missing
+        // column in an older schema does not crash the whole load.
+        safeSetString(rs, "phone_number",    u::setPhoneNumber);
+        safeSetString(rs, "role",            v -> u.setRole(v != null ? v : "user"));
+        safeSetString(rs, "status",          v -> u.setStatus(v != null ? v : "pending_verification"));
+        safeSetString(rs, "bio",             u::setBio);
+        safeSetString(rs, "google_authenticator_secret", u::setGoogleAuthenticatorSecret);
+        safeSetString(rs, "face_descriptor", u::setFaceDescriptor);
+
+        // avatar_id is INT in Symfony
+        try {
+            int avatarId = rs.getInt("avatar_id");
+            if (!rs.wasNull()) {
+                u.setAvatarId(avatarId);
+            }
+        } catch (SQLException ignored) {}
+
+        // email_verified TINYINT(1)
+        try {
+            u.setEmailVerified(rs.getBoolean("email_verified"));
+        } catch (SQLException ignored) {}
+
+        // dynamic_theme_enabled TINYINT(1)
+        try {
+            u.setDynamicThemeEnabled(rs.getBoolean("dynamic_theme_enabled"));
+        } catch (SQLException ignored) {}
+
+        // updated_at DATETIME
+        try {
+            Timestamp updatedAt = rs.getTimestamp("updated_at");
+            if (updatedAt != null) {
+                u.setUpdatedAt(updatedAt);
+            }
+        } catch (SQLException ignored) {}
+
+        return u;
+    }
+
+    @FunctionalInterface
+    private interface StringSetter { void set(String value); }
+
+    private void safeSetString(ResultSet rs, String column, StringSetter setter) {
+        try {
+            setter.set(rs.getString(column));
+        } catch (SQLException ignored) {}
+    }
+
+    // ── CREATE ────────────────────────────────────────────────────────────────
+
+    /**
+     * Create a new user (signup from Java side).
+     * Sets status='pending_verification' and role='user' to match Symfony defaults.
+     */
     public boolean createUser(User user) {
         if (!checkConnection()) return false;
-        String sql = "INSERT INTO user (first_name, last_name, email, password) VALUES (?, ?, ?, ?)";
-        try {
-            PreparedStatement ps = conx.prepareStatement(sql);
+        String sql = "INSERT INTO user (first_name, last_name, email, password, role, status, created_at, updated_at) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())";
+        try (PreparedStatement ps = conx.prepareStatement(sql)) {
             ps.setString(1, user.getFirstName());
             ps.setString(2, user.getLastName());
             ps.setString(3, user.getEmail());
-            ps.setString(4, user.getPassword()); // plain text for now
-            int rows = ps.executeUpdate();
-            return rows > 0;
-        } catch (SQLException | NullPointerException e) {
+            ps.setString(4, user.getPassword());
+            ps.setString(5, user.getRole() != null ? user.getRole() : "user");
+            ps.setString(6, user.getStatus() != null ? user.getStatus() : "pending_verification");
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
             System.err.println("Error creating user: " + e.getMessage());
             return false;
         }
     }
 
-    // Login check
-    public boolean login(String email, String password) {
-        User user = findByEmail(email);
-        if (user != null && user.getPassword().equals(password)) { // plain text comparison
-            return true;
-        }
-        return false;
-    }
+    // ── READ ──────────────────────────────────────────────────────────────────
 
-    public boolean deleteUser(int userId) {
-        if (!checkConnection()) return false;
-        String sql = "DELETE FROM user WHERE user_id = ?";
-        try {
-            PreparedStatement ps = conx.prepareStatement(sql);
-            ps.setInt(1, userId);
-            int rows = ps.executeUpdate();
-            return rows > 0;
-        } catch (SQLException e) {
-            System.err.println("Error deleting user: " + e.getMessage());
-            return false;
-        }
-    }
-
-    // UPDATE user
-    public boolean updateUser(User user) {
-        if (!checkConnection()) return false;
-        String sql = "UPDATE user SET first_name = ?, last_name = ?, email = ?, phone_number = ?, gender = ?, birth_year = ? WHERE user_id = ?";
-        try {
-            PreparedStatement ps = conx.prepareStatement(sql);
-            ps.setString(1, user.getFirstName());
-            ps.setString(2, user.getLastName());
-            ps.setString(3, user.getEmail());
-            ps.setString(4, user.getPhoneNumber());
-            ps.setString(5, user.getGender());
-            ps.setString(6, user.getBirthYear());
-            ps.setInt(7, user.getUserId());
-            int rows = ps.executeUpdate();
-            return rows > 0;
-        } catch (SQLException e) {
-            System.err.println("Error updating user: " + e.getMessage());
-            return false;
-        }
-    }
-
-    //  Find user by email (for login)
     public User findByEmail(String email) {
         if (!checkConnection()) return null;
-        String sql = "SELECT * FROM user WHERE email = ?";
-        try {
-            PreparedStatement ps = conx.prepareStatement(sql);
+        try (PreparedStatement ps = conx.prepareStatement("SELECT * FROM user WHERE email = ?")) {
             ps.setString(1, email);
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                User u = new User(
-                        rs.getInt("user_id"),
-                        rs.getString("first_name"),
-                        rs.getString("last_name"),
-                        rs.getString("email"),
-                        rs.getString("password"),
-                        rs.getString("gender"),
-                        rs.getString("birth_year"),
-                        rs.getTimestamp("created_at")
-                );
-                try {
-                    u.setPhoneNumber(rs.getString("phone_number"));
-                } catch (SQLException e) {
-                    // Column might not exist yet
-                }
-                try {
-                    u.setAvatarId(rs.getString("avatar_id"));
-                } catch (SQLException e) {
-                    // Column might not exist yet
-                }
-                // Get role
-                try {
-                    u.setRole(rs.getString("role"));
-                } catch (SQLException e) {
-                    u.setRole("USER");
-                }
-                return u;
-            }
+            if (rs.next()) return mapRow(rs);
         } catch (SQLException e) {
-            System.err.println("Error finding user: " + e.getMessage());
+            System.err.println("Error finding user by email: " + e.getMessage());
         }
         return null;
     }
 
-    // In UserService.java
-    public String getRoleByEmail(String email) {
+    public User findById(int userId) {
         if (!checkConnection()) return null;
-        String sql = "SELECT role FROM user WHERE email = ?";
-        try {
-            PreparedStatement ps = conx.prepareStatement(sql);
-            ps.setString(1, email);
+        try (PreparedStatement ps = conx.prepareStatement("SELECT * FROM user WHERE user_id = ?")) {
+            ps.setInt(1, userId);
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getString("role");
-            }
+            if (rs.next()) return mapRow(rs);
         } catch (SQLException e) {
-            System.err.println("Error getting role: " + e.getMessage());
+            System.err.println("Error finding user by ID: " + e.getMessage());
         }
         return null;
     }
-
 
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
         if (!checkConnection()) return users;
-        String sql = "SELECT * FROM user ORDER BY user_id DESC";
-
-        try {
-            PreparedStatement ps = conx.prepareStatement(sql);
+        try (PreparedStatement ps = conx.prepareStatement("SELECT * FROM user ORDER BY user_id DESC")) {
             ResultSet rs = ps.executeQuery();
-
             while (rs.next()) {
-                User user = new User(
-                        rs.getInt("user_id"),
-                        rs.getString("first_name"),
-                        rs.getString("last_name"),
-                        rs.getString("email"),
-                        rs.getString("password"),
-                        rs.getString("gender"),
-                        rs.getString("birth_year"),
-                        rs.getTimestamp("created_at")
-                );
-                // Also get role if it exists in your table
-                try {
-                    user.setRole(rs.getString("role"));
-                } catch (SQLException e) {
-                    user.setRole("USER"); // Default role if column doesn't exist
-                }
-                try {
-                    user.setAvatarId(rs.getString("avatar_id"));
-                } catch (SQLException e) {
-                    // Column might not exist yet
-                }
-                // Get status
-                try {
-                    user.setStatus(rs.getString("status"));
-                } catch (SQLException e) {
-                    user.setStatus("ACTIVE");
-                }
-                users.add(user);
+                users.add(mapRow(rs));
             }
         } catch (SQLException e) {
             System.err.println("Error getting all users: " + e.getMessage());
@@ -193,116 +159,165 @@ public class UserService {
         return users;
     }
 
+    public String getRoleByEmail(String email) {
+        if (!checkConnection()) return null;
+        try (PreparedStatement ps = conx.prepareStatement("SELECT role FROM user WHERE email = ?")) {
+            ps.setString(1, email);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getString("role");
+        } catch (SQLException e) {
+            System.err.println("Error getting role: " + e.getMessage());
+        }
+        return null;
+    }
 
+    // ── LOGIN ─────────────────────────────────────────────────────────────────
 
-    // Update User Password
+    /**
+     * Simple login check (plain-text comparison for Java-created accounts).
+     * Symfony accounts use bcrypt — cannot be verified here; use Symfony for those.
+     */
+    public boolean login(String email, String password) {
+        User user = findByEmail(email);
+        return user != null && user.getPassword() != null && user.getPassword().equals(password);
+    }
+
+    // ── UPDATE ────────────────────────────────────────────────────────────────
+
+    /**
+     * General user update — updates all profile fields + updated_at timestamp.
+     */
+    public boolean updateUser(User user) {
+        if (!checkConnection()) return false;
+        String sql = "UPDATE user SET " +
+                     "first_name = ?, last_name = ?, email = ?, phone_number = ?, " +
+                     "gender = ?, birth_year = ?, bio = ?, role = ?, updated_at = NOW() " +
+                     "WHERE user_id = ?";
+        try (PreparedStatement ps = conx.prepareStatement(sql)) {
+            ps.setString(1, user.getFirstName());
+            ps.setString(2, user.getLastName());
+            ps.setString(3, user.getEmail());
+            ps.setString(4, user.getPhoneNumber());
+            ps.setString(5, user.getGender());
+            ps.setString(6, user.getBirthYear());
+            ps.setString(7, user.getBio());
+            ps.setString(8, user.getRole() != null ? user.getRole() : "user");
+            ps.setInt(9, user.getUserId());
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error updating user: " + e.getMessage());
+            return false;
+        }
+    }
+
     public boolean updateUserPassword(User user) {
         if (!checkConnection()) return false;
-        String sql = "UPDATE user SET password = ? WHERE user_id = ?";
-        try {
-            PreparedStatement ps = conx.prepareStatement(sql);
+        String sql = "UPDATE user SET password = ?, updated_at = NOW() WHERE user_id = ?";
+        try (PreparedStatement ps = conx.prepareStatement(sql)) {
             ps.setString(1, user.getPassword());
             ps.setInt(2, user.getUserId());
-            int rows = ps.executeUpdate();
-            return rows > 0;
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             System.err.println("Error updating password: " + e.getMessage());
             return false;
         }
     }
 
-    // Add this method to UserService.java
-    public User findById(int userId) {
-        if (!checkConnection()) return null;
-        String sql = "SELECT * FROM user WHERE user_id = ?";
-        try {
-            PreparedStatement ps = conx.prepareStatement(sql);
-            ps.setInt(1, userId);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                User u = new User(
-                        rs.getInt("user_id"),
-                        rs.getString("first_name"),
-                        rs.getString("last_name"),
-                        rs.getString("email"),
-                        rs.getString("password"),
-                        rs.getString("gender"),
-                        rs.getString("birth_year"),
-                        rs.getTimestamp("created_at")
-                );
-                // Get role
-                try {
-                    u.setRole(rs.getString("role"));
-                } catch (SQLException e) {
-                    u.setRole("USER");
-                }
-                try {
-                    u.setPhoneNumber(rs.getString("phone_number"));
-                } catch (SQLException e) {
-                    // Column might not exist yet
-                }
-                try {
-                    u.setAvatarId(rs.getString("avatar_id"));
-                } catch (SQLException e) {
-                    // Column might not exist yet
-                }
-                return u;
-            }
-        } catch (SQLException e) {
-            System.err.println("Error finding user by ID: " + e.getMessage());
-        }
-        return null;
-    }
-
     public boolean updateUserDemographics(User user) {
         if (!checkConnection()) return false;
-        String sql = "UPDATE user SET gender = ?, birth_year = ? WHERE user_id = ?";
-        try {
-            PreparedStatement ps = conx.prepareStatement(sql);
+        String sql = "UPDATE user SET gender = ?, birth_year = ?, updated_at = NOW() WHERE user_id = ?";
+        try (PreparedStatement ps = conx.prepareStatement(sql)) {
             ps.setString(1, user.getGender());
             ps.setString(2, user.getBirthYear());
             ps.setInt(3, user.getUserId());
-            int rows = ps.executeUpdate();
-            return rows > 0;
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            String msg = e.getMessage();
-            if (msg.contains("Unknown column")) {
-                System.err.println("CRITICAL DB ERROR: Missing columns in 'user' table.");
-                System.err.println("Please run: ALTER TABLE user ADD COLUMN gender VARCHAR(50), ADD COLUMN birth_year VARCHAR(50);");
-            }
-            System.err.println("Error updating user demographics: " + msg);
+            System.err.println("Error updating demographics: " + e.getMessage());
             return false;
         }
     }
 
-    // Avatar-------------------------------
-    // Update this method to handle the new avatar format
-    public boolean updateUserAvatar(int userId, String avatarId) {
+    /**
+     * Update avatar_id — Symfony stores this as INT.
+     * Accepts Integer (null = clear avatar).
+     */
+    public boolean updateUserAvatar(int userId, Integer avatarId) {
         if (!checkConnection()) return false;
-        String sql = "UPDATE user SET avatar_id = ? WHERE user_id = ?";
+        String sql = "UPDATE user SET avatar_id = ?, updated_at = NOW() WHERE user_id = ?";
         try (PreparedStatement ps = conx.prepareStatement(sql)) {
-            ps.setString(1, avatarId); // Now stores "big-smile:Adrian"
+            if (avatarId != null) {
+                ps.setInt(1, avatarId);
+            } else {
+                ps.setNull(1, Types.INTEGER);
+            }
             ps.setInt(2, userId);
-            int rows = ps.executeUpdate();
-            return rows > 0;
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             System.err.println("Error updating avatar: " + e.getMessage());
             return false;
         }
     }
 
+    /**
+     * Legacy overload — accepts String avatarId for backwards compatibility.
+     * Converts to Integer if possible.
+     */
+    public boolean updateUserAvatar(int userId, String avatarId) {
+        Integer id = null;
+        if (avatarId != null && !avatarId.isEmpty()) {
+            try { id = Integer.parseInt(avatarId); } catch (NumberFormatException ignored) {}
+        }
+        return updateUserAvatar(userId, id);
+    }
+
+    /**
+     * Update user status.
+     * Valid values (match Symfony): pending_verification, active, suspended, banned
+     */
     public boolean updateUserStatus(int userId, String status) {
         if (!checkConnection()) return false;
-        String sql = "UPDATE user SET status = ? WHERE user_id = ?";
+        String sql = "UPDATE user SET status = ?, updated_at = NOW() WHERE user_id = ?";
         try (PreparedStatement ps = conx.prepareStatement(sql)) {
             ps.setString(1, status);
             ps.setInt(2, userId);
-            int rows = ps.executeUpdate();
-            return rows > 0;
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Error updating user status: " + e.getMessage());
+            System.err.println("Error updating status: " + e.getMessage());
             return false;
         }
     }
 
+    // ── EMAIL VERIFICATION ────────────────────────────────────────────────────
+
+    /**
+     * Mark the user's email as verified and set their status to 'active'.
+     * Called after the user enters the correct OTP code in EmailVerificationController.
+     * This updates the shared DB — Symfony will immediately see the user as verified.
+     */
+    public boolean markEmailVerified(int userId) {
+        if (!checkConnection()) return false;
+        String sql = "UPDATE user SET email_verified = 1, status = 'active', updated_at = NOW() " +
+                     "WHERE user_id = ?";
+        try (PreparedStatement ps = conx.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error marking email verified: " + e.getMessage());
+            return false;
+        }
+    }
+
+    // ── DELETE ────────────────────────────────────────────────────────────────
+
+    public boolean deleteUser(int userId) {
+        if (!checkConnection()) return false;
+        String sql = "DELETE FROM user WHERE user_id = ?";
+        try (PreparedStatement ps = conx.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error deleting user: " + e.getMessage());
+            return false;
+        }
+    }
 }

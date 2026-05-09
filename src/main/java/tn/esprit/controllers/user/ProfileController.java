@@ -93,13 +93,13 @@ public class ProfileController {
     @FXML private Label currentAvatarLabel;
     @FXML private StackPane currentAvatarCircle;
     private String selectedAvatarStyle = "big-smile";
-    private final String[] AVATAR_SEEDS = {
+    private final java.util.List<String> AVATAR_SEEDS = java.util.Arrays.asList(new String[]{
             "Adrian", "Bella", "Charlie", "Daisy", "Ethan", "Fiona",
             "George", "Hannah", "Ian", "Julia", "Kevin", "Luna",
             "Mason", "Nina", "Oliver", "Piper", "Quinn", "Rose",
             "Sam", "Tina", "Uma", "Victor", "Wendy", "Xander",
             "Yara", "Zack", "Amy", "Brian", "Chloe", "David"
-    };
+    });
 
     private User currentUser;
     private UserPreferences currentPreferences;
@@ -931,13 +931,12 @@ public class ProfileController {
                         "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 2);"
         );
 
-        if (currentUser != null && currentUser.getAvatarId() != null && !currentUser.getAvatarId().isEmpty()) {
-            // User has saved avatar - format: "big-smile:Adrian"
-            String[] parts = currentUser.getAvatarId().split(":");
-            String style = parts.length > 0 ? parts[0] : "big-smile";
-            String seed = parts.length > 1 ? parts[1] : currentUser.getFirstName();
-
-            String avatarUrl = "https://api.dicebear.com/9.x/" + style + "/png?seed=" + seed;
+        // avatar_id is now stored as INTEGER in the shared Symfony DB.
+        // We use it as a seed index. If null, fall back to initials.
+        if (currentUser != null && currentUser.getAvatarId() != null) {
+            // Use the integer avatarId as the seed for a deterministic DiceBear avatar
+            String seed = "user_" + currentUser.getAvatarId();
+            String avatarUrl = "https://api.dicebear.com/9.x/big-smile/png?seed=" + seed;
             loadAvatarImage(avatarUrl, avatarCircle, 100);
         } else {
             // Show initials
@@ -1118,11 +1117,17 @@ public class ProfileController {
     private void selectAvatar(String avatarId, String style, String seed) {
         selectedAvatarStyle = style;
 
-        // Update current user's avatar_id (store as "style:seed")
-        currentUser.setAvatarId(avatarId);
+        // avatar_id in the shared Symfony DB is an INTEGER.
+        // We derive a numeric ID from the seed's index in AVATAR_SEEDS list,
+        // so it is stored as an Integer and remains compatible with Symfony.
+        int seedIndex = AVATAR_SEEDS.indexOf(seed);
+        Integer numericAvatarId = seedIndex >= 0 ? seedIndex : null;
 
-        // Save to database
-        boolean updated = userService.updateUserAvatar(currentUser.getUserId(), avatarId);
+        // Update the entity (Integer overload)
+        currentUser.setAvatarId(numericAvatarId);
+
+        // Save to database using the Integer overload
+        boolean updated = userService.updateUserAvatar(currentUser.getUserId(), numericAvatarId);
 
         if (updated) {
             // Update the current avatar display
@@ -1131,7 +1136,7 @@ public class ProfileController {
             // Show success message
             showToast("✓ Avatar updated to " + seed);
 
-            System.out.println("✅ Avatar updated: " + avatarId);
+            System.out.println("✅ Avatar updated: id=" + numericAvatarId + " (" + seed + ")");
         } else {
             showAlert("Error", "Failed to update avatar. Please try again.");
         }

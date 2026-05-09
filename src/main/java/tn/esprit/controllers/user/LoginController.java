@@ -1,6 +1,7 @@
 package tn.esprit.controllers.user;
 
 import javafx.animation.TranslateTransition;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -16,6 +17,7 @@ import javafx.util.Duration;
 import org.mindrot.jbcrypt.BCrypt;
 import tn.esprit.controllers.admin.DashboardController;
 import tn.esprit.entities.User;
+import tn.esprit.services.EmailService;
 import tn.esprit.services.UserService;
 import tn.esprit.utils.ValidationUtils;
 import tn.esprit.services.EmailReputationService;
@@ -299,8 +301,15 @@ public class LoginController {
         if (loggedInUser != null) {
             String storedPassword = loggedInUser.getPassword();
             try {
+                // Symfony/PHP uses $2y$ prefix for BCrypt, but Java's jBcrypt expects $2a$.
+                // They are functionally identical, so we just substitute the prefix for the check.
+                String compatibleHash = storedPassword;
+                if (storedPassword != null && storedPassword.startsWith("$2y$")) {
+                    compatibleHash = "$2a$" + storedPassword.substring(4);
+                }
+                
                 // Try BCrypt check
-                passwordMatch = BCrypt.checkpw(password, storedPassword);
+                passwordMatch = BCrypt.checkpw(password, compatibleHash);
             } catch (IllegalArgumentException e) {
                 // Fallback for legacy plain-text passwords
                 System.out.println("DEBUG: Legacy password detected, falling back to plain-text check.");
@@ -310,6 +319,22 @@ public class LoginController {
 
         if (loggedInUser == null || !passwordMatch) {
             loginPasswordError.setText("Incorrect email or password");
+            return;
+        }
+
+        // ── Check email verification ──────────────────────────────────────────
+        if (!loggedInUser.isEmailVerified()) {
+            loginPasswordError.setText("");
+            loginEmailError.setText("");
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Email Not Verified");
+            alert.setHeaderText("Please verify your email first");
+            alert.setContentText(
+                "Your account is not yet verified.\n" +
+                "Check your inbox for the 6-digit code and verify your email to log in.");
+            alert.getDialogPane().lookupButton(ButtonType.OK)
+                 .setStyle("-fx-background-color: #4cccad; -fx-text-fill: white; -fx-font-weight: bold;");
+            alert.showAndWait();
             return;
         }
 
@@ -528,30 +553,68 @@ public class LoginController {
         boolean success = userService.createUser(user);
 
         if (success) {
-            System.out.println("User created successfully in DB!");
+            System.out.println("User created in DB, sending verification email…");
 
-            // Redirect to Onboarding
+            // Fetch the created user to get the auto-generated user_id
+            User newUser = userService.findByEmail(email);
+            if (newUser == null) {
+                emailError.setText("Account created but could not be retrieved. Please log in.");
+                return;
+            }
+
+            // Generate a 6-digit OTP
+            String code = EmailVerificationController.generateCode();
+
+            // Load the verification screen FIRST (so it is ready before we send the email)
             try {
-                // Fetch the user to get the ID
-                User newUser = userService.findByEmail(email);
-
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/user/onboarding.fxml"));
+                FXMLLoader loader = new FXMLLoader(
+                        getClass().getResource("/fxml/user/email_verification.fxml"));
                 Parent root = loader.load();
 
-                OnboardingController controller = loader.getController();
-                controller.setUser(newUser);
+                EmailVerificationController verifyCtrl = loader.getController();
 
+                // Navigate to verification screen immediately
                 Stage stage = (Stage) signUpBtn.getScene().getWindow();
-                Scene scene = new Scene(root);
-                stage.setScene(scene);
+                double w = stage.getWidth();
+                double h = stage.getHeight();
+                stage.setScene(new Scene(root, w, h));
                 stage.show();
+
+                // Pass user + code AFTER scene is set (so the label nodes are attached)
+                verifyCtrl.setData(newUser, code);
+
+                // Send the email in background so UI doesn't freeze
+                Thread emailThread = new Thread(() -> {
+                    boolean sent = EmailService.getInstance()
+                            .sendVerificationEmail(newUser.getEmail(), newUser.getFirstName(), code);
+                    if (!sent) {
+                        Platform.runLater(() ->
+                            System.err.println("⚠ Verification email could not be sent to " + newUser.getEmail()));
+                    } else {
+                        System.out.println("✅ Verification email sent to " + newUser.getEmail());
+                    }
+                });
+                emailThread.setDaemon(true);
+                emailThread.start();
 
             } catch (IOException e) {
                 e.printStackTrace();
-                System.err.println("Failed to load onboarding.fxml");
+                // Fallback: go straight to onboarding if FXML can't load
+                try {
+                    FXMLLoader loader = new FXMLLoader(
+                            getClass().getResource("/fxml/user/onboarding.fxml"));
+                    Parent root = loader.load();
+                    OnboardingController controller = loader.getController();
+                    controller.setUser(newUser);
+                    Stage stage = (Stage) signUpBtn.getScene().getWindow();
+                    stage.setScene(new Scene(root));
+                    stage.show();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             }
         } else {
-            emailError.setText("Email already exists");
+            emailError.setText("Email already exists or account could not be created.");
             emailFieldSignup.getStyleClass().add("input-error");
         }
     }

@@ -197,7 +197,7 @@ public class HomeController {
         }
 
         // Try to load avatar from DiceBear
-        String avatarId = currentUser.getAvatarId();
+        String avatarId = (currentUser.getAvatarId() != null ? "big-smile:user_" + currentUser.getAvatarId() : null);
         if (avatarId != null && avatarId.contains(":")) {
             String[] parts = avatarId.split(":");
             String style = parts[0];
@@ -333,20 +333,20 @@ public class HomeController {
         banner.setPrefHeight(140);
         banner.setPrefWidth(240);
 
-        if (d.getImageUrl() != null && !d.getImageUrl().isEmpty()) {
-            try {
-                ImageView iv = new ImageView(new Image(d.getImageUrl(), true));
-                iv.setFitWidth(240);
-                iv.setFitHeight(140);
-                iv.setPreserveRatio(false);
-                banner.getChildren().add(iv);
-            } catch (Exception ex) {
-                banner.setStyle(getDestBannerColor(d.getType()) + "-fx-background-radius: 14 14 0 0;");
-                Label icon = new Label(getDestIcon(d.getType()));
-                icon.setStyle("-fx-font-size: 44px;");
-                banner.getChildren().add(icon);
-            }
-        } else {
+        try {
+            ImageView iv = new ImageView(tn.esprit.utils.ImageUtils.getDestinationImage(d.getImageUrl(), d.getName()));
+            iv.setFitWidth(240);
+            iv.setFitHeight(140);
+            iv.setPreserveRatio(false);
+            
+            // Add clipping to maintain rounded top corners
+            javafx.scene.shape.Rectangle clip = new javafx.scene.shape.Rectangle(240, 140);
+            clip.setArcWidth(28);
+            clip.setArcHeight(28);
+            iv.setClip(clip);
+            
+            banner.getChildren().add(iv);
+        } catch (Exception ex) {
             banner.setStyle(getDestBannerColor(d.getType()) + "-fx-background-radius: 14 14 0 0;");
             Label icon = new Label(getDestIcon(d.getType()));
             icon.setStyle("-fx-font-size: 44px;");
@@ -420,11 +420,25 @@ public class HomeController {
 
         StackPane banner = new StackPane();
         banner.setPrefHeight(120);
-        banner.setStyle(getActivityBannerColor(a.getCategory()) +
-                "-fx-background-radius: 14 14 0 0;");
-        Label icon = new Label(getActivityIcon(a.getCategory()));
-        icon.setStyle("-fx-font-size: 40px;");
-        banner.getChildren().add(icon);
+        
+        try {
+            ImageView iv = new ImageView(tn.esprit.utils.ImageUtils.getActivityImage(null, a.getName()));
+            iv.setFitWidth(220);
+            iv.setFitHeight(120);
+            iv.setPreserveRatio(false);
+            
+            javafx.scene.shape.Rectangle clip = new javafx.scene.shape.Rectangle(220, 120);
+            clip.setArcWidth(28);
+            clip.setArcHeight(28);
+            iv.setClip(clip);
+            
+            banner.getChildren().add(iv);
+        } catch (Exception ex) {
+            banner.setStyle(getActivityBannerColor(a.getCategory()) + "-fx-background-radius: 14 14 0 0;");
+            Label icon = new Label(getActivityIcon(a.getCategory()));
+            icon.setStyle("-fx-font-size: 40px;");
+            banner.getChildren().add(icon);
+        }
 
         VBox info = new VBox(5);
         info.setStyle("-fx-padding: 10 12 8 12;");

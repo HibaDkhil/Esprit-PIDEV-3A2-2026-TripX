@@ -408,7 +408,7 @@ public class BlogController implements Initializable {
             navAvatarInitials.setText((first + last).isBlank() ? "U" : (first + last));
         }
         if (currentUser != null && navUserAvatarView != null && navAvatarInitials != null) {
-            String avatarId = currentUser.getAvatarId();
+            String avatarId = (currentUser.getAvatarId() != null ? "big-smile:user_" + currentUser.getAvatarId() : null);
             if (avatarId != null && avatarId.contains(":")) {
                 String[] parts = avatarId.split(":", 2);
                 if (parts.length == 2 && "emoji".equals(parts[0])) {
@@ -1257,7 +1257,7 @@ public class BlogController implements Initializable {
                     ? currentUser.getLastName().substring(0, 1).toUpperCase() : "";
             profileInitialsLabel.setText((first + last).isBlank() ? "?" : (first + last));
         }
-        String avatarId = currentUser.getAvatarId();
+        String avatarId = (currentUser.getAvatarId() != null ? "big-smile:user_" + currentUser.getAvatarId() : null);
         if (avatarId != null && avatarId.contains(":")) {
             String[] parts = avatarId.split(":", 2);
             if (parts.length == 2 && "emoji".equals(parts[0])) {
@@ -3012,8 +3012,9 @@ public class BlogController implements Initializable {
         double r = (size - 4) / 2.0;
         iv.setClip(new Circle(r, r, r));
 
-        if (author != null && author.getAvatarId() != null && author.getAvatarId().contains(":")) {
-            String[] parts = author.getAvatarId().split(":", 2);
+        if (author != null && author.getAvatarId() != null) {
+            String authorAvatarIdStr = "big-smile:user_" + author.getAvatarId();
+            String[] parts = authorAvatarIdStr.split(":", 2);
             if (parts.length == 2 && "emoji".equals(parts[0])) {
                 initials.setText(parts[1]);
             } else if (parts.length == 2 && "url".equals(parts[0])) {

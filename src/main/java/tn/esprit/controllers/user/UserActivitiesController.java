@@ -97,7 +97,7 @@ public class UserActivitiesController implements Initializable {
         if (currentUser == null || userAvatarView == null || avatarInitials == null) {
             return;
         }
-        String avatarId = currentUser.getAvatarId();
+        String avatarId = (currentUser.getAvatarId() != null ? "big-smile:user_" + currentUser.getAvatarId() : null);
         if (avatarId == null || !avatarId.contains(":")) {
             userAvatarView.setVisible(false);
             userAvatarView.setManaged(false);
@@ -338,7 +338,7 @@ public class UserActivitiesController implements Initializable {
         imageContainer.setPrefHeight(150);
         imageContainer.setPrefWidth(250);
 
-        Image image = ImageHelper.loadImage("activities", activity.getName());
+        Image image = tn.esprit.utils.ImageUtils.getActivityImage(null, activity.getName());
         if (image != null) {
             ImageView imageView = new ImageView(image);
             imageView.setFitHeight(150);

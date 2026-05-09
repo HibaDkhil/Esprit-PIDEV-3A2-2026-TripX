@@ -855,7 +855,7 @@ public class AccommodationsController {
 
     private void applyAvatarGraphic() {
         if (avatarInitials == null || currentUser == null) return;
-        String avatarId = currentUser.getAvatarId();
+        String avatarId = (currentUser.getAvatarId() != null ? "big-smile:user_" + currentUser.getAvatarId() : null);
         if (avatarId == null || !avatarId.contains(":")) {
             avatarInitials.setGraphic(null);
             return;

@@ -116,11 +116,11 @@ public class UserManagementController {
         // Status column
         statusColumn.setCellValueFactory(cellData -> {
             User user = cellData.getValue();
-            String status = user.getStatus() != null ? user.getStatus() : "ACTIVE";
+            String status = user.getStatus() != null ? user.getStatus() : "active";
             return javafx.beans.binding.Bindings.createStringBinding(() -> status);
         });
         
-        // Add status color logic
+        // Add status color logic (case-insensitive to match Symfony lowercase values)
         statusColumn.setCellFactory(column -> new TableCell<User, String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -130,8 +130,9 @@ public class UserManagementController {
                     setGraphic(null);
                 } else {
                     setText(item);
-                    if (item.equals("BANNED")) setStyle("-fx-text-fill: #f44336; -fx-font-weight: bold;");
-                    else if (item.equals("SUSPENDED")) setStyle("-fx-text-fill: #ff9800; -fx-font-weight: bold;");
+                    String lower = item.toLowerCase();
+                    if (lower.equals("banned")) setStyle("-fx-text-fill: #f44336; -fx-font-weight: bold;");
+                    else if (lower.equals("suspended")) setStyle("-fx-text-fill: #ff9800; -fx-font-weight: bold;");
                     else setStyle("-fx-text-fill: #4caf50; -fx-font-weight: bold;");
                 }
             }
@@ -167,13 +168,13 @@ public class UserManagementController {
                 
                 suspendBtn.setOnAction(e -> {
                     User u = getTableRow().getItem();
-                    if ("SUSPENDED".equals(u.getStatus())) handleUnsuspend(u);
+                    if ("suspended".equalsIgnoreCase(u.getStatus())) handleUnsuspend(u);
                     else handleSuspend(u);
                 });
                 
                 banBtn.setOnAction(e -> {
                     User u = getTableRow().getItem();
-                    if ("BANNED".equals(u.getStatus())) handleUnban(u);
+                    if ("banned".equalsIgnoreCase(u.getStatus())) handleUnban(u);
                     else handleBan(u);
                 });
 
@@ -189,8 +190,8 @@ public class UserManagementController {
                 } else {
                     User user = getTableRow().getItem();
                     if (user != null) {
-                        suspendBtn.setText("SUSPENDED".equals(user.getStatus()) ? "Unsuspend" : "Suspend");
-                        banBtn.setText("BANNED".equals(user.getStatus()) ? "Unban" : "Ban");
+                        suspendBtn.setText("suspended".equalsIgnoreCase(user.getStatus()) ? "Unsuspend" : "Suspend");
+                        banBtn.setText("banned".equalsIgnoreCase(user.getStatus()) ? "Unban" : "Ban");
                     }
                     setGraphic(pane);
                 }
@@ -627,22 +628,23 @@ public class UserManagementController {
     // ==================== STATUS OPERATIONS ====================
     private void handleSuspend(User user) {
         if (user == null) return;
-        updateStatus(user, "SUSPENDED", "User suspended successfully!");
+        // Symfony status values are lowercase
+        updateStatus(user, "suspended", "User suspended successfully!");
     }
 
     private void handleUnsuspend(User user) {
         if (user == null) return;
-        updateStatus(user, "ACTIVE", "User unsuspended successfully!");
+        updateStatus(user, "active", "User unsuspended successfully!");
     }
 
     private void handleBan(User user) {
         if (user == null) return;
-        updateStatus(user, "BANNED", "User banned successfully!");
+        updateStatus(user, "banned", "User banned successfully!");
     }
 
     private void handleUnban(User user) {
         if (user == null) return;
-        updateStatus(user, "ACTIVE", "User unbanned successfully!");
+        updateStatus(user, "active", "User unbanned successfully!");
     }
 
     private void updateStatus(User user, String newStatus, String successMsg) {

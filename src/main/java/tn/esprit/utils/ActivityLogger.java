@@ -12,7 +12,7 @@ public class ActivityLogger {
      */
     public static void logVisit(User user, String pageName) {
         if (user == null) return;
-        UserActivity activity = new UserActivity(user.getUserId(), "VISIT", null, "PAGE:" + pageName);
+        UserActivity activity = new UserActivity(user.getUserId(), "VISIT", (String) null, "PAGE:" + pageName);
         activityService.logActivity(activity);
     }
 
@@ -21,7 +21,7 @@ public class ActivityLogger {
      */
     public static void logSearch(User user, String query) {
         if (user == null || query == null || query.trim().isEmpty()) return;
-        UserActivity activity = new UserActivity(user.getUserId(), "SEARCH", null, "QUERY:" + query);
+        UserActivity activity = new UserActivity(user.getUserId(), "SEARCH", (String) null, "QUERY:" + query);
         activityService.logActivity(activity);
     }
 
@@ -39,7 +39,7 @@ public class ActivityLogger {
      */
     public static void logFeatureUse(User user, String featureName) {
         if (user == null) return;
-        UserActivity activity = new UserActivity(user.getUserId(), "USE", null, "FEATURE:" + featureName);
+        UserActivity activity = new UserActivity(user.getUserId(), "USE", (String) null, "FEATURE:" + featureName);
         activityService.logActivity(activity);
     }
 }

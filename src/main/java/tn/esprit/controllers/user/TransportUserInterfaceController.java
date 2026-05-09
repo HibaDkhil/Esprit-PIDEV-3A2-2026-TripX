@@ -203,7 +203,7 @@ public class TransportUserInterfaceController {
         }
 
         // Try to load avatar from DiceBear
-        String avatarId = currentUser.getAvatarId();
+        String avatarId = (currentUser.getAvatarId() != null ? "big-smile:user_" + currentUser.getAvatarId() : null);
         if (avatarId != null && avatarId.contains(":")) {
             String[] parts = avatarId.split(":");
             String style = parts[0];
