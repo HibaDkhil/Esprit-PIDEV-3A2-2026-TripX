@@ -1,0 +1,114 @@
+/* ============================================
+   Blog Admin – pastel tables (no system theme)
+   Scoped to .blog-management-root
+   ============================================ */
+
+/* Table container */
+.blog-management-root .table-view {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 14;
+    -fx-border-color: rgba(167, 139, 250, 0.25);
+    -fx-border-radius: 14;
+    -fx-effect: dropshadow(gaussian, rgba(99, 102, 241, 0.08), 12, 0, 0, 3);
+}
+
+.blog-management-root .table-view .column-header-background {
+    -fx-background-color: linear-gradient(to right, #E9D5FF, #D1FAE5);
+    -fx-background-radius: 14 14 0 0;
+}
+
+.blog-management-root .table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-padding: 12 14;
+}
+
+.blog-management-root .table-view .column-header .label {
+    -fx-text-fill: #5B21B6;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+}
+
+.blog-management-root .table-view .table-cell {
+    -fx-text-fill: #374151;
+    -fx-padding: 10 14;
+    -fx-font-size: 13px;
+}
+
+.blog-management-root .table-view .table-row-cell:odd {
+    -fx-background-color: #FDF4FF;
+}
+
+.blog-management-root .table-view .table-row-cell:even {
+    -fx-background-color: #ffffff;
+}
+
+.blog-management-root .table-view .table-row-cell:hover {
+    -fx-background-color: #F5F3FF;
+}
+
+.blog-management-root .table-view .table-row-cell:filled:selected {
+    -fx-background-color: #E9D5FF;
+}
+
+.blog-management-root .table-view .table-row-cell:filled:selected .table-cell {
+    -fx-text-fill: #4C1D95;
+}
+
+.blog-management-root .table-view .filler {
+    -fx-background-color: #FDF4FF;
+}
+
+/* Scrollbars – pastel (table view internal scroll bars) */
+.blog-management-root .table-view .scroll-bar {
+    -fx-background-color: #F5F3FF;
+    -fx-background-radius: 8;
+}
+
+.blog-management-root .table-view .scroll-bar .thumb {
+    -fx-background-color: linear-gradient(to bottom, #C4B5FD, #A78BFA);
+    -fx-background-radius: 8;
+}
+
+.blog-management-root .table-view .scroll-bar .thumb:hover {
+    -fx-background-color: linear-gradient(to bottom, #A78BFA, #8B5CF6);
+}
+
+.blog-management-root .table-view .scroll-bar .increment-button,
+.blog-management-root .table-view .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.blog-management-root .table-view .scroll-bar .increment-arrow,
+.blog-management-root .table-view .scroll-bar .decrement-arrow {
+    -fx-background-color: #7C3AED;
+    -fx-shape: null;
+}
+
+/* Action buttons in tables – pastel */
+.blog-management-root .table-view .table-action-btn {
+    -fx-text-fill: #1F2937;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 6 12;
+    -fx-cursor: hand;
+}
+
+.blog-management-root .table-view .pastel-primary {
+    -fx-background-color: #93C5FD;
+}
+
+.blog-management-root .table-view .pastel-primary:hover {
+    -fx-background-color: #60A5FA;
+    -fx-text-fill: white;
+}
+
+.blog-management-root .table-view .pastel-delete {
+    -fx-background-color: #FCA5A5;
+}
+
+.blog-management-root .table-view .pastel-delete:hover {
+    -fx-background-color: #F87171;
+    -fx-text-fill: white;
+}

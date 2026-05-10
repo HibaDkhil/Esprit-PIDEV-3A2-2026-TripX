@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="tn.esprit.controllers.user.EmailVerificationController"
+      fx:id="rootBox"
+      alignment="CENTER"
+      spacing="0"
+      style="-fx-background-color: #f4f6f9;"
+      prefWidth="900" prefHeight="600">
+
+    <!-- Card -->
+    <VBox alignment="CENTER" spacing="28"
+          style="-fx-background-color: white;
+                 -fx-background-radius: 16;
+                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 24, 0, 0, 6);
+                 -fx-padding: 50 60 50 60;"
+          maxWidth="480">
+
+        <!-- Icon + Title -->
+        <Label text="📧"
+               style="-fx-font-size: 52px;"/>
+
+        <Label text="Verify your email"
+               style="-fx-font-size: 26px; -fx-font-weight: bold;
+                      -fx-text-fill: #001737; -fx-font-family: 'Poppins';"/>
+
+        <!-- Subtitle -->
+        <Label fx:id="emailHintLabel"
+               text="We sent a 6-digit code to your email"
+               wrapText="true"
+               style="-fx-font-size: 14px; -fx-text-fill: #718096;
+                      -fx-font-family: 'Poppins'; -fx-text-alignment: center;"
+               maxWidth="340"/>
+
+        <!-- Code input -->
+        <TextField fx:id="codeField"
+                   promptText="Enter 6-digit code"
+                   maxWidth="280"
+                   style="-fx-font-size: 28px; -fx-font-weight: bold;
+                          -fx-text-fill: #001737; -fx-font-family: 'Poppins';
+                          -fx-alignment: center; -fx-letter-spacing: 8;
+                          -fx-background-color: #f0fdf9;
+                          -fx-border-color: #4cccad; -fx-border-width: 2;
+                          -fx-border-radius: 10; -fx-background-radius: 10;
+                          -fx-padding: 14 20;"/>
+
+        <!-- Error / info label -->
+        <Label fx:id="errorLabel"
+               wrapText="true"
+               style="-fx-font-size: 13px; -fx-font-family: 'Poppins';"
+               maxWidth="320"/>
+
+        <!-- Action Buttons -->
+        <VBox alignment="CENTER" spacing="10">
+            <Button fx:id="verifyBtn"
+                    text="✔  Verify Email"
+                    onAction="#handleVerify"
+                    maxWidth="280" prefHeight="46"
+                    style="-fx-background-color: #001737; -fx-text-fill: white;
+                           -fx-font-size: 15px; -fx-font-weight: bold;
+                           -fx-font-family: 'Poppins'; -fx-background-radius: 25;
+                           -fx-cursor: hand;"/>
+
+            <!-- Cancel button -->
+            <Button fx:id="cancelBtn"
+                    text="Cancel"
+                    onAction="#handleCancel"
+                    maxWidth="280" prefHeight="42"
+                    style="-fx-background-color: transparent; -fx-text-fill: #718096;
+                           -fx-font-size: 14px; -fx-font-weight: bold;
+                           -fx-font-family: 'Poppins'; -fx-cursor: hand;"/>
+        </VBox>
+
+        <!-- Timer -->
+        <Label fx:id="timerLabel"
+               text="Code expires in 10:00"
+               style="-fx-font-size: 12px; -fx-text-fill: #a0aec0;
+                      -fx-font-family: 'Poppins';"/>
+
+        <!-- Resend -->
+        <HBox alignment="CENTER" spacing="6">
+            <Label text="Didn't receive it?"
+                   style="-fx-font-size: 13px; -fx-text-fill: #718096; -fx-font-family: 'Poppins';"/>
+            <Button fx:id="resendBtn"
+                    text="Resend Code"
+                    onAction="#handleResend"
+                    style="-fx-background-color: transparent; -fx-text-fill: #4cccad;
+                           -fx-font-size: 13px; -fx-font-weight: bold;
+                           -fx-font-family: 'Poppins'; -fx-cursor: hand;
+                           -fx-border-color: transparent;"/>
+        </HBox>
+
+    </VBox>
+</VBox>

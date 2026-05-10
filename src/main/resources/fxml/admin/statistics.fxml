@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fitToWidth="true"
+            style="-fx-background-color: #F5F7FA; -fx-background: #F5F7FA; -fx-border-color: transparent;"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.controllers.admin.StatisticsController">
+    <content>
+        <VBox fx:id="contentBox" spacing="24"
+              style="-fx-background-color: #F5F7FA; -fx-font-family: 'Poppins', 'Inter', 'Segoe UI', 'Arial';">
+            <padding>
+                <Insets top="30" right="40" bottom="40" left="40"/>
+            </padding>
+        </VBox>
+    </content>
+</ScrollPane>

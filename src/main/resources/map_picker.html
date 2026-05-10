@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pick destination on map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <style>
+    html, body, #map { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: "Segoe UI", Arial, sans-serif; }
+    #map { position: relative; background: #e2e8f0; }
+    #hint { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 1000;
+      background: rgba(255,255,255,0.95); padding: 8px 16px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      font-size: 14px; pointer-events: none; }
+  </style>
+</head>
+<body>
+  <div id="hint">Click on the map to choose a destination</div>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script>
+    if (L.Browser) { L.Browser.any3d = false; L.Browser.webkit3d = false; }
+
+    var map = L.map("map", {
+      zoomControl: true, zoomAnimation: false, fadeAnimation: false, markerZoomAnimation: false,
+      inertia: false, preferCanvas: true
+    }).setView([36.8065, 10.1815], 4);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19, subdomains: ["a", "b", "c"], attribution: "&copy; OpenStreetMap contributors"
+    }).addTo(map);
+
+    var marker = null;
+
+    map.on("click", function (e) {
+      var lat = e.latlng.lat;
+      var lng = e.latlng.lng;
+      if (marker) map.removeLayer(marker);
+      marker = L.marker([lat, lng]).addTo(map);
+      if (window.javaBridge && typeof window.javaBridge.locationPicked === "function") {
+        window.javaBridge.locationPicked(lat, lng);
+      }
+    });
+  </script>
+</body>
+</html>
