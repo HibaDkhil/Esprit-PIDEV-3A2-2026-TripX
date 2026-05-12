@@ -1,0 +1,6 @@
+May 11, 2026 4:27:40 PM javafx.fxml.FXMLLoader$ValueElement processValue
+WARNING: Loading FXML document with JavaFX API of version 23.0.1 by JavaFX runtime of version 17.0.2-ea
+May 11, 2026 4:28:12 PM javafx.fxml.FXMLLoader$ValueElement processValue
+WARNING: Loading FXML document with JavaFX API of version 23.0.1 by JavaFX runtime of version 17.0.2-ea
+May 11, 2026 4:28:17 PM javafx.css.CssParser parse
+WARNING: CSS Error parsing jar:file:/C:/Users/nmour/.m2/repository/tn/esprit/tripx/1.0-SNAPSHOT/tripx-1.0-SNAPSHOT.jar!/css/blog.css: Expected RBRACE at [444,30]

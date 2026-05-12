@@ -1,0 +1,22 @@
+May 11, 2026 4:26:39 PM javafx.fxml.FXMLLoader$ValueElement processValue
+WARNING: Loading FXML document with JavaFX API of version 17.0.12 by JavaFX runtime of version 17.0.2-ea
+javafx.fxml.LoadException: Error resolving onAction='#handleGoogleLogin', either the event handler is not in the Namespace or there is an error in the script.
+/C:/Users/nmour/OneDrive/Documents/Esprit-PIDEV-3A2-2026-TripX-main%20-%20Copy/target/classes/fxml/user/login.fxml:31
+
+	at javafx.fxml/javafx.fxml.FXMLLoader.constructLoadException(FXMLLoader.java:2703)
+	at javafx.fxml/javafx.fxml.FXMLLoader$Element.processEventHandlerAttributes(FXMLLoader.java:621)
+	at javafx.fxml/javafx.fxml.FXMLLoader$ValueElement.processEndElement(FXMLLoader.java:781)
+	at javafx.fxml/javafx.fxml.FXMLLoader.processEndElement(FXMLLoader.java:2924)
+	at javafx.fxml/javafx.fxml.FXMLLoader.loadImpl(FXMLLoader.java:2639)
+	at javafx.fxml/javafx.fxml.FXMLLoader.loadImpl(FXMLLoader.java:2548)
+	at javafx.fxml/javafx.fxml.FXMLLoader.load(FXMLLoader.java:2516)
+	at tn.esprit.Main.start(Main.java:19)
+	at javafx.graphics/com.sun.javafx.application.LauncherImpl.lambda$launchApplication1$9(LauncherImpl.java:847)
+	at javafx.graphics/com.sun.javafx.application.PlatformImpl.lambda$runAndWait$12(PlatformImpl.java:484)
+	at javafx.graphics/com.sun.javafx.application.PlatformImpl.lambda$runLater$10(PlatformImpl.java:457)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:399)
+	at javafx.graphics/com.sun.javafx.application.PlatformImpl.lambda$runLater$11(PlatformImpl.java:456)
+	at javafx.graphics/com.sun.glass.ui.InvokeLaterDispatcher$Future.run(InvokeLaterDispatcher.java:96)
+	at javafx.graphics/com.sun.glass.ui.win.WinApplication._runLoop(Native Method)
+	at javafx.graphics/com.sun.glass.ui.win.WinApplication.lambda$runLoop$3(WinApplication.java:184)
+	at java.base/java.lang.Thread.run(Thread.java:840)

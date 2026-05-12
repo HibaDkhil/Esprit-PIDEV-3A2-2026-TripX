@@ -1,0 +1,9 @@
+May 11, 2026 4:41:43 PM javafx.fxml.FXMLLoader$ValueElement processValue
+WARNING: Loading FXML document with JavaFX API of version 17.0.12 by JavaFX runtime of version 17.0.2-ea
+?? Warning: OPENWEATHER_API_KEY not found in any source!
+?? Warning: GEMINI_API_KEY not found in any source!
+Error logging user activity: Field 'timestamp' doesn't have a default value
+May 11, 2026 4:42:08 PM com.sun.javafx.css.StyleManager loadStylesheetUnPrivileged
+WARNING: Resource "/css/blog.css" not found.
+May 11, 2026 4:42:08 PM javafx.css.CssParser declaration
+WARNING: CSS Error parsing '*{-fx-background-radius: 999; -fx-background-color: linear-gradient(135deg, #6D83F2, #4CCCAD);}: Expected '<color>' while parsing '-fx-background-color' at [1,68]
